@@ -23,7 +23,7 @@
 └── secrets/dart-define/                   # 生成物。git 管理外
 ```
 
-`app/runner` は画面ではない。生成された多言語リソースのホストである。
+`app/runner` は画面ではない。生成された多言語リソースのホストである。ネイティブの対象は `app/android` と `app/ios` だけである。
 
 ## 目標の配置
 
