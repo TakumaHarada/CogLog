@@ -4,6 +4,18 @@
 *.log
 *.pyc
 *.swp
+
+# APM materialization. The VM runs `apm install` and these stay untracked.
+apm_modules/
+apm.lock.yaml
+.agents/
+.cursor/agents/
+.cursor/commands/
+.cursor/rules/
+.cursor/skills/
+
+# Agent workspace (local only)
+.ai-agent/
 .buildlog/
 .history
 
