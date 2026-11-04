@@ -1,4 +1,4 @@
-package com.example.app
+package io.github.madahataraku.coglog
 
 import io.flutter.embedding.android.FlutterActivity
 

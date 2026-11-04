@@ -14,7 +14,7 @@ dart run forui theme create
 `app/lib/main.dart` は次の順で組む。
 
 1. `MaterialApp` の `supportedLocales` は `L10nHelper.supportedLocales`。
-2. `localizationsDelegates` の先頭付近に `L10nHelper.delegate` と、`material_ui` の `GlobalMaterialLocalizations.delegates` を置く。`MaterialApp` が後ろへ足す英語だけの delegate より先に、`ja` をサポートする delegate を置く。
+2. `localizationsDelegates` の先頭に `appLocalizationsDelegates` を置く。これは `L10nHelper.delegate` と、`material_ui` の `GlobalMaterialLocalizations.delegates` である。`MaterialApp` が後ろへ足す英語だけの delegate より先に、`ja` をサポートする delegate を置く。
 3. `FLocalizations.delegate` を同じリストに含める。
 4. `builder` で `FTheme`、`FToaster`、`FTooltipGroup` の順に子を包む。明暗はプラットフォームの明るさに合わせ、`lightTheme` と `darkTheme` を使う。
 5. 画面の入れ物は `FScaffold` を使う。
