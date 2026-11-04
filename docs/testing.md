@@ -40,6 +40,8 @@ await expectLater(
 撮影条件はテスト内で固定する。
 
 - ロケールは `ja`
+- `debugDefaultTargetPlatformOverride` で Android または iOS に固定する。実行マシンの OS では撮らない
+- Android と iOS でピクセルが違うときは、画像を分ける
 - 表面サイズをテストが指定する。指定しない場合は Flutter テストの既定サイズのままにし、テストの途中でサイズを変えない
 - テーマは `app/lib/theme` の light を使う。dark の見た目を変えたときは dark の Golden も追加する
 
