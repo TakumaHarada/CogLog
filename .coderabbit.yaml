@@ -12,7 +12,6 @@ tone_instructions: 簡潔に、根拠を添えて指摘する。体裁より、�
 
 reviews:
   profile: chill
-  request_changes_workflow: false
   high_level_summary: true
   high_level_summary_in_walkthrough: false
   high_level_summary_instructions: |
@@ -23,8 +22,10 @@ reviews:
   review_details: false
   collapse_walkthrough: true
   enable_prompt_for_ai_agents: true
+  # 指摘が解消され、最新コミットのレビューと事前チェックを通過すると approve する。マージはしない。
+  # request_changes_workflow は auto_approvals.enabled の別名。両方を違う値にすると承認が無効になる。
   auto_approvals:
-    enabled: false
+    enabled: true
   auto_review:
     # main はデフォルトブランチのため常に対象。base_branches はそれ以外を追加する。
     enabled: true
