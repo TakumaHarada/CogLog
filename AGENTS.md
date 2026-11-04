@@ -9,6 +9,7 @@
 | Dart の実装・修正、コメント、可視性、ファイル分割 | `docs/coding.md` |
 | 文言の追加・変更、CSV、多言語、文字列テスト | `docs/localization.md` |
 | 画面・Widget・テーマ・Forui | `docs/ui.md` |
+| ロジックの追加・変更、ユニットテスト、画面・Widget・テーマの Golden Test | `docs/testing.md` |
 | 依存バージョン、secrets、フレーバー、生成コマンド、iOS 署名 | `docs/constraints.md` |
 | プロダクトの目的、運動履歴、減量、ドメインの言葉 | `docs/product.md` |
 
