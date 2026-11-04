@@ -4,6 +4,12 @@
 *.log
 *.pyc
 *.swp
+
+# APM dependencies (reinstall with `apm install`)
+apm_modules/
+
+# Agent workspace (local only)
+.ai-agent/
 .buildlog/
 .history
 

@@ -1,0 +1,95 @@
+# XcodeGen ルート定義（ios/project.yml）
+# プレースホルダをユーザー指定値で置換する。Pods は使わない（SPM 前提）。
+name: Runner
+
+options:
+  developmentLanguage: ja
+  deploymentTarget:
+    iOS: "__IOS_DEPLOYMENT_TARGET__"
+  postGenCommand: xcodegen/scripts/postGenCommand.sh
+
+include:
+  - xcodegen/base.yml
+  # Flavor なし: - xcodegen/default.yml
+  # Flavor あり: - xcodegen/{flavor}.yml を Flavor ごとに列挙
+
+packages:
+  FlutterGeneratedPluginSwiftPackage:
+    path: Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage
+
+targets:
+  Runner:
+    type: application
+    platform: iOS
+    sources:
+      - Flutter/AppFrameworkInfo.plist
+      - Flutter/Generated.xcconfig
+      - Flutter/Debug.xcconfig
+      - Flutter/Profile.xcconfig
+      - Flutter/Release.xcconfig
+      - path: Runner/
+
+    dependencies:
+      # SPM パッケージ依存が 0 個だと解決に失敗することがあるため、無害な SDK framework を残す
+      - sdk: CoreGraphics.framework
+      - package: FlutterGeneratedPluginSwiftPackage
+
+    info:
+      path: Runner/Info.plist
+      properties:
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneClassName: UIWindowScene
+                UISceneDelegateClassName: FlutterSceneDelegate
+                UISceneConfigurationName: flutter
+                UISceneStoryboardFile: Main
+        CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
+        CFBundleExecutable: $(EXECUTABLE_NAME)
+        CFBundleIdentifier: $(CFBundleIdentifier)
+        CFBundleInfoDictionaryVersion: 6.0
+        CFBundleName: $(CFBundleName)
+        CFBundlePackageType: APPL
+        CFBundleDisplayName: $(CFBundleDisplayName)
+        CFBundleShortVersionString: $(FLUTTER_BUILD_NAME)
+        CFBundleSignature: "????"
+        CFBundleVersion: $(FLUTTER_BUILD_NUMBER)
+        LSRequiresIPhoneOS: true
+        UILaunchStoryboardName: LaunchScreen
+        UIMainStoryboardFile: Main
+        UIRequiresFullScreen: true
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~iphone:
+          - UIInterfaceOrientationPortrait
+        UIViewControllerBasedStatusBarAppearance: false
+        CADisableMinimumFrameDurationOnPhone: true
+        UIApplicationSupportsIndirectInputEvents: true
+        ITSAppUsesNonExemptEncryption: false
+
+    entitlements:
+      path: Runner/Runner.entitlements
+
+    preBuildScripts:
+      - name: "[Flutter] Run Script"
+        script: '"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh" build'
+    postBuildScripts:
+      - name: "[Flutter] Thin Binary"
+        script: '"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh" embed_and_thin'
+        inputFiles:
+          - ${TARGET_BUILD_DIR}/${INFOPLIST_PATH}
+
+    settings:
+      base:
+        ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: NO
+        CLANG_ENABLE_MODULES: YES
+        CURRENT_PROJECT_VERSION: "$(FLUTTER_BUILD_NUMBER)"
+        ENABLE_BITCODE: NO
+        INFOPLIST_FILE: Runner/Info.plist
+        SWIFT_OBJC_BRIDGING_HEADER: "Runner/Runner-Bridging-Header.h"
+        SWIFT_VERSION: 5.0
+        VERSIONING_SYSTEM: "apple-generic"
+        CODE_SIGN_STYLE: Manual
+        DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
+        TARGETED_DEVICE_FAMILY: "1"

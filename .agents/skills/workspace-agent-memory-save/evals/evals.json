@@ -1,0 +1,39 @@
+{
+  "skill_name": "workspace-agent-memory-save",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "この評価用サンドボックスをリポジトリルートとみなしてください。次の調査結果を、後続チャットで読める Memory として保存してください。調査: Pocket Kosodate のアプリ依存のうち firebase_auth が 6.1.4→6.4.0、go_router が 17.1.0→17.2.3 に更新候補。コマンドは mise exec -- dart pub outdated --json。条件は current!=latest かつ direct/dev。結論として major 更新は個別に破壊的変更を確認する必要がある。",
+      "expected_output": ".ai-agent/memory/ に kebab-case 名の md があり、## 見出し分割・テンプレ相当の構造・調査内容が残っている",
+      "files": [],
+      "expectations": [
+        "Memory markdown exists under .ai-agent/memory/",
+        "Filename is descriptive kebab-case (not memo.md/notes.md)",
+        "Document uses level-2 ## section headings",
+        "Content mentions firebase_auth and go_router version candidates"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "この評価用サンドボックスをリポジトリルートとみなしてください。.ai-agent/memory/login-flow-notes.md が既にあります。内容を読んで、追加調査「EULA 同意後にのみ Home へ遷移する」を追記更新してください。新規ファイルは作らないでください。",
+      "expected_output": "既存 login-flow-notes.md が更新され、新規 memory ファイルが増えていない",
+      "files": [],
+      "expectations": [
+        "Updated .ai-agent/memory/login-flow-notes.md in place",
+        "Did not create an additional new memory markdown file",
+        "Updated file mentions EULA agreement gate before Home"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "この評価用サンドボックスをリポジトリルートとみなしてください。今のチャットの引き継ぎ文書を Memory に残してください。要点: (1) Connect RPC の AuthService に DebugEcho を追加する作業中 (2) 計画はほぼ完了 (3) 次は junior 向けにコード差分を詳細化する必要あり (4) テストは emulator 前提。",
+      "expected_output": "memory 配下に引き継ぎ用 md があり、## 単位で要点が分かれ、次アクションが分かる",
+      "files": [],
+      "expectations": [
+        "Memory markdown exists under .ai-agent/memory/",
+        "Uses ## headings separating topics",
+        "Mentions AuthService DebugEcho, junior detailization need, and emulator testing"
+      ]
+    }
+  ]
+}

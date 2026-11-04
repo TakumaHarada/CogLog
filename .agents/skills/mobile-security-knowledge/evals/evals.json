@@ -1,0 +1,44 @@
+{
+  "skill_name": "mobile-security-knowledge",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/coding.requirement のつもりで進めてください。学習系 Android アプリで、機微データを端末に保存する機能を追加します。技術要件に、バックアップと ContentProvider／exported まわりのセキュリティ観点を追加提案してください。出力は「## 技術要件」見出しの Markdown 箇条書きにし、参照したナレッジの path を各項目に付けてください。プロダクションコードは変更しないでください。",
+      "expected_output": "技術要件に allowBackup／機微データのバックアップ除外・exported 最小化等の DO 提案があり、mobile-security-knowledge/references 配下の path 参照が付く",
+      "files": [],
+      "expectations": [
+        "Output contains a ## 技術要件 (or equivalent) section with security-related requirement bullets",
+        "At least one bullet references a path under references/developer.android.com/",
+        "Mentions backup and/or exported/ContentProvider concerns grounded in the referenced docs",
+        "Knowledge reference paths are relative (references/...) without workspace-specific prefixes",
+        "Does not modify production application source code"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "コードレビューです。本番 Flutter ビルドで Firebase App Check の AndroidDebugProvider / AppleDebugProvider を常時有効にする PR をレビューしてください。DO NOT に該当する指摘を一覧にし、参照ドキュメント path を付けてください。プロダクションコードは変更しないでください。",
+      "expected_output": "本番 Debug provider 常時利用を DO NOT として指摘し、firebase.google.com の App Check 等への参照 path がある",
+      "files": [],
+      "expectations": [
+        "Flags production use of App Check debug providers as a must-fix finding",
+        "References a path under references/firebase.google.com/ (e.g. App Check doc)",
+        "Treats the finding as required (not optional nit)",
+        "Knowledge reference paths are relative (references/...) without workspace-specific prefixes",
+        "Does not modify production application source code"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/coding.design のつもりで進めてください。Firebase Hosting rewrite で Cloud Run API を公開し、チーム全員にプロジェクト Editor を付ける案のセキュリティ観点を整理してください。要件／設計への提案またはリスク指摘を Markdown で出し、参照 path を付けてください。プロダクションコードは変更しないでください。",
+      "expected_output": "Cloud Run ingress と Hosting の組み合わせ注意、および広い Editor 付与への DO NOT／最小権限提案があり、cloud.google.com references への path がある",
+      "files": [],
+      "expectations": [
+        "Warns against relying on ingress=internal alone with Firebase Hosting rewrite, or equivalent from cloud.google.com docs",
+        "Flags broad Editor/Owner grants; recommends least privilege",
+        "References path(s) under references/cloud.google.com/",
+        "Knowledge reference paths are relative (references/...) without workspace-specific prefixes",
+        "Does not modify production application source code"
+      ]
+    }
+  ]
+}

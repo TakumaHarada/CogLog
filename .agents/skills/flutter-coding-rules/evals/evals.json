@@ -1,0 +1,41 @@
+{
+  "skill_name": "flutter-coding-rules",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "評価用サンドボックスを Dart パッケージルートとみなす。単一の String 値を持つ値オブジェクト `UserId` を、コーディング規約に沿って sandbox/lib/user_id.dart に実装せよ。実装方針の根拠を outputs/result.md に短く書け。",
+      "expected_output": "extension type 等の規約準拠 UserId",
+      "files": [],
+      "expectations": [
+        "Created sandbox/lib/user_id.dart",
+        "Uses extension type for single-property value object (or documents why not)",
+        "Wrote outputs/result.md explaining the choice",
+        "Includes Japanese documentation comment on the type or factories"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "評価用サンドボックスをルートとみなす。sandbox/lib/stub_user.dart に、プロジェクトのドキュメントコメント規約（日本語・意図・Example・[symbol]参照）に沿ったコメントを付与して保存せよ。変更の要点を outputs/result.md に書け。",
+      "expected_output": "stub_user.dart に日本語 doc コメント",
+      "files": [],
+      "expectations": [
+        "Modified sandbox/lib/stub_user.dart",
+        "Japanese doc comments on class and members",
+        "Includes at least one Example in comments",
+        "Wrote outputs/result.md"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "評価用サンドボックスをルートとみなす。sandbox/lib/broken.dart に Analyzer 警告がありそうである。規約どおりの修正手順（どのコマンドを先に打つか）を outputs/result.md に書き、可能ならファイルも規約に沿って改善せよ。実コマンドは mise が無くてもよいが、コマンド例には `mise exec --` を付ける想定で書くこと。",
+      "expected_output": "dart fix 優先の手順と改善",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/result.md",
+        "Mentions dart fix --apply before or as first automated step",
+        "Mentions dart analyze and/or dart format",
+        "Commands use or mention mise exec -- prefix"
+      ]
+    }
+  ]
+}

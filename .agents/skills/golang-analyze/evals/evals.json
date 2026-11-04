@@ -1,0 +1,40 @@
+{
+  "skill_name": "golang-analyze",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Go の usecase パッケージに小さな関数を追加し終えた。コーディング後の品質チェックとして、何をどの順で実行すべきか。コマンド例も含めて短く教えて。破壊的な lint 修正やテスト失敗時の扱いにも触れてほしい。",
+      "expected_output": "go fmt → golangci-lint → go test の順。非破壊 lint は自動可、破壊的は提示のみ。テスト Fail は提示のみで勝手に直さない。",
+      "files": [],
+      "assertions": [
+        "Mentions go fmt (or gofmt) as part of the quality check",
+        "Mentions golangci-lint as part of the quality check",
+        "Mentions go test as part of the quality check",
+        "States that destructive/logic-changing lint fixes should be presented to the user, not applied silently",
+        "States that test failures should be reported without auto-fixing"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "go test ./... を回したら TestCreateOrder が失敗した。失敗ログは手元にある。次に AI エージェントとして何をすべき？（勝手に実装を直してよいか、どう報告するか）",
+      "expected_output": "エラー内容のみユーザーに提示し、修正は行わない。",
+      "files": [],
+      "assertions": [
+        "Says not to automatically fix/modify code for the test failure",
+        "Says to present/report the error details to the user",
+        "Does not recommend silently rewriting production code to make the test pass"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "この Go リポジトリは //go:build で dev と test タグを使っている。workspace 全体のユニットテストを正しい形で実行するコマンド例を1つ出して。個別パッケージや -run で絞る例も短く添えて。",
+      "expected_output": "go test -tags=dev,test ./... および package/-run の例",
+      "files": [],
+      "assertions": [
+        "Includes go test with -tags that mention both dev and test (comma-separated or equivalent)",
+        "Shows ./... for workspace-wide (or equivalent whole-module) run",
+        "Shows an example scoped to a package path and/or -run"
+      ]
+    }
+  ]
+}

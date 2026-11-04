@@ -1,0 +1,47 @@
+{
+  "skill_name": "maintenance-measure-cache-size",
+  "fixture_setup": "evals/generate_fixtures.sh",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "事前に `evals/generate_fixtures.sh` でフィクスチャを生成済みとする。次のサンドボックスを HOME（~）とみなしてキャッシュ占有を調べ、結果を cache-size-report.md に書いてください。実削除はしないでください。\n\nサンドボックス（この SKILL ディレクトリからの相対パス）:\nevals/files/fake-home\n\n重要: このサンドボックスはスパースファイルです。占有は macOS なら `du -Ah`（見かけサイズ）で測ってください。閾値は通常どおり 1GiB 未満除外・10GiB 超でドリルダウン・最大2階層です。Docker は対象外（この eval では触らない）。",
+      "expected_output": "表形式レポート。~/.npm, ~/.gradle, ~/.pub-cache が 1GiB 超で含まれる。Homebrew(~0.4GiB)や tiny は除外。削除未実行。",
+      "files": ["evals/files/fake-home"],
+      "expectations": [
+        "Writes cache-size-report.md with the required table columns (Path, サイズ(GiB), 予想される用途, 復元可否, 削除コマンド)",
+        "Includes .npm (or ~/.npm) at roughly 2+ GiB",
+        "Includes .gradle (or ~/.gradle) at roughly 1.5+ GiB",
+        "Includes .pub-cache at roughly 1+ GiB",
+        "Excludes Homebrew or other sub-1GiB cache dirs from the main table",
+        "Does not execute destructive rm/prune; only suggests delete commands",
+        "Sizes are reported in GiB and rows are sorted descending by size"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "事前に `evals/generate_fixtures.sh` でフィクスチャを生成済みとする。次のサンドボックスを HOME とみなし、さらにユーザー指定の追加パスとして workspace も調べてください。結果は cache-size-report.md。実削除禁止。\n\nHOME 相当（SKILL 相対）:\nevals/files/fake-home\n\n追加で調べるパス（ユーザー Workspace）:\nevals/files/fake-home/workspace\n\nスパースファイルのため `du -Ah` を使う。1GiB 未満除外。Docker 対象外。",
+      "expected_output": "標準キャッシュに加え workspace/build 等の大きなユーザーパスが表に入る。",
+      "files": ["evals/files/fake-home"],
+      "expectations": [
+        "Report includes the user-specified workspace path (or workspace/build) at roughly 3+ GiB",
+        "Also includes at least one standard cache path such as .npm or .gradle",
+        "Uses the required markdown table columns",
+        "Does not delete or prune anything"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "事前に `evals/generate_fixtures.sh` でフィクスチャを生成済みとする。Docker のディスク占有をキャッシュ調査の一部として報告してください。実際の docker コマンドは使わず、次のモック出力だけを入力として解釈し、cache-size-report.md に表形式でまとめてください。1GiB 未満は除外。削除は提案のみ（実行しない）。\n\nモックファイル（SKILL 相対）:\nevals/files/docker-system-df.txt\n\n（生成スクリプトが templates/docker-system-df.txt を files/ へコピーする。テンプレート直読みでも可: evals/templates/docker-system-df.txt）",
+      "expected_output": "Images/Containers/Volumes/Build Cache のうち 1GiB 以上が表にある。Build Cache が最大級。prune は未実行。",
+      "files": ["evals/templates/docker-system-df.txt"],
+      "expectations": [
+        "Includes Docker Build Cache around 12.5 GiB",
+        "Includes Docker Images around 8 GiB",
+        "Includes Local Volumes around 3 GiB",
+        "Includes Containers around 1.4 GiB or notes it if converted to GiB",
+        "Table has delete/prune command suggestions but transcript shows no docker prune/rm execution",
+        "Uses the required column headers including 復元可否 and 削除コマンド"
+      ]
+    }
+  ]
+}

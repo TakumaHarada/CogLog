@@ -1,0 +1,18 @@
+{
+  "skill_name": "flutter-xcodegen-ios-firebase",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "既に XcodeGen 化された ios/ があります（evals/files/xcodegen-base-ios を outputs/ios/ にコピーして起点にする）。Firebase を組み込んでください。Configuration は Debug / Profile / Release（Flavor なし）。GoogleService-Info.plist の実体はまだ無いので、配置パスとスクリプト・project.yml の SPM 追記まで行い、plist はプレースホルダ説明を outputs/notes.md に書いてください。firebase-ios-sdk / GoogleAppMeasurement のバージョンは 12.15.0 を使ってください。",
+      "expected_output": "preBuild スクリプト配置、project.yml に firebase SPM と Install スクリプト、CoreGraphics 維持",
+      "files": ["evals/files/xcodegen-base-ios"],
+      "expectations": [
+        "outputs/ios/xcodegen/scripts/preBuildInstallGoogleServiceInfoPlist.sh が存在する",
+        "outputs/ios/project.yml に firebase-ios-sdk と version 12.15.0 がある",
+        "outputs/ios/project.yml に Install GoogleService-Info.plist の preBuildScripts がある",
+        "outputs/ios/project.yml に CoreGraphics.framework が残っている",
+        "Pods 関連を追加していない"
+      ]
+    }
+  ]
+}

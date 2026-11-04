@@ -1,0 +1,2 @@
+// Flavor 共通設定（Flavor 名に合わせてファイル名を {flavor}.xcconfig にする）
+#include "app.xcconfig"

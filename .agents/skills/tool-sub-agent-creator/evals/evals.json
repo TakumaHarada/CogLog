@@ -1,0 +1,33 @@
+{
+  "skill_name": "tool-sub-agent-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "create-test-reporter: 新規 Sub Agent coding-assistant.test-reporter をテンプレ準拠で作成（必須 SKILL あり・{assets}/ なし）",
+      "expected_output": "H1 がロール/職能/タスクの三段。追加コンテキストに必須一文と Required: 実在 SKILL。アセットディレクトリ節なし。author / 旧 metadata.required_skills / metadata.assets なし。",
+      "files": [],
+      "expectations": []
+    },
+    {
+      "id": 2,
+      "prompt": "create-explore-lite: 必須 SKILL なしの軽量探索 Agent",
+      "expected_output": "Required 行なし可。テンプレ見出し。デフォルト frontmatter。アセットディレクトリ節なし。",
+      "files": [],
+      "expectations": []
+    },
+    {
+      "id": 3,
+      "prompt": "migrate-plan-reviewer: 既存 plan-reviewer を現行テンプレへ更新（Required を本文へ、旧 metadata を落とす）",
+      "expected_output": "H1 三段、必須セクション揃え、Required を追加コンテキストへ、プレースホルダなし、旧 required_skills/assets を frontmatter に残さない。",
+      "files": ["evals inputs via workspace"],
+      "expectations": []
+    },
+    {
+      "id": 4,
+      "prompt": "create-with-assets: {assets}/coding/design.md を参照する実装系 Sub Agent を新規作成",
+      "expected_output": "## アセットディレクトリ に文書相対とルート相対の候補。本文で {assets}/coding/design.md。metadata.assets なし。",
+      "files": [],
+      "expectations": []
+    }
+  ]
+}

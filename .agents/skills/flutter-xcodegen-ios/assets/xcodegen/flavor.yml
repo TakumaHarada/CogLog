@@ -1,0 +1,63 @@
+# Flavor ありのとき: __FLAVOR__ を実名に置換して xcodegen/__FLAVOR__.yml として配置する
+configs:
+  Debug-__FLAVOR__: debug
+  Profile-__FLAVOR__: release
+  Release-__FLAVOR__: release
+
+configFiles:
+  Debug-__FLAVOR__: ../Configurations/Debug-__FLAVOR__/flavor.xcconfig
+  Profile-__FLAVOR__: ../Configurations/Profile-__FLAVOR__/flavor.xcconfig
+  Release-__FLAVOR__: ../Configurations/Release-__FLAVOR__/flavor.xcconfig
+
+targets:
+  Runner:
+    configFiles:
+      Debug-__FLAVOR__: ../Flutter/Debug.xcconfig
+      Profile-__FLAVOR__: ../Flutter/Profile.xcconfig
+      Release-__FLAVOR__: ../Flutter/Release.xcconfig
+    settings:
+      configs:
+        Debug-__FLAVOR__:
+          DEBUG_INFORMATION_FORMAT: "$(inherited)"
+          ENABLE_TESTABILITY: YES
+          GCC_DYNAMIC_NO_PIC: NO
+          GCC_OPTIMIZATION_LEVEL: 0
+          GCC_PREPROCESSOR_DEFINITIONS:
+            - "DEBUG=1"
+            - "$(inherited)"
+          MTL_ENABLE_DEBUG_INFO: YES
+          ONLY_ACTIVE_ARCH: YES
+          SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+
+        Profile-__FLAVOR__:
+          ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+          DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+          ENABLE_NS_ASSERTIONS: NO
+          MTL_ENABLE_DEBUG_INFO: NO
+          VALIDATE_PRODUCT: YES
+
+        Release-__FLAVOR__:
+          DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+          ENABLE_NS_ASSERTIONS: NO
+          MTL_ENABLE_DEBUG_INFO: NO
+          SWIFT_COMPILATION_MODE: wholemodule
+          SWIFT_OPTIMIZATION_LEVEL: "-O"
+          VALIDATE_PRODUCT: YES
+
+schemes:
+  __FLAVOR__:
+    templates:
+      - FlutterFlavorSchema
+    build:
+      targets:
+        Runner: all
+    run:
+      config: Debug-__FLAVOR__
+    test:
+      config: Debug-__FLAVOR__
+    profile:
+      config: Debug-__FLAVOR__
+    analyze:
+      config: Debug-__FLAVOR__
+    archive:
+      config: Release-__FLAVOR__

@@ -1,0 +1,54 @@
+{
+  "skill_name": "engineer-software-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。プロダクションコードは変更しない。次の要件をもとに詳細設計を .ai-agent/plan/settings-git-revision-design.md に書け。要件: 設定画面に Git リビジョン文字列を表示。取得失敗時はプレースホルダ『—』。ユニットテストで成功時表示と失敗時プレースホルダを確認。ジュニアが実装できる具体差分・ファイルツリー・手順が必要。対象は架空の Flutter 構成でもよいがパスは具体的に。フォーマットは SKILL の {assets}/coding/design.md を解決してから従うこと。",
+      "expected_output": "coding-xm3/.apm/assets/coding/design.md を実体として参照した設計ドキュメント。コード本体は変更しない。",
+      "files": [],
+      "expectations": [
+        "Wrote .ai-agent/plan/settings-git-revision-design.md",
+        "Includes a file tree of touched files",
+        "Includes concrete before/after or pseudocode diffs",
+        "Includes step-by-step implementation checklist",
+        "Includes test cases for success and failure placeholder",
+        "Did not modify production source files outside .ai-agent/",
+        "Asset resolve: cites or loads path under packages/coding-xm3/.apm/assets/coding/design.md"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。詳細設計を依頼するが要件は『ログイン画面の方針に従ってエラー SnackBar をいい感じに』のみ。詳細設計スキルとして進めてよいか判定し、不足なら詳細設計ドキュメントを完成させず不足点を報告せよ。プロダクションコードは変更しない。結果は outputs 相当として .ai-agent/plan/ に書くか、outputs/result.md に書いてよい。",
+      "expected_output": "要件不足で詳細設計完成を拒否/保留し、不足点を列挙。",
+      "files": [],
+      "expectations": [
+        "Does not produce a complete junior-ready design as if requirements were sufficient",
+        "Lists missing requirements or asks clarifying questions",
+        "Did not modify production source files outside .ai-agent/"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。.ai-agent/plan/debug-echo-requirements.md に要件だけがある。これを詳細設計へ拡張し、同ファイルを更新するか debug-echo-design.md を新規作成せよ。要件の概要: Connect RPC AuthService に DebugEcho(message)->message を追加。emulator でテスト。ジュニア実装可能な差分・手順必須。プロダクションコードは変更しない。",
+      "expected_output": "要件を踏まえた設計ドキュメント（ツリー・差分・手順）。本体コード未変更。",
+      "files": [],
+      "expectations": [
+        "Produces a design document under .ai-agent/plan/",
+        "References DebugEcho / AuthService behavior",
+        "Includes file tree and implementation steps",
+        "Did not modify production source files outside .ai-agent/"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "基準ファイルは packages/coding-xm3/.apm/skills/engineer-software-design/SKILL.md である。本文の ## アセットディレクトリ と {assets}/coding/design.md から実ファイルを解決し、存在する絶対パスを answer.md に書け。推測で他パッケージの assets を当てない。",
+      "expected_output": "解決結果が packages/coding-xm3/.apm/assets/coding/design.md を指す。",
+      "files": [],
+      "expectations": [
+        "answer.md lists a path ending with packages/coding-xm3/.apm/assets/coding/design.md",
+        "Does not claim agentic-workspace or unrelated package assets as the hit",
+        "Mentions ## アセットディレクトリ or candidate ../../assets/"
+      ]
+    }
+  ]
+}

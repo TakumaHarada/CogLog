@@ -1,0 +1,113 @@
+{
+    "Freezed Data Class": {
+        "prefix": "arch-freezed-data",
+        "body": [
+            "import \"package:freezed_annotation/freezed_annotation.dart\";",
+            "",
+            "part \"${TM_FILENAME_BASE}.freezed.dart\";",
+            "",
+            "@internal",
+            "@freezed",
+            "abstract class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} with _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {",
+            "  const factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({",
+            "    $0",
+            "  }) = _${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/};",
+            "",
+            "  const ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}._();",
+            "}"
+        ],
+        "description": "Freezed data class template with @internal and @freezed annotations"
+    },
+    "Freezed Union Class": {
+        "prefix": "arch-freezed-union-data",
+        "body": [
+            "import \"package:freezed_annotation/freezed_annotation.dart\";",
+            "",
+            "part \"${TM_FILENAME_BASE}.freezed.dart\";",
+            "",
+            "@internal",
+            "@freezed",
+            "sealed class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} with _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {",
+            "  const factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}.${1:variant1}$0() = ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}${1/(.*)/${1:/pascalcase}/};",
+            "",
+            "  const ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}._();",
+            "}"
+        ],
+        "description": "Freezed sealed class template for union types with @internal and @freezed annotations"
+    },
+    "Freezed Json Data Transfer Class": {
+        "prefix": "arch-freezed-json-data",
+        "body": [
+            "import \"package:freezed_annotation/freezed_annotation.dart\";",
+            "import \"package:json_annotation/json_annotation.dart\";",
+            "",
+            "part \"${TM_FILENAME_BASE}.freezed.dart\";",
+            "part \"${TM_FILENAME_BASE}.g.dart\";",
+            "",
+            "@internal",
+            "@freezed",
+            "abstract class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} with _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {",
+            "",
+            "  const factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({",
+            "    $0",
+            "  }) = _${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/};",
+            "",
+            "  factory ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}.fromJson(Map<String, dynamic> json) => _$${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}FromJson(json);",
+            "",
+            "  const ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}._();",
+            "}"
+        ],
+        "description": "Freezed data class template with JSON serialization support"
+    },
+    "Value Object (Extension Type)": {
+        "prefix": "arch-value-object",
+        "body": [
+            "import \"package:meta/meta.dart\";",
+            "",
+            "/// ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}の値オブジェクト",
+            "@internal",
+            "extension type const ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}(${1:String} _value) {",
+            "  $0",
+            "  ${1:String} unsafe() => _value;",
+            "}"
+        ],
+        "description": "Value object using extension type"
+    },
+    "Value Class": {
+        "prefix": "arch-value-object-legacy",
+        "body": [
+            "import \"package:meta/meta.dart\";",
+            "",
+            "$0",
+            "@internal",
+            "@immutable",
+            "class ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} {",
+            "  final ${1:ValueType} value;",
+            "",
+            "  const ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}(this.value);",
+            "",
+            "  @override",
+            "  bool operator ==(Object other) {",
+            "    if (identical(this, other)) {",
+            "      return true;",
+            "    }",
+            "    if (other is! ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}) {",
+            "      return false;",
+            "    }",
+            "    if (runtimeType != other.runtimeType) {",
+            "      return false;",
+            "    }",
+            "    return value == other.value;",
+            "  }",
+            "",
+            "  @override",
+            "  int get hashCode => value.hashCode;",
+            "",
+            "  @override",
+            "  String toString() => \"${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}(\\$value)\";",
+            " ",
+            "}"
+        ],
+        "description": "Simple ValueClass(Legacy)"
+    }
+}

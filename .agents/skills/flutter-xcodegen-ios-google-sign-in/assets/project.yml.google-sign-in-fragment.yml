@@ -1,0 +1,15 @@
+# project.yml への追記断片（Google Sign-In）
+#
+# 使い方:
+# - targets.Runner.info.properties に properties をマージする
+# - 各 Configuration の flavor.xcconfig には
+#   flavor.xcconfig.google-sign-in-fragment.xcconfig のキーを追加する
+
+targets:
+  Runner:
+    info:
+      properties:
+        GIDClientID: $(GID_CLIENT_ID)
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - $(REVERSED_CLIENT_ID)

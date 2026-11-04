@@ -1,0 +1,53 @@
+{
+  "skill_name": "claude-alias-cursor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "他SKILLの手順に `claude -p \"Summarize this repo\" --output-format json` と書いてある。この環境では Claude 未契約なので、実行可能なコマンドに直して outputs/result.md に提示して。実際に agent を長い処理で回す必要はない。",
+      "expected_output": "agent または cursor agent への置換、claude 実行を勧めていない、可能なら --trust/-f 言及",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/result.md",
+        "Replaces claude -p with agent -p or cursor agent -p",
+        "Does not recommend installing or running claude",
+        "Keeps --output-format json"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "CI 用に `ANTHROPIC_API_KEY` と `claude -p --dangerously-skip-permissions \"Fix lint errors\"` を使った例を、このリポジトリ向けに書き換えて outputs/result.md に書いて。ユーザーは『cursor コマンドを使え』と言っている。",
+      "expected_output": "CURSOR_API_KEY と cursor agent -p --force/--yolo/--trust。素の cursor（IDE）への誤変換なし",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/result.md",
+        "Uses CURSOR_API_KEY instead of ANTHROPIC_API_KEY",
+        "Uses cursor agent (or agent) with -p and force/yolo/trust",
+        "Does not use bare cursor without agent subcommand as the replacement"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "ドキュメントに `claude gateway --config gateway.yaml` と `claude ultrareview 1234 --json` がある。それぞれ実行できる？できなければ代替を outputs/result.md に書いて。",
+      "expected_output": "gateway 不能。ultrareview は近似代替。claude 実行なし",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/result.md",
+        "Marks gateway as unbound / cannot run",
+        "Offers approximate alternative for ultrareview",
+        "Does not recommend running claude"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "skill-creator の `python -m scripts.run_loop` が内部で `claude -p` を呼ぶと分かった。Claude CLI が無いこの環境で、description トリガー最適化をどう進めるべきか、手順の要点を outputs/result.md に書け。実装コードは不要。",
+      "expected_output": "Skill/Read 検知の非互換に触れ、cursor agent -p --mode ask 等の TRIGGER/SKIP 近似や既存ツールに言及",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/result.md",
+        "Mentions cursor agent or agent -p as substitute for claude -p",
+        "Notes that Skill/Read stream detection is not 1:1 (or TRIGGER/SKIP classification)",
+        "Mentions --mode ask and/or --trust and/or trigger_opt_cursor"
+      ]
+    }
+  ]
+}

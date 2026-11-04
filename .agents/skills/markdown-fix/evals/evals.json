@@ -1,0 +1,39 @@
+{
+  "skill_name": "markdown-fix",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。sandbox/docs/broken.md がある。markdownlint で直せるところは直し、直せない残件があれば手で修正。mise exec 経由で markdownlint-cli2 を使え。結果を outputs/transcript.md に記録。",
+      "expected_output": "lint 実行と broken.md 改善",
+      "files": [],
+      "expectations": [
+        "Ran markdownlint-cli2 via mise exec (or transcript claims it)",
+        "Updated docs/broken.md",
+        "Removed bare URL or wrapped it",
+        "Code fence has a language tag"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。docs/ 配下の *.md をすべて整形対象として列挙し、markdownlint --fix を適用せよ。transcript に対象一覧を残す。",
+      "expected_output": "find + lint fix on directory",
+      "files": [],
+      "expectations": [
+        "Enumerated markdown files under docs/",
+        "Applied markdownlint --fix to the set",
+        "Wrote outputs/transcript.md"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。内容の大幅な書き換えはせず、docs/dup-headings.md の重複見出し lint だけ直す（見出しを一意化）。",
+      "expected_output": "重複見出し解消",
+      "files": [],
+      "expectations": [
+        "Updated docs/dup-headings.md so headings are unique",
+        "Did not delete the document body topics entirely",
+        "Wrote outputs/transcript.md"
+      ]
+    }
+  ]
+}

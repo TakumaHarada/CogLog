@@ -1,0 +1,6 @@
+// Flavor なし / Release
+#include "../app.xcconfig"
+
+CFBundleIdentifier = __BUNDLE_IDENTIFIER__
+CODE_SIGN_IDENTITY = iPhone Distribution
+PROVISIONING_PROFILE_SPECIFIER = __PROVISIONING_PROFILE_SPECIFIER__

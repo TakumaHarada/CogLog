@@ -1,0 +1,46 @@
+{
+  "skill_name": "agent-call-sub-agent",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "junior-engineer に実装ステップ委任の Task prompt を組み立て（Catalog A）",
+      "expected_output": "SKILLサジェストに engineer-software-design（必須）と agent-job-description。agent-call-sub-agent / markdown-fix なし。絶対 Path。",
+      "files": [],
+      "expectations": [
+        "subagent_prompt.md に見出し `## SKILLサジェスト` がある",
+        "SKILLサジェスト直下に Apply 指示一文がある",
+        "engineer-software-design の Path が SKILL ディレクトリ絶対パス",
+        "agent-job-description が含まれる",
+        "agent-call-sub-agent が含まれない",
+        "markdown-fix が含まれない",
+        "description が空でない"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "explore に TODO 検索委任（Catalog B・関連なし）",
+      "expected_output": "SKILLサジェストブロック省略",
+      "files": [],
+      "expectations": [
+        "TODO 検索の委任内容がある",
+        "`## SKILLサジェスト` が無い",
+        "無関連 SKILL を載せない",
+        "「該当なし」で埋めない"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "senior-engineer に Flutter リファクタ委任（Catalog C）",
+      "expected_output": "engineer-software-design + flutter-coding-rules。cache-size / call-sub-agent なし。",
+      "files": [],
+      "expectations": [
+        "`## SKILLサジェスト` がある",
+        "engineer-software-design がある",
+        "flutter-coding-rules がある",
+        "maintenance-measure-cache-size が無い",
+        "agent-call-sub-agent が無い",
+        "Path がディレクトリ絶対パス"
+      ]
+    }
+  ]
+}

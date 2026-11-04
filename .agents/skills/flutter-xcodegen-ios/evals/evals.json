@@ -1,0 +1,44 @@
+{
+  "skill_name": "flutter-xcodegen-ios",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Flutter 標準の ios/ があります（evals/files/ios-stub を作業ディレクトリの ios/ として使ってください）。XcodeGen に移行してください。Flavor は指定しません。必須値は次のとおりです。\n- PRODUCT_NAME: DemoApp\n- iOS deployment target: 18.0\n- Team ID: ABCD123456\n- DEVELOPMENT_TEAM も同じ\n- Debug Bundle ID: com.example.demo.debug / Profile: Yasashii-Demo-Debug / identity: iPhone Developer\n- Profile Bundle ID: com.example.demo.debug / Profile: Yasashii-Demo-Debug / identity: iPhone Developer\n- Release Bundle ID: com.example.demo / Profile: Yasashii-Demo-AppStore / identity: iPhone Distribution\n- Exports/Production/appstore.plist は Release の Bundle ID と AppStore プロファイル\n- Exports/Development/adhoc.plist は Release ではなく Debug 用ではなく、Ad Hoc 用として Bundle ID com.example.demo / Profile Yasashii-Demo-AdHoc\n成果物はすべて outputs/ios/ 配下に書いてください。xcodegen の実行自体は不要（ファイル生成まで）。",
+      "expected_output": "Flavor なしの Configurations/Debug|Profile|Release、xcodegen/base.yml+default.yml、project.yml、Exports が生成され、プレースホルダが実値に置換されている",
+      "files": ["evals/files/ios-stub"],
+      "expectations": [
+        "outputs/ios/Configurations/app.xcconfig が存在し PRODUCT_NAME に DemoApp が含まれる",
+        "outputs/ios/Configurations/Debug/flavor.xcconfig に Bundle ID com.example.demo.debug がある",
+        "outputs/ios/Configurations/Release/flavor.xcconfig に Bundle ID com.example.demo と iPhone Distribution がある",
+        "outputs/ios/xcodegen/default.yml が存在し configs に Debug/Profile/Release がある（Debug- 形式ではない）",
+        "outputs/ios/project.yml が xcodegen/default.yml を include し CoreGraphics.framework 依存がある",
+        "outputs/ios/Exports/Production/appstore.plist に teamID ABCD123456 と Bundle ID com.example.demo がある",
+        "Pods や check_pods_manifest_lock を追加していない"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Flutter 標準の ios/（evals/files/ios-stub を outputs 作業用 ios/ の起点にコピー）を XcodeGen + Flavor 構成にしてください。Flavor: development, production。値:\n- PRODUCT_NAME: DemoApp, deployment 18.0, Team ID ABCD123456\n- development Debug: Bundle com.example.demo.dev.debug / Profile Demo-Dev-Debug / iPhone Developer\n- development Profile: Bundle com.example.demo.dev.debug / Profile Demo-Dev-Debug / iPhone Developer\n- development Release: Bundle com.example.demo.dev / Profile Demo-Dev-AdHoc / iPhone Distribution\n- production Debug: Bundle com.example.demo.prod.debug / Profile Demo-Prod-Debug / iPhone Developer\n- production Profile: Bundle com.example.demo.prod.debug / Profile Demo-Prod-Debug / iPhone Developer\n- production Release: Bundle com.example.demo / Profile Demo-AppStore / iPhone Distribution\n- Exports Production appstore: com.example.demo + Demo-AppStore\n- Exports Development adhoc: com.example.demo.dev + Demo-Dev-AdHoc\n成果物は outputs/ios/。xcodegen 実行は不要。",
+      "expected_output": "development.yml / production.yml と Debug-{flavor} ディレクトリ、project.yml の include が揃う",
+      "files": ["evals/files/ios-stub"],
+      "expectations": [
+        "outputs/ios/Configurations/development.xcconfig と production.xcconfig がある",
+        "outputs/ios/Configurations/Debug-development/flavor.xcconfig に com.example.demo.dev.debug がある",
+        "outputs/ios/Configurations/Release-production/flavor.xcconfig に com.example.demo がある",
+        "outputs/ios/xcodegen/development.yml と production.yml がある",
+        "outputs/ios/project.yml が両 flavor yml を include し default.yml は include していない",
+        "scheme 名が development / production になっている"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "ios/ を XcodeGen に移行したい。Flavor は development のみ。PRODUCT_NAME は DemoApp。Bundle Identifier と Provisioning Profile はまだ決まっていないので、適当に埋めて進めてください。成果物は outputs/ios/。",
+      "expected_output": "必須入力不足としてエラー停止し、Bundle ID / Profile を推測で埋めない",
+      "files": ["evals/files/ios-stub"],
+      "expectations": [
+        "成果物として完成した flavor.xcconfig（推測 Bundle ID 入り）を書き出していない、または明確にエラー停止している",
+        "不足している必須入力（Bundle Identifier / Provisioning Profile）をユーザー向けに列挙している"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+#include "../app.xcconfig"
+CFBundleIdentifier = com.example.demo
+CODE_SIGN_IDENTITY = iPhone Developer
+PROVISIONING_PROFILE_SPECIFIER = Demo-Profile

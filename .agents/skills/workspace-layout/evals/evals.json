@@ -1,0 +1,52 @@
+{
+  "skill_name": "workspace-layout",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "APM で SKILL を入れている小さなリポジトリを Agent 協業向けに整えたい。推奨ワークスペース・レイアウトを示して。基準が @this/ であることも含めて。AGENTS.md や README の本文テンプレートは不要で、置き場所の案内で十分。",
+      "expected_output": "@this/ 基準の推奨ツリー。apm.yml/apm_modules 前提。AGENTS.md/README はパス案内のみ。先回り全作成しない。",
+      "files": [],
+      "assertions": [
+        "Presents recommended layout rooted at @this/ (not only bare git-root '.' without @this)",
+        "Includes AGENTS.md, README.md, apm.yml, .ai-agent/, docs/, and apm_modules/ in the map",
+        "Treats apm.yml / apm_modules/ as expected (not optional/skip-by-default)",
+        "Gives path guidance for AGENTS.md / README.md without providing full content templates",
+        "Does not instruct to create every missing directory immediately without a triggering need"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "この評価用サンドボックスを @this（ワークスペース folder）とみなしてください。技術ドキュメント「DI ガイドライン」を新規に書きたい。docs/ はまだ無い。どこに置くべきか、不足しているものがあればそのタイミングでの作成提案を outputs/answer.md に書いて。本文の長文ドキュメント自体は書かなくてよい。",
+      "expected_output": "docs/ 配下への配置を推奨し、docs/ が無いので今このタイミングで作成する提案。先に .ai-agent 全体や AGENTS.md 本文を埋めない。",
+      "files": [],
+      "assertions": [
+        "Recommends placing the technical doc under docs/",
+        "Proposes creating docs/ now because documentation is needed",
+        "Does not require creating .ai-agent/ or writing AGENTS.md body as part of this doc-placement task",
+        "Does not place the technical documentation under .ai-agent/tmp/ as the primary recommendation"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "この評価用サンドボックスを @this とみなしてください。.ai-agent が未作成で、これから使い捨て調査スクリプトを置きたい。推奨レイアウトに沿って @this/.ai-agent へひな形導入を提案し、可能なら導入まで行う。スクリプト本体の中身は最小でよい。配置の説明は outputs/answer.md に残す。",
+      "expected_output": "@this/.ai-agent ひな形を導入。単数形。HQ 優先の git ルート走査はしない。",
+      "files": [],
+      "assertions": [
+        "Creates or proposes .ai-agent under @this / the sandbox root (singular), not a headquarters/ priority path",
+        "Includes tmp/plan/memory scaffold and .gitignore when creating from scaffold",
+        "Does not treat writing a full AGENTS.md template as required for this task",
+        "Distinguishes layout scaffold from choosing tmp vs plan vs memory (defers or aligns with temporary)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "推奨レイアウトの基準ディレクトリは何か？「リポジトリの .git ルート」と「@this」のどちら？短く。",
+      "expected_output": "@this/ 直下。git rev-parse のリポジトリルートではない（一致することもあるが基準は @this）。",
+      "files": [],
+      "assertions": [
+        "States the layout base is @this/",
+        "Does not claim the sole base is git rev-parse --show-toplevel / .git root without @this"
+      ]
+    }
+  ]
+}

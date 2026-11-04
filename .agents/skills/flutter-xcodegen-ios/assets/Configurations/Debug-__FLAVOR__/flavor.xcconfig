@@ -1,0 +1,6 @@
+// {BuildType}-{flavor} 用（例: Debug-development/flavor.xcconfig）
+#include "../__FLAVOR__.xcconfig"
+
+CFBundleIdentifier = __BUNDLE_IDENTIFIER__
+CODE_SIGN_IDENTITY = __CODE_SIGN_IDENTITY__
+PROVISIONING_PROFILE_SPECIFIER = __PROVISIONING_PROFILE_SPECIFIER__
