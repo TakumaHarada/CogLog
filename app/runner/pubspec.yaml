@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  material_ui: any
   monolith_localization_runtime: any
 
 dev_dependencies:

@@ -37,9 +37,10 @@ final FColors darkColors = FColors(
   muted: Color(0xFF262626),
   mutedForeground: Color(0xFFA1A1A1),
   destructive: Color(0xFFFF6467),
-  destructiveForeground: Color(0xFFFAFAFA),
+  // #FAFAFA を載せるとコントラスト比が約 2.8:1 になる。#171717 で約 6.2:1。
+  destructiveForeground: Color(0xFF171717),
   error: Color(0xFFFF6467),
-  errorForeground: Color(0xFFFAFAFA),
+  errorForeground: Color(0xFF171717),
   card: Color(0xFF171717),
   border: Color(0x1AFFFFFF),
   extensions: const [AppColors()],

@@ -36,10 +36,9 @@ class Application extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     supportedLocales: L10nHelper.supportedLocales,
     // material_ui の MaterialApp は英語だけの Default*Localizations を足す。
-    // ja を含む Global*Localizations を先に渡す。
+    // ja を含む delegate を先に渡す。
     localizationsDelegates: const [
-      L10nHelper.delegate,
-      ...GlobalMaterialLocalizations.delegates,
+      ...appLocalizationsDelegates,
       FLocalizations.delegate,
     ],
     theme: lightTheme.toApproximateMaterialTheme(),
