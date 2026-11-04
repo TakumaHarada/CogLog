@@ -1,0 +1,43 @@
+{
+  "skill_name": "github-comment-rule",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "PR #456 の lib/repository/user_repository.dart 42 行目について、Permission 拒否後も subscribe を呼んでいるように見えるのでインライン review comment を書いて（投稿はしない、文案だけ）。",
+      "expected_output": "日本語・丁寧語・端的なインライン指摘。末尾に --- と *Cursor Agent* 署名。Co-authored-by は含まない。",
+      "files": [],
+      "assertions": [
+        "Comment body is primarily in Japanese",
+        "Uses polite desu/masu style or equivalent polite Japanese",
+        "Includes horizontal rule --- before signature",
+        "Includes Cursor Agent signature",
+        "Does not include Co-authored-by trailer",
+        "Addresses the subscribe or Permission concern on the specific line"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "レビュアーから「テストが足りない」とコメントが来た。対応済みである旨をスレッド返信として書いて（文案のみ）。",
+      "expected_output": "指摘への謝意と対応済みの旨。日本語・丁寧・端的。署名付き。",
+      "files": [],
+      "assertions": [
+        "Acknowledges the reviewer's test coverage comment",
+        "States that tests were added or issue is addressed",
+        "Written in polite Japanese",
+        "Includes --- and Cursor Agent signature at end",
+        "Does not include Co-authored-by"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "feature/id/411/grand-tube-feed ブランチで Repository スタブを足した。コミットメッセージを考えて（git commit はまだしない）。",
+      "expected_output": "本 SKILL はトリガー不要（git commit メッセージ依頼）。git-commit-comment-rule が適切。",
+      "files": [],
+      "assertions": [
+        "States that github-comment-rule does not apply or is not needed",
+        "Does not produce a GitHub PR comment with --- Cursor Agent signature as the primary deliverable",
+        "May reference git-commit-comment-rule instead"
+      ]
+    }
+  ]
+}

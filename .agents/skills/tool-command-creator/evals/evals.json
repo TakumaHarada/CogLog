@@ -1,0 +1,81 @@
+{
+  "skill_name": "tool-command-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "既存の `/coding.format-plan` を現行 slash-command テンプレートで作り直してください。必須: frontmatter は description（と任意の license/author）のみ（旧 metadata.input/output/example/references/assets は使わない）、## Help情報 と ### Example、## 関連ファイル、## 入力/## 出力、Mermaid flowchart、見出し正確に `### バリデーション` + `| Label | 値 | バリデーション |` 表（✅️/⛔️）、非対話、入力・出力不明確時のみ「{XXXX} が不明確です。\\nコマンドを終了します。」（手順不明確の実行時エラーは書かない）。関連ファイルに `/coding.requirement` と `/coding.design`。書式正本は既存の `../extra/coding/` を相対リンクで参照（`{assets}/` は使わないので ## アセットディレクトリは省略可）。入力: inputs/coding.format-plan.md。出力: outputs/coding.format-plan.md。`.cursor/commands` は変更しない。",
+      "expected_output": "テンプレート準拠。Help/Example、flowchart、厳密なバリデーション見出し/表、手順不明確なし、extra 参照。metadata.assets なし。",
+      "files": ["evals/files/coding.format-plan.md"],
+      "expectations": [
+        "Output file coding.format-plan.md exists under outputs/",
+        "YAML frontmatter includes description and does not use metadata.input/output/example/references/assets",
+        "Body has ## Help情報 and ### Example with at least one /coding.format-plan invocation",
+        "Body ## 関連ファイル includes /coding.requirement and /coding.design",
+        "Body has ## 入力 and ## 出力 with Required or Optional headings",
+        "Body has mermaid flowchart under ## 手順",
+        "Exact heading ### バリデーション with Label|値|バリデーション table and ✅️/⛔️",
+        "Error format が不明確です / コマンドを終了します is documented for input/output",
+        "No runtime error path for 手順が不明確",
+        "Related files or body link to ../extra/coding/",
+        "Original guardrail about not changing requirements/design content is preserved",
+        "No unreplaced template placeholders or HTML comment scaffolding remain"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "`/git.preflight` を新規作成。Optional 対象パス（省略時リポジトリ全体）、出力はチェック結果レポート。現行テンプレート準拠（Help/Example、関連ファイル、flowchart、`### バリデーション` 表、非対話、入力・出力不明確エラーのみ、手順不明確は書かない。frontmatter に旧 metadata.input/output/example/references/assets は使わない。`{assets}/` 未使用なら ## アセットディレクトリは置かない）。outputs/git.preflight.md に保存。`.cursor/commands` は変更しない。",
+      "expected_output": "テンプレート準拠の git.preflight.md。",
+      "files": [],
+      "expectations": [
+        "Output file git.preflight.md exists under outputs/",
+        "YAML frontmatter includes description and does not use metadata.input/output/example/references/assets",
+        "Body ### Example includes at least one /git.preflight invocation",
+        "Optional target path documented (omit means whole repo)",
+        "Check-result report documented as output",
+        "Body has mermaid flowchart under ## 手順",
+        "Exact heading ### バリデーション with Label|値|バリデーション table and ✅️/⛔️",
+        "Error format が不明確です / コマンドを終了します is documented for input/output",
+        "No runtime error path for 手順が不明確",
+        "Guardrails forbid dialogue and require error exit on input/output ambiguity",
+        "No ## アセットディレクトリ section (no {assets}/ usage)",
+        "No unreplaced template placeholders or HTML comment scaffolding remain"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "`coding.comment.md` を現行テンプレートへ更新。必須: frontmatter は description 中心（旧 metadata.input/output/example/references/assets なし）、## Help情報 / ### Example、flowchart、`### バリデーション` 表、非対話、入力・出力不明確エラーのみ（手順不明確なし）、ナレッジベースは `### DO:` / `### DO NOT:` 見出し。既存ナレッジ内容は維持。`{assets}/` を使わない。入力: inputs/coding.comment.md。出力: outputs/coding.comment.md。`.cursor/commands` は変更しない。",
+      "expected_output": "テンプレート準拠の coding.comment.md。DO/DO NOT 見出し、既存ナレッジ維持。",
+      "files": ["evals/files/coding.comment.md"],
+      "expectations": [
+        "Output file coding.comment.md exists under outputs/",
+        "YAML frontmatter includes description and does not use metadata.input/output/example/references/assets",
+        "Body ### Example includes at least one /coding.comment invocation",
+        "Required code-scope input is documented",
+        "Body has mermaid flowchart under ## 手順",
+        "Exact heading ### バリデーション with Label|値|バリデーション table and ✅️/⛔️",
+        "Error format が不明確です / コマンドを終了します is documented for input/output",
+        "No runtime error path for 手順が不明確",
+        "Knowledge base uses ### DO: and ### DO NOT: headings",
+        "Knowledge about 主語 is preserved",
+        "Knowledge about spacing / 改行 / example / no-delete inline comments is preserved",
+        "No unreplaced template placeholders or HTML comment scaffolding remain"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "`/docs.render` を新規作成。Required: 対象 Markdown。出力: レンダ結果サマリ。本文で `{assets}/docs/render-guide.md` を正本として参照すること。## アセットディレクトリ に `../assets/docs/` と `apm_modules/example/pkg/.apm/assets/docs/` を列挙。frontmatter に metadata.assets は書かない。現行テンプレート準拠（Help/Example、flowchart、`### バリデーション`、非対話）。outputs/docs.render.md に保存。`.cursor/commands` は変更しない。",
+      "expected_output": "{assets}/ 参照と ## アセットディレクトリ があり、metadata.assets が無いテンプレート準拠コマンド。",
+      "files": [],
+      "expectations": [
+        "Output file docs.render.md exists under outputs/",
+        "YAML frontmatter has description and no metadata.assets",
+        "Body references {assets}/docs/render-guide.md",
+        "Body has ## アセットディレクトリ listing ../assets/docs/ and apm_modules path",
+        "Body has ## Help情報 and ### Example with /docs.render",
+        "Exact heading ### バリデーション with Label|値|バリデーション table",
+        "Mentions workspace-resolve-agent-assets for resolving {assets}/ (or equivalent guidance)",
+        "No unreplaced template placeholders or HTML comment scaffolding remain"
+      ]
+    }
+  ]
+}

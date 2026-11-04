@@ -1,0 +1,57 @@
+{
+  "skill_name": "workspace-resolve-file-path",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "ドキュメントにクォートで `docs/guide.md` と書いてある。実ファイルを開くとき、どの基準でパスを解決すべき？コマンド例を1つ示して。",
+      "expected_output": "git リポジトリルート相対。git rev-parse --show-toplevel を使う例",
+      "files": [],
+      "assertions": [
+        "Says to resolve relative to the git repository root",
+        "Mentions git rev-parse --show-toplevel (or equivalent root resolution)",
+        "Shows an example path joining root with docs/guide.md"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "`example/markdown/file.md` に `[example](../doc.txt)` というリンクがある。`doc.txt` の実パスはどう組み立てる？ルート相対と混同しないよう短く説明して。",
+      "expected_output": "リンク元ファイルの dirname からの相対",
+      "files": [],
+      "assertions": [
+        "Says Markdown link paths are relative to the source markdown file (not repo root)",
+        "Shows resolving via dirname of example/markdown/file.md plus ../doc.txt (or equivalent)",
+        "Explicitly warns against treating it as repo-root-relative"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "AI Agent の一時ファイルを `.ai-agent/` に置きたい。候補ディレクトリの優先順は workspace-resolve-file-path で決めるべき？どの SKILL に委譲する？短く。",
+      "expected_output": "本 SKILL の対象外。workspace-layout / workspace-agent-temporary へ。",
+      "files": [],
+      "assertions": [
+        "Says workspace-resolve-file-path does not own .ai-agent path placement",
+        "Names workspace-layout and/or workspace-agent-temporary as the correct skill(s)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "文書に `{assets}/template.md` とある。パス解決にどの SKILL を使うべき？短く答えて。",
+      "expected_output": "workspace-resolve-agent-assets。本 SKILL では解かない。",
+      "files": [],
+      "assertions": [
+        "Names workspace-resolve-agent-assets (or equivalent assets-resolve skill)",
+        "Does not claim workspace-resolve-file-path itself resolves {assets}/"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "ドキュメントに `@docs/README.md` とある。workspace-resolve-file-path で解くべき？短く。",
+      "expected_output": "いいえ。workspace-resolve-root-directory へ。",
+      "files": [],
+      "assertions": [
+        "Says not to resolve folder: with workspace-resolve-file-path",
+        "Names workspace-resolve-root-directory (or equivalent root-directory skill)"
+      ]
+    }
+  ]
+}

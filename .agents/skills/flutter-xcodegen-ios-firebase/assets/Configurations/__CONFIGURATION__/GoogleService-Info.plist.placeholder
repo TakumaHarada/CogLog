@@ -1,0 +1,5 @@
+# GoogleService-Info.plist の配置先テンプレート
+# 実体は Firebase Console からダウンロードしたファイルを置く。
+# パス: ios/Configurations/__CONFIGURATION__/GoogleService-Info.plist
+# 例: Debug-development / Release-production / Debug（Flavor なし）
+PLACEHOLDER_ONLY

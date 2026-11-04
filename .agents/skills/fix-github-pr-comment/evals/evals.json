@@ -1,0 +1,65 @@
+{
+  "skill_name": "fix-github-pr-comment",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "pocket_kosodate の PR #789 について、未 resolve のレビューコメントをすべて直して push までお願い。作業ツリーはクリーン。",
+      "expected_output": "checkout → 指摘収集 → 修正 → dart analyze/format → git-commit-comment-rule 準拠コミット → push → github-comment-rule 準拠返信 → resolve の一連手順。CI 待ちはしない。",
+      "files": [],
+      "assertions": [
+        "Includes checkout of PR branch with clean working tree verification",
+        "References git-commit-comment-rule for commit message",
+        "References github-comment-rule for thread reply",
+        "Includes resolveReviewThread or resolve review thread step",
+        "States CI wait is not required unless explicitly instructed",
+        "Includes local analyze or format verification step"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "PR #456 の lib/repository/user_repository.dart 42 行目のインライン指摘（Permission 拒否後も subscribe を呼んでいる）だけ直して、返信して Resolved にして。",
+      "expected_output": "特定 thread のみ対象。修正・コミット・push・返信・resolve。他の未 resolve thread は触らない。",
+      "files": [],
+      "assertions": [
+        "Scopes fix to the specific inline comment or thread only",
+        "Includes thread reply with Cursor Agent signature per github-comment-rule",
+        "Includes resolve step for the addressed thread",
+        "Does not resolve unrelated threads"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "PR #100 の指摘対応して。今 lib/foo.dart に未コミットの変更がある。",
+      "expected_output": "作業ツリーが dirty のため checkout 前にエラー停止。stash/commit を促す。",
+      "files": [],
+      "assertions": [
+        "Detects dirty or uncommitted working tree",
+        "Errors or stops before checkout",
+        "Does not proceed with git commit or push",
+        "Advises user to stash commit or discard changes"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Stacked PR の下位 PR #200 のレビュー指摘を直した。上の PR #201 #202 にも伝搬して push まで。",
+      "expected_output": "gh stack rebase --upstack と gh stack push。後続 PR への通知。",
+      "files": [],
+      "assertions": [
+        "Includes gh stack rebase --upstack or equivalent upstack propagation",
+        "Includes gh stack push or push of upstack branches",
+        "Mentions notifying or updating downstream stacked PRs"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "PR #300 に「テスト足りない」というコメントへの返信文案だけ書いて。コードはまだ直さない。",
+      "expected_output": "本 SKILL はトリガー不要。github-comment-rule が適切。",
+      "files": [],
+      "assertions": [
+        "States that fix-github-pr-comment does not apply or is not needed",
+        "Does not produce full checkout commit push resolve workflow as primary deliverable",
+        "May reference github-comment-rule instead"
+      ]
+    }
+  ]
+}

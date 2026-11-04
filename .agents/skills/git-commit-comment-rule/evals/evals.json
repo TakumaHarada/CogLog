@@ -1,0 +1,42 @@
+{
+  "skill_name": "git-commit-comment-rule",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "ブランチ feature/id/411/grand-tube-feed にいる。Repository インターフェース追加に合わせて _impl パッケージへ CI 用スタブを足した。コミットメッセージを考えて（git commit はまだしない、文案だけ）。",
+      "expected_output": "fix: または add:/mod: のいずれかが適切な prefix。日本語 1 行目。箇条書きに何を・なぜ。Co-authored-by: Cursor Agent。refs #411 は含まない。",
+      "files": [],
+      "assertions": [
+        "First line starts with one of add: chg: fix: mod: del:",
+        "First line summary is in Japanese",
+        "Body includes at least one bullet line starting with -",
+        "Bullet explains both what changed and why",
+        "Includes Co-authored-by: Cursor Agent trailer",
+        "Does not include refs #411 or refs # in the message"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "freezed を 4.0.0 stable に更新した。生成コードも含めてコミットする予定。コミットメッセージ案を出して。",
+      "expected_output": "chg: prefix。依存更新と生成物変更の理由が箇条書き。署名付き。refs # なし。",
+      "files": [],
+      "assertions": [
+        "First line starts with chg:",
+        "Mentions freezed or dependency update in Japanese",
+        "Includes bullet points with - prefix",
+        "Includes Co-authored-by: Cursor Agent",
+        "Does not include refs #"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "この PR のタイトルと本文だけ考えて。コミットはしない。",
+      "expected_output": "本 SKILL はトリガー不要（PR 本文のみの依頼）。",
+      "files": [],
+      "assertions": [
+        "States that git-commit-comment-rule is not needed or does not apply",
+        "Does not produce a full git commit message with Co-authored-by trailer as the primary deliverable"
+      ]
+    }
+  ]
+}

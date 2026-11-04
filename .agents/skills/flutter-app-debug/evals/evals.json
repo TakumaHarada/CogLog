@@ -1,0 +1,42 @@
+{
+  "skill_name": "flutter-app-debug",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "評価用サンドボックスを Flutter リポジトリルートとみなす。DEVICES.txt は `flutter devices` のシミュレーション結果である（実コマンドは実行しない）。ユーザーはデバイスを指定していない。アプリを起動する手順を進めようとしたときの正しい振る舞いを outputs/result.md に書け。実際に flutter run してはいけない。",
+      "expected_output": "デバイス未確定のため中断メッセージ",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/result.md",
+        "Includes the Japanese stop message about device confirmation (起動対象のデバイスを確定できませんでした)",
+        "Does not invent a single device choice as the final action without asking",
+        "Does not claim to have run flutter run"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "評価用サンドボックスを Flutter リポジトリルートとみなす。.vscode/launch.json を読み、デバイスは emulator-5554 とする。実起動はせず、プロジェクト規定どおり `mise exec --` を付けた `flutter run` コマンドを1行、outputs/run_command.md に書け。--print-dtd・flavor・dart-define-from-file・program を落とさないこと。",
+      "expected_output": "完全な flutter run コマンド行",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/run_command.md",
+        "Command includes mise exec --",
+        "Command includes flutter run and --print-dtd",
+        "Command includes -d emulator-5554 or equivalent device id",
+        "Command preserves --flavor dev and --dart-define-from-file"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "評価用サンドボックスをルートとみなす。DTD_NOTES.txt のログがある。次を outputs/result.md にまとめよ:(1) Dart MCP の dtd 接続に使うべき URI (2) 使ってはいけない URI とその理由 (3) Widget ツリー確認は Dart MCP / Maestro のどちらが主か。実接続は不要。",
+      "expected_output": "DTD URI 選定と MCP 役割分担",
+      "files": [],
+      "expectations": [
+        "Wrote outputs/result.md",
+        "Selects the ws:// DTD URI (not the http:// VM Service URI)",
+        "Explains http URI is not DTD / VM Service",
+        "Says Widget tree inspection is primarily Dart MCP (not Maestro as primary)"
+      ]
+    }
+  ]
+}

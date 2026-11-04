@@ -1,0 +1,4 @@
+# Google Sign-In 用 xcconfig 追記（各 Configuration の flavor.xcconfig）
+
+GID_CLIENT_ID = __GID_CLIENT_ID__
+REVERSED_CLIENT_ID = __REVERSED_CLIENT_ID__

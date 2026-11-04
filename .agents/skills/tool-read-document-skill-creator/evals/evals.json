@@ -1,0 +1,23 @@
+{
+  "skill_name": "tool-read-document-skill-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "バックエンドの docs/architecture/ 配下（environments.md, architecture_layer.md, api_security.md, authentication_flow.md, communication_flow.md, framework.md, modules.md, logging.md）を束ねる索引 SKILL を新規作成したい。名前は repo-knowledge-architecture で確定。APM ソースとして outputs/repo-knowledge-architecture/SKILL.md に書き出す（実リポジトリの .apm は変更しない）。対象は path のみ。内容要約や個別トリガー注記は付けない。Stage 手順・出力の目安は再掲せず markdown-search へ誘導すること。トリガーは description に集約。",
+      "expected_output": "テンプレ準拠。path のみ、description にトリガー、読み方は markdown-search 誘導のみ（Stage/出力の再掲なし）。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "生成AIの課金まわりで、法的制約ドキュメント（仮: references/legal-risks.md と references/primary-sources.md）を読む索引 SKILL を作りたい。SKILL 名は未確定なので提案してから、あなたが選んだ名前で outputs/{name}/SKILL.md に書いて。トリガーはドキュメント主題ベース、プロンプト制約があるときはそれを優先する旨を本文に含めること。",
+      "expected_output": "名前提案がプロセスに現れ、確定名の索引 SKILL が出力される。Stage 1 必須と制約優先が本文にある。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "既存の『リンク列挙だけ』の知識 SKILL（入力: inputs/legacy-knowledge-skill.md）を、現行の read-document テンプレートへ改訂して outputs/legacy-knowledge-skill/SKILL.md に保存。対象 path は維持し内容要約注記は削除。Stage 手順・出力の目安は再掲せず markdown-search へ誘導。『いつ読むか』は description に集約。",
+      "expected_output": "path のみ、description にトリガー、markdown-search 誘導のみの改訂稿。",
+      "files": ["evals/files/legacy-knowledge-skill.md"]
+    }
+  ]
+}

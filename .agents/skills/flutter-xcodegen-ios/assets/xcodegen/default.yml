@@ -1,0 +1,63 @@
+# Flavor なしのとき: Debug / Profile / Release のみ。xcodegen/default.yml として配置する
+configs:
+  Debug: debug
+  Profile: release
+  Release: release
+
+configFiles:
+  Debug: ../Configurations/Debug/flavor.xcconfig
+  Profile: ../Configurations/Profile/flavor.xcconfig
+  Release: ../Configurations/Release/flavor.xcconfig
+
+targets:
+  Runner:
+    configFiles:
+      Debug: ../Flutter/Debug.xcconfig
+      Profile: ../Flutter/Profile.xcconfig
+      Release: ../Flutter/Release.xcconfig
+    settings:
+      configs:
+        Debug:
+          DEBUG_INFORMATION_FORMAT: "$(inherited)"
+          ENABLE_TESTABILITY: YES
+          GCC_DYNAMIC_NO_PIC: NO
+          GCC_OPTIMIZATION_LEVEL: 0
+          GCC_PREPROCESSOR_DEFINITIONS:
+            - "DEBUG=1"
+            - "$(inherited)"
+          MTL_ENABLE_DEBUG_INFO: YES
+          ONLY_ACTIVE_ARCH: YES
+          SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+
+        Profile:
+          ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+          DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+          ENABLE_NS_ASSERTIONS: NO
+          MTL_ENABLE_DEBUG_INFO: NO
+          VALIDATE_PRODUCT: YES
+
+        Release:
+          DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+          ENABLE_NS_ASSERTIONS: NO
+          MTL_ENABLE_DEBUG_INFO: NO
+          SWIFT_COMPILATION_MODE: wholemodule
+          SWIFT_OPTIMIZATION_LEVEL: "-O"
+          VALIDATE_PRODUCT: YES
+
+schemes:
+  Runner:
+    templates:
+      - FlutterFlavorSchema
+    build:
+      targets:
+        Runner: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Debug
+    analyze:
+      config: Debug
+    archive:
+      config: Release

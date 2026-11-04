@@ -1,0 +1,44 @@
+{
+  "skill_name": "connect-rpc-curl",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "example.v1.ExampleService/Echo をローカル検証したい。message は \"ping\"。Authorization は Bearer test-token。スキーマは path/to/schema/dir、BASE_URL は http://127.0.0.1:8080、PATH_PREFIX は api/v1/。実行可能な buf curl コマンドを1本、outputs/command.md に書き出して。実際にサーバーへ投げなくてよい（コマンド組み立てのみ）。",
+      "expected_output": "--schema path/to/schema/dir、URL が http://127.0.0.1:8080/api/v1/example.v1.ExampleService/Echo、--data に {\"message\":\"ping\"}、--protocol connect のコマンド",
+      "files": [],
+      "assertions": [
+        "Output includes buf curl with --protocol connect",
+        "Command uses --schema pointing at path/to/schema/dir (or the resolved schema directory)",
+        "URL hosts at http://127.0.0.1:8080 and path includes /api/v1/example.v1.ExampleService/Echo",
+        "Request JSON includes message ping (field name message, not renamed)",
+        "Authorization Bearer test-token header is present"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "レイアウト指示が無い前提で、example.v1.ExampleService/Echo（message=hello）を buf curl で叩くコマンド例を outputs/command.md に書いて。スキーマ・ホスト・接頭辞は SKILL のプレースホルダ方針に従う。実送信不要。",
+      "expected_output": "--protocol connect、proto フィールド名そのままの JSON、{package}.{Service}/{Rpc} 形式の URL",
+      "files": [],
+      "assertions": [
+        "Output includes buf curl with --protocol connect",
+        "URL ends with example.v1.ExampleService/Echo",
+        "Request JSON uses field name message with value hello",
+        "Schema is passed via --schema or implied by working directory guidance",
+        "No Stream RPC procedure is suggested"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Connect RPC の Unary を buf curl で叩くとき、スキーマディレクトリ・BASE_URL・PATH_PREFIX の決め方と、それを使った Echo（message=hello）のコマンド例を outputs/resolved.md に書いて。実送信不要。",
+      "expected_output": "buf.yaml 起点の schema、BASE_URL / PATH_PREFIX の解決方針、それらを反映した buf curl 例",
+      "files": [],
+      "assertions": [
+        "Explains that buf.yaml parent is the schema module root",
+        "Mentions BASE_URL and PATH_PREFIX (or mount path) as resolvable inputs",
+        "Example buf curl uses --protocol connect",
+        "Example URL ends with a {package}.{Service}/{Rpc} path",
+        "Example data has message hello"
+      ]
+    }
+  ]
+}

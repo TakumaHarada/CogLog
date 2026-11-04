@@ -1,0 +1,28 @@
+# project.yml への追記断片（firebase-ios-sdk SPM）
+# バージョンは利用時点の安定版を確認して埋める（推測しない）
+#
+# 使い方:
+# - packages を既存 project.yml の packages にマージする
+# - targets.Runner.dependencies に dependencies をマージする
+#   （既存の CoreGraphics / FlutterGeneratedPluginSwiftPackage は残す）
+# - targets.Runner.preBuildScripts の先頭付近に preBuildScripts をマージする
+
+packages:
+  firebase-ios-sdk:
+    url: https://github.com/firebase/firebase-ios-sdk
+    version: __FIREBASE_IOS_SDK_VERSION__
+  googleappmeasurement:
+    url: https://github.com/google/GoogleAppMeasurement.git
+    version: __GOOGLE_APP_MEASUREMENT_VERSION__
+
+# targets.Runner 向け（マージ用）
+targets:
+  Runner:
+    dependencies:
+      # SPM 依存が実質 0 個だと失敗しうるため維持
+      - sdk: CoreGraphics.framework
+      - package: FlutterGeneratedPluginSwiftPackage
+    preBuildScripts:
+      - name: "[APP] Install GoogleService-Info.plist"
+        script: "${PROJECT_DIR}/xcodegen/scripts/preBuildInstallGoogleServiceInfoPlist.sh"
+        basedOnDependencyAnalysis: false

@@ -1,0 +1,43 @@
+{
+  "skill_name": "split-pull-request-rule",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "作業ブランチは feature/id/100/add-notifications。未マージの大きな差分があり、次がすべて同じブランチに乗っている想定で分割方針だけ出してほしい（gh や git の実行はしない）。(A) 通知用の公開インターフェース追加 (B) その実装とユニットテスト (C) 画面の ViewModel と View (D) 通知用のダミー fixtures。Stacked PR 前提で、blocking / non-blocking を明示し、ブランチ名規則に従うこと。",
+      "expected_output": "分割要約・PR一覧（ブランチ名が feature/id/100/add-notifications-NN-...）・Mermaid。interface→impl+test→UI の順。fixtures は独立レビューなら non-blocking 寄り。gh/git 実行なし。",
+      "files": [],
+      "assertions": [
+        "Includes a split-policy summary",
+        "Lists multiple PRs with title, branch name, included changes, and merge order",
+        "Branch names follow {original}-{NN}-{content} using feature/id/100/add-notifications as the prefix",
+        "Keeps implementation and its unit tests in the same PR",
+        "Puts interface before implementation (and UI after lower layers when split)",
+        "Includes a Mermaid dependency graph that distinguishes blocking vs non-blocking",
+        "Does not run gh or create branches/PRs"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "ブランチ feature/id/55/fix-cache。変更は『既存キャッシュヘルパーの小さなバグ修正（後続機能の前提）』と『新機能のキャッシュ利用実装＋そのユニットテスト』だけ。分割方針を提案して。実行（push/PR作成）は不要。",
+      "expected_output": "前提のバグ修正を先行 PR、実装+Unit Test を後続 PR。blocking 依存。ブランチ名は feature/id/55/fix-cache-01-... / -02-...。",
+      "files": [],
+      "assertions": [
+        "Splits prerequisite bugfix into an earlier PR than the feature implementation",
+        "Keeps feature implementation and its unit tests together",
+        "Marks the dependency as blocking (or equivalent ordering requirement)",
+        "Branch names use feature/id/55/fix-cache as the original-branch prefix with serial numbers",
+        "Does not execute git push or gh pr create"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "『このブランチの修正を普通に PR 作って』だけ言われた。差分は小さい一行修正。split-pull-request-rule を使うべきか？使うなら何をするか、使わないなら理由を短く。",
+      "expected_output": "単純な1本PR作成のみなので本SKILLはトリガー不要、と明記。",
+      "files": [],
+      "assertions": [
+        "States that this skill should not be used (or is unnecessary) for a simple single-PR creation task",
+        "Does not produce a multi-PR split plan as if splitting were required"
+      ]
+    }
+  ]
+}

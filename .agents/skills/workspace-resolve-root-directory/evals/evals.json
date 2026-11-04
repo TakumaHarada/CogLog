@@ -1,0 +1,193 @@
+{
+  "skill_name": "workspace-resolve-root-directory",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "開いている Multi-Root Workspace は /Users/eaglesakura/work/eaglesakura.com/pocket-kosodate-hq/headquarters/pocket-kosodate.code-workspace です。`folder:backend/README.md` の実ファイル絶対パスを解決して答えてください。途中の folders 選択理由も短く。",
+      "expected_output": "pocket_kosodate_backend/README.md の絶対パス。name=backend の path を workspace ファイル相対で解決",
+      "files": [],
+      "assertions": [
+        "Resolves using folders[].name backend (not directory name alone)",
+        "Treats folders[].path as relative to the code-workspace file directory",
+        "Final path points under pocket_kosodate_backend/README.md (absolute)",
+        "Uses folder: semantics (FOLDER_ROOT), not a different git-root climb unless identical"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "workspace ファイルは /Users/eaglesakura/work/eaglesakura.com/pocket-kosodate-hq/headquarters/pocket-kosodate.code-workspace。`folder:HQ/README.md` はどの絶対パス？ folders[].path が `.` である点に注意して短く答えて。",
+      "expected_output": "headquarters/README.md の絶対パス（workspace と同じディレクトリ）",
+      "files": [],
+      "assertions": [
+        "Matches folders[].name HQ",
+        "Joins workspace dir with path '.' then README.md",
+        "Result is headquarters/README.md absolute path (not the parent git repo root README)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "同じ workspace で `repo:HQ/README.md` を解決して。folder:HQ との違い（folders[].path と Git ルートのズレ）を短く説明しつつ、絶対パスを答えて。",
+      "expected_output": "pocket-kosodate-hq/README.md（HQ folder=headquarters から git toplevel へ上げた先）",
+      "files": [],
+      "assertions": [
+        "Resolves via git rev-parse --show-toplevel from the HQ folder path",
+        "Final path is pocket-kosodate-hq/README.md (parent of headquarters), not headquarters/README.md",
+        "Explains that folder: and repo: can differ when path is not the git root"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "ドキュメントに `docs/guide.md`（folder: / repo: プレフィックスなし）とだけある。workspace-resolve-root-directory で解くべき？どの SKILL に委譲する？短く。",
+      "expected_output": "本 SKILL の対象外。workspace-resolve-file-path へ。",
+      "files": [],
+      "assertions": [
+        "Says not to use multi-root resolve for plain path/to/file without folder: or repo:",
+        "Names workspace-resolve-file-path (or equivalent) as the correct skill"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "pocket-kosodate.code-workspace で `folder:pocket_kosodate_backend/README.md` と書かれた。folders の name は backend、path は ../repo/pocket_kosodate_backend。どう扱うべき？推測で backend ルートに飛ばしてよいか短く。",
+      "expected_output": "name 不一致なので推測解決しない。見つかった name 一覧を示して報告。",
+      "files": [],
+      "assertions": [
+        "Does not silently map pocket_kosodate_backend to the backend folder",
+        "Says to report missing name / list available folders[].name",
+        "Emphasizes name field over directory basename guessing"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "agent-skills リポジトリ内の SKILL（例: packages/agentic-workspace/.apm/skills/workspace-resolve-root-directory/SKILL.md）に `repo:this/README.md` と書いてある。Multi-Root の folders に name=this は無い。絶対パスはどう解決する？短く。",
+      "expected_output": "folders 照合せず、その SKILL が属する agent-skills の git ルート配下 README.md",
+      "files": [],
+      "assertions": [
+        "Does not look up folders[].name this",
+        "Resolves via git rev-parse --show-toplevel of the skill's repository (agent-skills)",
+        "Final path is agent-skills/README.md (absolute), not HQ or another multi-root folder"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Multi-Root ではなく、ディレクトリ /Users/eaglesakura/work/eaglesakura.com/pocket-kosodate-hq/headquarters だけをワークスペースとして開いている（ルート1つ）。`folder:example/README.md` と `repo:example/README.md` の絶対パスをそれぞれ答え、{name}=example をどう扱うか短く。",
+      "expected_output": "folder → headquarters/README.md。repo → pocket-kosodate-hq/README.md。example は無視（互換）",
+      "files": [],
+      "assertions": [
+        "Ignores the name segment example in single-root mode",
+        "folder: resolves to the open workspace directory headquarters/README.md",
+        "repo: resolves via git toplevel from the open workspace to pocket-kosodate-hq/README.md",
+        "Does not fail just because example is not a folders[].name"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Multi-Root workspace は pocket-kosodate.code-workspace。表記元が /Users/eaglesakura/work/eaglesakura.com/pocket-kosodate-hq/repo/agent-skills/packages/agentic-workspace/.apm/skills/workspace-resolve-root-directory/SKILL.md にある `folder:this/README.md` の絶対パスは？短く。",
+      "expected_output": "agent-skills folder 直下の README.md（表記元が属する workspace folder。git 親へ上げない）",
+      "files": [],
+      "assertions": [
+        "Does not look up folders[].name this",
+        "Uses the multi-root folder that contains the source skill (agent-skills)",
+        "Final path is agent-skills/README.md under the folder root, not pocket-kosodate-hq git root"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "workspace-resolve-root-directory の文脈で、ルート名も folder:/repo: も無しの相対パス `README.md` を解く。どう扱う？暗黙規則を含めて短く。",
+      "expected_output": "暗黙の folder:this/README.md。ディレクトリ名推測で name を当てない。",
+      "files": [],
+      "assertions": [
+        "Treats unspecified root as implicit folder:this/",
+        "Does not guess a folders[].name from path fragments",
+        "Does not claim this replaces quoted git-root paths owned by workspace-resolve-file-path"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Multi-Root は pocket-kosodate.code-workspace（name: HQ, app, backend, agent-skills）。文脈「バックエンド側の README」。表記 `folder:example/README.md`。絶対パスと読み替え内容を短く。",
+      "expected_output": "example→backend。pocket_kosodate_backend/README.md",
+      "files": [],
+      "assertions": [
+        "Remaps variable example to folders[].name backend from prompt context",
+        "Final absolute path is under pocket_kosodate_backend/README.md",
+        "Mentions the remap example → backend (or equivalent)"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "同じ workspace。文脈「Flutter アプリ（app）側」。表記 `repo:example/README.md`。絶対パスと folder: との違いに触れつつ短く。",
+      "expected_output": "example→app。repo なので app folder 起点の git ルート配下 README（folder と同値になりうる）",
+      "files": [],
+      "assertions": [
+        "Remaps example to app from context",
+        "Uses repo: semantics (git toplevel from the app folder)",
+        "Final path under pocket_kosodate/README.md (app repo root)"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "同じ workspace。表記 `folder:example/README.md` だが文脈にどのルートか書いていない。どう扱う？短く。",
+      "expected_output": "読み替え不能として失敗報告。folders[].name 一覧を示す。勝手に選ばない。",
+      "files": [],
+      "assertions": [
+        "Does not pick a folder arbitrarily when example has no context",
+        "Reports available folders[].name and that remap failed",
+        "Does not silently map example to a random name"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "開いている Multi-Root Workspace は /Users/eaglesakura/work/eaglesakura.com/pocket-kosodate-hq/headquarters/pocket-kosodate.code-workspace です。`@HQ/README.md` の実ファイル絶対パスを解決して答えてください。folder: との関係も一言で。",
+      "expected_output": "headquarters/README.md の絶対パス。@HQ は folder:HQ と同一の folder ルート",
+      "files": [],
+      "assertions": [
+        "Treats @HQ as folder-root semantics equivalent to folder:HQ",
+        "Matches folders[].name HQ and joins path '.' then README.md",
+        "Final path is headquarters/README.md absolute (not pocket-kosodate-hq git root README)"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "同じ workspace で `folder:HQ/README.md` と `@HQ/README.md` を両方解決し、結果パスが同一かどうかを明示して短く答えて。",
+      "expected_output": "両方とも headquarters/README.md で同一パス",
+      "files": [],
+      "assertions": [
+        "Resolves both folder:HQ/README.md and @HQ/README.md",
+        "States that the two absolute paths are identical",
+        "Both point to headquarters/README.md (not git parent README)"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "同じ workspace。`@backend/README.md` の絶対パスを解決。ディレクトリ名推測ではなく folders[].name で解いていることを短く。",
+      "expected_output": "pocket_kosodate_backend/README.md。name=backend",
+      "files": [],
+      "assertions": [
+        "Uses folders[].name backend for @backend (same as folder:backend)",
+        "Treats folders[].path as relative to the code-workspace file directory",
+        "Final path points under pocket_kosodate_backend/README.md (absolute)"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "同じ workspace。`@HQ/README.md` と `repo:HQ/README.md` の絶対パスをそれぞれ答え、違いを短く。",
+      "expected_output": "@HQ → headquarters/README.md。repo:HQ → pocket-kosodate-hq/README.md。@ は folder ルートであり repo ではない",
+      "files": [],
+      "assertions": [
+        "Resolves @HQ to headquarters/README.md (folder root)",
+        "Resolves repo:HQ to pocket-kosodate-hq/README.md (git toplevel)",
+        "Explicitly distinguishes @ / folder: from repo:"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "Multi-Root は pocket-kosodate.code-workspace（name: HQ, app, backend, agent-skills）。文脈「バックエンド側の README」。表記 `@example/README.md`。絶対パスと読み替え内容を短く。",
+      "expected_output": "example→backend。pocket_kosodate_backend/README.md（folder:example と同じ）",
+      "files": [],
+      "assertions": [
+        "Remaps variable example to folders[].name backend from prompt context for @example",
+        "Final absolute path is under pocket_kosodate_backend/README.md",
+        "Treats @example like folder:example (folder-root remap, not repo:)"
+      ]
+    }
+  ]
+}

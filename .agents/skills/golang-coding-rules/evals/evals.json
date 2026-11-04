@@ -1,0 +1,38 @@
+{
+  "skill_name": "golang-coding-rules",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "次の import に別名を付けたい。このプロジェクトのコーディング規約だと、どんな別名にするべき？\n\nimport (\n  \"cloud.google.com/go/secretmanager/apiv1\"\n)\n\n短いコード例で示して。",
+      "expected_output": "末尾1ワードの secretmanager を別名に使う例",
+      "files": [],
+      "assertions": [
+        "Recommends an alias based on the last path segment (secretmanager)",
+        "Shows a Go import example with the alias",
+        "Does not invent an unrelated alias like sm or gsm as the primary recommended pattern"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "ラップされた error が *connect.Error かどうか判定したい。このプロジェクトの規約ではどう書くべき？型アサーションの繰り返しや文字列比較と比較して、推奨を短く説明して。",
+      "expected_output": "errors.As を使う",
+      "files": [],
+      "assertions": [
+        "Recommends errors.As",
+        "Shows a code snippet using errors.As",
+        "Discourages string comparison and/or fragile type assertions as the primary approach"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "public な型 PreferenceKey にドキュメントコメントを付ける。規約どおりの良い例と、やってはいけない例を1つずつ短く示して（日本語コメント）。",
+      "expected_output": "主語省略の DO / 型名を主語にした DO NOT",
+      "files": [],
+      "assertions": [
+        "Shows a Japanese doc comment example without repeating the type name as subject (good example)",
+        "Shows a bad example that starts with the type name as subject (e.g. PreferenceKey は)",
+        "Implies or states that public symbols need Japanese documentation comments"
+      ]
+    }
+  ]
+}

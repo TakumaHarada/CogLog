@@ -1,0 +1,41 @@
+{
+  "skill_name": "markdown-documentation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。docs/sample/di-guidelines.md に、Dependency Injection を推奨する短い技術ドキュメントを新規作成せよ。必須: 概要、1つの原則（補足と実装例付き）、ナレッジベース（DO と DO NOT を各1つ以上）。である調。架空の絶対パスは使わない。実装例のコードはテンプレート変数付きの提案コードでよい。",
+      "expected_output": "必須セクション揃いの技術文書",
+      "files": [],
+      "expectations": [
+        "Created docs/sample/di-guidelines.md",
+        "Contains ## 概要",
+        "Contains ## ナレッジベース with ### DO: and ### DO NOT:",
+        "Uses である調 (not ですます as dominant)",
+        "Includes a 補足 subsection for a principle",
+        "Does not use absolute filesystem paths like /Users/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。ユーザーは『ログイン改善の要件定義ドキュメントを docs に書いて』と言っている。markdown-documentation スキルとして、計画の要件定義と技術ドキュメントのどちら向きか判断し、適切なら短い技術文書、不適切ならエンジニア要件 SKILL へ誘導する説明を outputs/result.md に書け。プロダクション想定の大規模実装はしない。",
+      "expected_output": "要件定義依頼を engineer-software-requirement へ誘導、または境界を明示",
+      "files": [],
+      "expectations": [
+        "Mentions engineer-software-requirement or 要件定義スキル / 計画ファイル",
+        "Does not treat a full coding.requirement plan as the primary docs/ deliverable without noting the boundary"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "評価用サンドボックスをリポジトリルートとみなす。docs/sample/paths.md にパス記述ルールの短い文書を作れ。参考リンクに Flutter 公式 https://docs.flutter.dev/ を含め、ベアURLにしないこと。概要とナレッジベース必須。",
+      "expected_output": "参考リンクが <URL> 形式",
+      "files": [],
+      "expectations": [
+        "Created docs/sample/paths.md",
+        "Contains ## 参考リンク",
+        "Uses angle-bracket URL form <https://docs.flutter.dev/>",
+        "Contains ## 概要 and ## ナレッジベース"
+      ]
+    }
+  ]
+}
