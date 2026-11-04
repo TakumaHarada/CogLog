@@ -1,0 +1,21 @@
+name: coglog
+version: 0.1.0
+description: |
+  CogLog の AI Agent 設定。eaglesakura/agent-skills 配下のパッケージを導入する。
+
+targets:
+  - cursor
+
+dependencies:
+  apm:
+    - eaglesakura/agent-skills/packages/agent-creator
+    - eaglesakura/agent-skills/packages/agentic-workspace
+    - eaglesakura/agent-skills/packages/coding-xm3
+    - eaglesakura/agent-skills/packages/coding-security
+    - eaglesakura/agent-skills/packages/connect-rpc
+    - eaglesakura/agent-skills/packages/cursor-extensions
+    - eaglesakura/agent-skills/packages/flutter
+    - eaglesakura/agent-skills/packages/github
+    - eaglesakura/agent-skills/packages/golang
+    - eaglesakura/agent-skills/packages/machine
+    - eaglesakura/agent-skills/packages/ohitorisama
