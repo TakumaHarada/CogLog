@@ -1,0 +1,3 @@
+id,ja,en,description
+increase,増やす,Increase,カウントを増やすボタン
+count,回数 {count},Count {count},現在の回数

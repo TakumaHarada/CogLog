@@ -1,0 +1,25 @@
+name: coglog
+description: CogLog records exercise history from stationary bikes and supports weight loss.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+  flutter: ">=3.47.0 <4.0.0"
+
+workspace:
+  - app
+  - app/runner
+  - app_packages/foundation/metadata
+  - app_packages/foundation/resources
+
+# 実効バージョンはここで揃える。子パッケージの依存は any。
+dependency_overrides:
+  flutter_lints: ^6.0.0
+  forui: ^0.27.7
+  monolith_localization_runtime: ^1.1.0
+  monolith_runner: ^1.0.2
+
+dev_dependencies:
+  flutter_lints: any
+  monolith_runner: any
