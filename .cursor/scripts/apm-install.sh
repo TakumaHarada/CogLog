@@ -78,3 +78,6 @@ fi
 
 sanitize_git_config
 apm install --target cursor --https
+
+# Cloud Agents load ~/.cursor/skills at chat start. Repository copies stay gitignored.
+python3 "${root}/.cursor/scripts/publish-cursor-skills.py" "${root}"
