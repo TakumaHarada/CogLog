@@ -1,0 +1,20 @@
+{
+  "@@locale": "ja",
+  "app_count": "回数 {count}",
+  "@app_count": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    },
+    "description": "現在の回数"
+  },
+  "app_increase": "増やす",
+  "@app_increase": {
+    "description": "カウントを増やすボタン"
+  },
+  "foundation_resources_app_name": "CogLog",
+  "@foundation_resources_app_name": {
+    "description": "アプリケーション名"
+  }
+}

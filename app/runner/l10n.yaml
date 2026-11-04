@@ -1,0 +1,7 @@
+arb-dir: lib/l10n
+template-arb-file: intl_app_ja.arb
+output-localization-file: l10n.dart
+output-class: L10n
+nullable-getter: false
+preferred-supported-locales:
+  - ja

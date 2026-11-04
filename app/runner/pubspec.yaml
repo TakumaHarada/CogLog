@@ -1,0 +1,23 @@
+name: app_runner
+description: Localization host for CogLog. Generated ARB files and L10nHelper live here.
+publish_to: none
+resolution: workspace
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+  flutter: ">=3.47.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  monolith_localization_runtime: any
+
+dev_dependencies:
+  flutter_lints: any
+
+flutter:
+  generate: true
+  uses-material-design: true
