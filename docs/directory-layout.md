@@ -68,6 +68,7 @@
 - 子パッケージは `publish_to: none` と `resolution: workspace` を持つ。
 - パッケージ名と `lib/<パッケージ名>.dart` を一致させる。公開 API だけを `export` する。
 - 実装は `lib/src/` に置く。クラスファイルの名前とコメントは `docs/coding.md` に従う。
+- ユニットテストは `test/<対象>_test.dart` に置く。Golden 画像は、そのテストファイルと同じディレクトリの `goldens/` に置く。
 
 ## 名前
 
