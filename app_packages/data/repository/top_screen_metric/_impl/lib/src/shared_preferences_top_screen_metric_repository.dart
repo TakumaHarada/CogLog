@@ -18,8 +18,10 @@ final class SharedPreferencesTopScreenMetricRepository
   /// ```
   const SharedPreferencesTopScreenMetricRepository(this._preferences);
 
+  /// 指標を保存するキー。
   static const _key = 'top_screen_metric';
 
+  /// 読み書き先。
   final SharedPreferences _preferences;
 
   /// 未保存と不明な文字列は null。
@@ -51,6 +53,9 @@ final class SharedPreferencesTopScreenMetricRepository
       PeriodTotalMetric.calories => 'calories',
       PeriodTotalMetric.duration => 'duration',
     };
-    await _preferences.setString(_key, value);
+    final saved = await _preferences.setString(_key, value);
+    if (!saved) {
+      throw StateError('$_key を保存できなかった。');
+    }
   }
 }

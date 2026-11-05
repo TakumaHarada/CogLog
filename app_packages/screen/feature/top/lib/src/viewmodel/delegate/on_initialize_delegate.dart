@@ -40,10 +40,10 @@ final class OnInitializeDelegate {
   /// delegate.execute();
   /// ```
   Future<void> execute() async {
-    final result = await loadTopScreenUsecase.execute(
-      LoadTopScreenRequest(now: DateTime.now()),
-    );
-    await state.updateWithLock((current, emitter) async {
+    await state.updateWithLock((_, emitter) async {
+      final result = await loadTopScreenUsecase.execute(
+        LoadTopScreenRequest(now: DateTime.now()),
+      );
       await emitter.emit(
         TopScreenState(
           loaded: true,

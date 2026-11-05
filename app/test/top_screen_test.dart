@@ -44,6 +44,7 @@ void main() {
     await pumpTopScreen(tester, histories: histories, preferences: preferences);
     await _chooseMetric(tester, '消費カロリー', '走行距離');
 
+    await tester.pumpWidget(const SizedBox());
     await pumpTopScreen(tester, histories: histories, preferences: preferences);
     expect(find.text('2.5'), findsNWidgets(3));
     expect(find.text('km'), findsNWidgets(3));

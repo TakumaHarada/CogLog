@@ -47,11 +47,15 @@ final class PeriodWindow {
   /// ```
   factory PeriodWindow.week(DateTime now) {
     final local = now.toLocal();
-    final today = DateTime(local.year, local.month, local.day);
-    final start = today.subtract(
-      Duration(days: today.weekday - DateTime.monday),
+    final start = DateTime(
+      local.year,
+      local.month,
+      local.day - (local.weekday - DateTime.monday),
     );
-    return PeriodWindow(start: start, end: start.add(const Duration(days: 7)));
+    return PeriodWindow(
+      start: start,
+      end: DateTime(start.year, start.month, start.day + 7),
+    );
   }
 
   /// [now] の現地暦の月の 1 日 0:00 から翌月 1 日 0:00 の直前まで。

@@ -68,6 +68,12 @@ final class TopScreenViewModel {
   @visibleForTesting
   final TopScreenStateToEntityDelegate stateToEntity;
 
+  /// 注入された依存から ViewModel を作る。
+  ///
+  /// Example:
+  /// ```dart
+  /// TopScreenViewModel.provider;
+  /// ```
   const TopScreenViewModel._({
     required this.state,
     required this.loadTopScreenUsecase,
@@ -78,5 +84,11 @@ final class TopScreenViewModel {
   /// 表示に使う文字列。
   StateStream<TopScreenEntity> get entity => state.map(stateToEntity.execute);
 
+  /// 状態の Stream を閉じる。
+  ///
+  /// Example:
+  /// ```dart
+  /// viewModel.provider;
+  /// ```
   Future<void> _close() => state.close();
 }
