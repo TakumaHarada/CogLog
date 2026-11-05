@@ -12,8 +12,11 @@ apm.lock.yaml
 .agents/
 .cursor/agents/
 .cursor/commands/
-.cursor/rules/
-.cursor/skills/
+.cursor/rules/**
+!.cursor/rules/prepare-cloud-agent.mdc
+.cursor/skills/**
+!.cursor/skills/prepare-cloud-agent/
+!.cursor/skills/prepare-cloud-agent/**
 
 # Agent workspace (local only)
 .ai-agent/
