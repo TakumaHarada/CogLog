@@ -1,6 +1,7 @@
 # Miscellaneous
 *.class
 *.lock
+!pubspec.lock
 *.log
 *.pyc
 *.swp
@@ -18,6 +19,11 @@ apm.lock.yaml
 .ai-agent/
 .buildlog/
 .history
+
+# Flutter Monolith secrets.
+# `op inject` writes secrets/monolith.yaml. dart-define JSON is generated
+# under secrets/dart-define/ and is not committed.
+/secrets/
 
 
 
