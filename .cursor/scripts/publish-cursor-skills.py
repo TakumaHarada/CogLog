@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """Copy APM skills and commands into ~/.cursor/skills without committing them.
 
-Cloud Agents read this home directory at chat start. The repository copies stay
-gitignored. Command files become explicit slash skills.
+Only directories recorded in this repository's manifest are replaced or
+removed. Skills owned by another repository stay in place. A matching marker
+is how `python3 .cursor/scripts/publish-cursor-skills.py --check` decides that
+the current repository's commands are ready.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -54,6 +60,57 @@ def set_name(fm: str, name: str) -> str:
     if re.search(r"(?m)^name:", fm):
         return re.sub(r"(?m)^name:.*$", f"name: {name}", fm, count=1)
     return f"name: {name}\n{fm}"
+
+
+def repository_id(root: Path) -> str:
+    try:
+        url = subprocess.check_output(
+            ["git", "-C", str(root), "remote", "get-url", "origin"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        url = root.resolve().as_posix()
+    url = re.sub(r"://[^/@]+@", "://", url)
+    return re.sub(r"\.git$", "", url)
+
+
+def apm_yml_sha256(root: Path) -> str:
+    return hashlib.sha256((root / "apm.yml").read_bytes()).hexdigest()
+
+
+def expected_commands(root: Path) -> list[str]:
+    commands = root / ".cursor" / "commands"
+    if not commands.is_dir():
+        return []
+    names: list[str] = []
+    for path in sorted(commands.glob("*.md")):
+        name = skill_name(path.stem)
+        if name:
+            names.append(name)
+    return names
+
+
+def manifest_path(repo: str) -> Path:
+    digest = hashlib.sha256(repo.encode()).hexdigest()
+    return Path.home() / ".cursor" / "apm-skill-manifests" / f"{digest}.json"
+
+
+def load_manifest(path: Path) -> dict[str, object]:
+    if not path.is_file():
+        return {}
+    try:
+        loaded = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return {}
+    return loaded if isinstance(loaded, dict) else {}
+
+
+def owned_names(manifest: dict[str, object]) -> set[str]:
+    raw = manifest.get("owned", [])
+    if not isinstance(raw, list):
+        return set()
+    return {name for name in raw if isinstance(name, str) and name}
 
 
 def publish(root: Path, dest: Path) -> int:
@@ -126,11 +183,88 @@ def publish(root: Path, dest: Path) -> int:
     return sum(1 for _ in dest.glob("*/SKILL.md"))
 
 
+def replace_owned(source: Path, target: Path) -> None:
+    if target.is_dir() and not target.is_symlink():
+        shutil.rmtree(target)
+    elif target.exists() or target.is_symlink():
+        target.unlink()
+    if source.is_dir():
+        shutil.copytree(source, target)
+    else:
+        shutil.copy2(source, target)
+
+
+def sync_home(root: Path) -> tuple[int, list[str]]:
+    home = Path.home() / ".cursor" / "skills"
+    home.mkdir(parents=True, exist_ok=True)
+    repo = repository_id(root)
+    marker = manifest_path(repo)
+    previous = owned_names(load_manifest(marker))
+    with tempfile.TemporaryDirectory(prefix="apm-skills-") as tmp:
+        staged = Path(tmp) / "skills"
+        count = publish(root, staged)
+        new_names = {child.name for child in staged.iterdir()}
+        for name in sorted(previous - new_names):
+            target = home / name
+            if target.is_dir() and not target.is_symlink():
+                shutil.rmtree(target)
+            elif target.exists() or target.is_symlink():
+                target.unlink()
+        for name in sorted(new_names):
+            replace_owned(staged / name, home / name)
+    commands = expected_commands(root)
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    marker.write_text(
+        json.dumps(
+            {
+                "repository": repo,
+                "apm_yml_sha256": apm_yml_sha256(root),
+                "commands": commands,
+                "owned": sorted(new_names),
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+    return count, commands
+
+
+def is_ready(root: Path) -> bool:
+    if not (root / "apm.yml").is_file():
+        return False
+    repo = repository_id(root)
+    manifest = load_manifest(manifest_path(repo))
+    if manifest.get("repository") != repo:
+        return False
+    if manifest.get("apm_yml_sha256") != apm_yml_sha256(root):
+        return False
+    commands = expected_commands(root)
+    if manifest.get("commands") != commands:
+        return False
+    home = Path.home() / ".cursor" / "skills"
+    for name in commands:
+        if not (home / name / "SKILL.md").is_file():
+            return False
+    return all((home / name).exists() for name in owned_names(manifest))
+
+
 def main() -> int:
-    root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
-    dest = Path.home() / ".cursor" / "skills"
-    count = publish(root, dest)
-    print(f"published {count} skills to {dest}")
+    args = sys.argv[1:]
+    check = False
+    if args and args[0] == "--check":
+        check = True
+        args = args[1:]
+    root = Path(args[0]).resolve() if args else Path.cwd()
+    if check:
+        if not is_ready(root):
+            print("not-ready", file=sys.stderr)
+            return 1
+        print("ready")
+        print("commands: " + " ".join(expected_commands(root)))
+        return 0
+    count, commands = sync_home(root)
+    print(f"published {count} skills to {Path.home() / '.cursor' / 'skills'}")
+    print("commands: " + " ".join(commands))
     return 0
 
 

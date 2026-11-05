@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Install the APM CLI if needed, then materialize Cursor skills from apm.yml.
-# Generated trees (.agents, apm_modules, apm.lock.yaml, .cursor agents/commands)
-# stay untracked. Safe to run on every VM boot.
+# Install the pinned APM CLI if needed, then materialize Cursor skills from apm.yml.
+# Generated trees (.agents, apm_modules, .cursor agents/commands) stay untracked.
+# apm.lock.yaml is tracked and selects the CLI version. Safe to re-run.
 set -euo pipefail
 
 log() {
@@ -10,8 +10,16 @@ log() {
 
 install_apm_cli() {
   local launcher="${HOME}/.local/bin/apm"
-  if [[ ! -x "${launcher}" && ! -x /usr/local/bin/apm ]]; then
-    curl -fsSL https://aka.ms/apm-unix | APM_NO_MODIFY_PATH=1 sh
+  local version
+  version="$(awk '/^apm_version:/ { print $2; exit }' apm.lock.yaml)"
+  if [[ -z "${version}" ]]; then
+    log "apm.lock.yaml has no apm_version"
+    exit 1
+  fi
+  export PATH="/usr/local/bin:${HOME}/.local/bin:${PATH}"
+  local escaped="${version//./\\.}"
+  if ! apm --version 2>/dev/null | grep -Eq "(^|[^0-9.])${escaped}([^0-9.]|$)"; then
+    curl -fsSL https://aka.ms/apm-unix | APM_NO_MODIFY_PATH=1 VERSION="v${version}" sh
   fi
   if [[ -x "${launcher}" && ! -e /usr/local/bin/apm ]]; then
     if [[ -w /usr/local/bin ]]; then
@@ -66,8 +74,6 @@ PY
   unset GIT_CONFIG_COUNT || true
 }
 
-install_apm_cli
-
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${root}"
 
@@ -75,6 +81,8 @@ if [[ ! -f apm.yml ]]; then
   log "apm.yml is absent; skipping apm install"
   exit 0
 fi
+
+install_apm_cli
 
 sanitize_git_config
 apm install --target cursor --https

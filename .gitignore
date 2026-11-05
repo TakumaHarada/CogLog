@@ -2,13 +2,13 @@
 *.class
 *.lock
 !pubspec.lock
+!apm.lock.yaml
 *.log
 *.pyc
 *.swp
 
 # APM materialization. The VM runs `apm install` and these stay untracked.
 apm_modules/
-apm.lock.yaml
 .agents/
 .cursor/agents/
 .cursor/commands/
