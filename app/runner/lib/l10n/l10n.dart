@@ -114,6 +114,60 @@ abstract class L10n {
   /// In ja, this message translates to:
   /// **'CogLog'**
   String get foundation_resources_app_name;
+
+  /// 指標
+  ///
+  /// In ja, this message translates to:
+  /// **'消費カロリー'**
+  String get screen_feature_top_calories;
+
+  /// 消費カロリーの単位
+  ///
+  /// In ja, this message translates to:
+  /// **'kcal'**
+  String get screen_feature_top_calories_unit;
+
+  /// 指標
+  ///
+  /// In ja, this message translates to:
+  /// **'走行距離'**
+  String get screen_feature_top_distance;
+
+  /// 走行距離の単位
+  ///
+  /// In ja, this message translates to:
+  /// **'km'**
+  String get screen_feature_top_distance_unit;
+
+  /// 指標
+  ///
+  /// In ja, this message translates to:
+  /// **'運動時間'**
+  String get screen_feature_top_duration;
+
+  /// 撮影導線
+  ///
+  /// In ja, this message translates to:
+  /// **'メーターパネルを撮影'**
+  String get screen_feature_top_open_camera;
+
+  /// 集計期間
+  ///
+  /// In ja, this message translates to:
+  /// **'今月'**
+  String get screen_feature_top_this_month;
+
+  /// 集計期間
+  ///
+  /// In ja, this message translates to:
+  /// **'今週'**
+  String get screen_feature_top_this_week;
+
+  /// 集計期間
+  ///
+  /// In ja, this message translates to:
+  /// **'本日'**
+  String get screen_feature_top_today;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

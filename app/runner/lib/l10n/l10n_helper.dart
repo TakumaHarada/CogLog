@@ -60,6 +60,42 @@ final class L10nHelper {
         // No Placeholders
         return l10n.foundation_resources_app_name;
       },
+      'screen_feature_top_calories': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_calories;
+      },
+      'screen_feature_top_calories_unit': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_calories_unit;
+      },
+      'screen_feature_top_distance': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_distance;
+      },
+      'screen_feature_top_distance_unit': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_distance_unit;
+      },
+      'screen_feature_top_duration': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_duration;
+      },
+      'screen_feature_top_open_camera': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_open_camera;
+      },
+      'screen_feature_top_this_month': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_this_month;
+      },
+      'screen_feature_top_this_week': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_this_week;
+      },
+      'screen_feature_top_today': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_today;
+      },
     };
 
     LocalizeStringDelegate.delegate = (source) {

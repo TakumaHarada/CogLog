@@ -16,5 +16,41 @@
   "foundation_resources_app_name": "CogLog",
   "@foundation_resources_app_name": {
     "description": "アプリケーション名"
+  },
+  "screen_feature_top_calories": "消費カロリー",
+  "@screen_feature_top_calories": {
+    "description": "指標"
+  },
+  "screen_feature_top_calories_unit": "kcal",
+  "@screen_feature_top_calories_unit": {
+    "description": "消費カロリーの単位"
+  },
+  "screen_feature_top_distance": "走行距離",
+  "@screen_feature_top_distance": {
+    "description": "指標"
+  },
+  "screen_feature_top_distance_unit": "km",
+  "@screen_feature_top_distance_unit": {
+    "description": "走行距離の単位"
+  },
+  "screen_feature_top_duration": "運動時間",
+  "@screen_feature_top_duration": {
+    "description": "指標"
+  },
+  "screen_feature_top_open_camera": "メーターパネルを撮影",
+  "@screen_feature_top_open_camera": {
+    "description": "撮影導線"
+  },
+  "screen_feature_top_this_month": "今月",
+  "@screen_feature_top_this_month": {
+    "description": "集計期間"
+  },
+  "screen_feature_top_this_week": "今週",
+  "@screen_feature_top_this_week": {
+    "description": "集計期間"
+  },
+  "screen_feature_top_today": "本日",
+  "@screen_feature_top_today": {
+    "description": "集計期間"
   }
 }
