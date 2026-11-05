@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-"""Publish APM skills for Cloud Agents.
+"""Copy APM skills and commands into ~/.cursor/skills without committing them.
 
-The full skill library is copied to ~/.cursor/skills so a new agent can load it
-at chat start. Those home-directory skills do not appear in the Cloud Agent
-slash menu.
-
-Slash commands are also written to .cursor/skills/<name>/SKILL.md and committed.
-Cloud Agents list that project directory in the `/` menu. `.cursor/commands`
-stays gitignored because the menu does not read it.
+Cloud Agents read this home directory at chat start. The repository copies stay
+gitignored. Command files become explicit slash skills.
 """
 
 from __future__ import annotations
@@ -61,57 +56,6 @@ def set_name(fm: str, name: str) -> str:
     return f"name: {name}\n{fm}"
 
 
-def command_skill(path: Path) -> tuple[str, str] | None:
-    text = path.read_text()
-    parsed = frontmatter(text)
-    description = path.stem
-    body = text
-    if parsed is not None:
-        fm, body = parsed
-        description = field(fm, "description") or description
-    name = skill_name(path.stem)
-    if not name:
-        return None
-    document = (
-        "---\n"
-        f"name: {name}\n"
-        f"description: {yaml_quote(description)}\n"
-        "disable-model-invocation: true\n"
-        "metadata:\n"
-        "  source: apm-cursor-command\n"
-        "---\n"
-        f"{body}"
-    )
-    return name, document
-
-
-def sync_project_commands(root: Path) -> int:
-    """Write slash commands where the Cloud Agent menu can see them."""
-    commands = root / ".cursor" / "commands"
-    dest = root / ".cursor" / "skills"
-    dest.mkdir(parents=True, exist_ok=True)
-    expected: set[str] = set()
-    if commands.is_dir():
-        for path in sorted(commands.glob("*.md")):
-            written = command_skill(path)
-            if written is None:
-                continue
-            name, document = written
-            expected.add(name)
-            out = dest / name
-            out.mkdir(parents=True, exist_ok=True)
-            (out / "SKILL.md").write_text(document)
-
-    for skill_md in dest.glob("*/SKILL.md"):
-        if skill_md.parent.name in expected:
-            continue
-        parsed = frontmatter(skill_md.read_text())
-        if parsed is None or "source: apm-cursor-command" not in parsed[0]:
-            continue
-        shutil.rmtree(skill_md.parent)
-    return len(expected)
-
-
 def publish(root: Path, dest: Path) -> int:
     skills = root / ".agents" / "skills"
     commands = root / ".cursor" / "commands"
@@ -158,13 +102,26 @@ def publish(root: Path, dest: Path) -> int:
 
     if commands.is_dir():
         for path in sorted(commands.glob("*.md")):
-            written = command_skill(path)
-            if written is None:
+            text = path.read_text()
+            parsed = frontmatter(text)
+            description = path.stem
+            body = text
+            if parsed is not None:
+                fm, body = parsed
+                description = field(fm, "description") or description
+            name = skill_name(path.stem)
+            if not name:
                 continue
-            name, document = written
             out = dest / name
             out.mkdir(parents=True, exist_ok=True)
-            (out / "SKILL.md").write_text(document)
+            (out / "SKILL.md").write_text(
+                "---\n"
+                f"name: {name}\n"
+                f"description: {yaml_quote(description)}\n"
+                "disable-model-invocation: true\n"
+                "---\n"
+                f"{body}"
+            )
 
     return sum(1 for _ in dest.glob("*/SKILL.md"))
 
@@ -173,9 +130,7 @@ def main() -> int:
     root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path.cwd()
     dest = Path.home() / ".cursor" / "skills"
     count = publish(root, dest)
-    commands = sync_project_commands(root)
     print(f"published {count} skills to {dest}")
-    print(f"published {commands} slash commands to {root / '.cursor' / 'skills'}")
     return 0
 
 
