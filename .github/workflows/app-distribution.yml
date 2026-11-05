@@ -9,7 +9,7 @@
 #   FIREBASE_APP_DISTRIBUTION_GROUPS  カンマ区切りのテスターグループ
 #
 # iOS の IPA は Team ID、証明書、Provisioning Profile が揃ってから追加する。
-# release 署名は app/android/app/build.gradle.kts の debug 署名に従う。
+# release 署名は 1Password の upload-keystore.jks を使う。
 name: App Distribution
 
 on:
@@ -95,6 +95,50 @@ jobs:
               raise SystemExit("google-services.json package_name mismatch")
           PY
 
+      - name: Place release keystore
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p secrets/android
+          rm -f secrets/android/upload-keystore.jks app/android/key.properties
+          op read --force --out-file secrets/android/upload-keystore.jks \
+            "op://AppDevelopment/CogLog_develop/upload-keystore.jks"
+          store_password="$(op read 'op://AppDevelopment/CogLog_develop/storePassword')"
+          key_password="$(op read 'op://AppDevelopment/CogLog_develop/keyPassword')"
+          key_alias="$(op read 'op://AppDevelopment/CogLog_develop/keyAlias')"
+          STORE_PASSWORD="$store_password" KEY_PASSWORD="$key_password" KEY_ALIAS="$key_alias" \
+            python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          def escape(value: str) -> str:
+              return (
+                  value.replace("\\", "\\\\")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace("=", "\\=")
+                  .replace(":", "\\:")
+                  .replace("#", "\\#")
+                  .replace("!", "\\!")
+              )
+
+          path = Path("app/android/key.properties")
+          path.write_text(
+              "\n".join(
+                  [
+                      f"storePassword={escape(os.environ['STORE_PASSWORD'])}",
+                      f"keyPassword={escape(os.environ['KEY_PASSWORD'])}",
+                      f"keyAlias={escape(os.environ['KEY_ALIAS'])}",
+                      "storeFile=../../../secrets/android/upload-keystore.jks",
+                      "",
+                  ]
+              ),
+              encoding="utf-8",
+          )
+          path.chmod(0o600)
+          PY
+
       - name: Setup Java
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # actions/setup-java@v6.2.0
         with:
@@ -113,6 +157,23 @@ jobs:
           set -euo pipefail
           flutter pub get
           dart run monolith_runner:define
+
+      - name: Analyze and test
+        run: |
+          set -euo pipefail
+          flutter analyze
+          while IFS= read -r pubspec; do
+            dir="$(dirname "$pubspec")"
+            if [ ! -d "${dir}/test" ]; then
+              continue
+            fi
+            echo "test ${dir}"
+            if grep -q 'sdk: flutter' "$pubspec"; then
+              (cd "$dir" && flutter test)
+            else
+              (cd "$dir" && dart test)
+            fi
+          done < <(find . -name pubspec.yaml -not -path '*/.dart_tool/*' -not -path '*/build/*' | sort)
 
       - name: Accept Android licenses
         run: |

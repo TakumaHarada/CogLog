@@ -6,6 +6,16 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+// release 署名は app/android/key.properties と、そこが指す keystore を使う。
+// どちらも Git には置かない。配置手順は docs/constraints.md の App Distribution。
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = java.util.Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.reader(Charsets.UTF_8).use { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 android {
     namespace = "io.github.madahataraku.coglog"
     compileSdk = flutter.compileSdkVersion
@@ -30,12 +40,33 @@ android {
         versionName = flutter.versionName
     }
 
+    if (keystorePropertiesFile.exists()) {
+        signingConfigs {
+            create("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storePassword = keystoreProperties.getProperty("storePassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // リリース署名は別途対応する。それまでは debug 署名のままにし、
-            // flutter run --release を実行できるようにする。
-            signingConfig = signingConfigs.getByName("debug")
+            // debug 署名は実行ごとに鍵が変わるため、配布済み APK を上書き更新できない。
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    val releaseRequested = graph.allTasks.any { task -> task.name.contains("Release") }
+    if (releaseRequested && !keystorePropertiesFile.exists()) {
+        throw GradleException(
+            "release 署名には app/android/key.properties が必要です。docs/constraints.md の App Distribution を参照してください。",
+        )
     }
 }
 

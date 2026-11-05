@@ -79,8 +79,38 @@ Actions に置く secret は次のとおり。
 
 - `OP_SERVICE_ACCOUNT_TOKEN`。vault `AppDevelopment` を読める 1Password サービスアカウント。
 - `GCP_WORKLOAD_IDENTITY_PROVIDER`。このリポジトリ向けの Workload Identity Federation プロバイダ資源名。
-- `GCP_SERVICE_ACCOUNT`。`roles/firebaseappdistro.admin` だけを持つサービスアカウントのメールアドレス。
+- `GCP_SERVICE_ACCOUNT`。サービスアカウントのメールアドレス。Google Cloud のプロジェクト IAM で、このメンバーに `roles/firebaseappdistro.admin` を付ける。
+
+同じサービスアカウントには、リポジトリ `madahataraku/CogLog` の `main` からだけなれるようにする。管理場所は Google Cloud コンソールの **IAM と管理 → サービス アカウント → 対象アカウント → 権限** である。そこへ次の principal に `roles/iam.workloadIdentityUser` を付ける。
+
+```text
+principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/madahataraku/CogLog
+```
 
 テスターグループはリポジトリ変数 `FIREBASE_APP_DISTRIBUTION_GROUPS` にカンマ区切りで置く。手動起動の `groups` 入力があるときはそれを使う。
 
-versionName は `pubspec.yaml` のままにする。versionCode は GitHub Actions の run number にする。release 署名は `app/android/app/build.gradle.kts` の debug 署名のままなので、ランナーが毎回作る debug キーストアでは、前回インストールした APK の上から更新できない。安定した更新にするときは、先に release 用キーストアの置き場をこの文書へ書いてから署名を切り替える。
+配布の前に、リポジトリルートで `flutter analyze` を実行し、`test/` がある各パッケージでテストを実行する。`sdk: flutter` を持つパッケージは `flutter test`、それ以外は `dart test` である。
+
+versionName は `pubspec.yaml` のままにする。versionCode は GitHub Actions の run number にする。release 署名は同じ upload keystore を使い、配布済みの APK を上書き更新できるようにする。debug 署名は release に使わない。
+
+keystore とパスワードは、アイテム `CogLog_develop` に置く。Actions は次の参照を読み、標準出力へパスワードを出さずに `app/android/key.properties` を書く。
+
+- `op://AppDevelopment/CogLog_develop/upload-keystore.jks`
+- `op://AppDevelopment/CogLog_develop/storePassword`
+- `op://AppDevelopment/CogLog_develop/keyPassword`
+- `op://AppDevelopment/CogLog_develop/keyAlias`
+
+`storeFile` は `app/android/app` から `../../../secrets/android/upload-keystore.jks` を指す。keystore、`key.properties`、パスワードは Git に入れない。
+
+keystore がまだ無いときは、リポジトリの外で一度だけ作り、同じアイテムへファイル添付する。`keyAlias` に入れる別名は、このコマンドの `-alias` と揃える。
+
+```bash
+keytool -genkeypair -v \
+  -keystore upload-keystore.jks \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000 \
+  -alias upload
+```
+
+`storePassword` と `keyPassword` は、そのときに入力したパスワードである。同じファイルを後から作り直すと、すでに配布した APK を上書き更新できなくなる。
