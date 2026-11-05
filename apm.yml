@@ -8,14 +8,14 @@ targets:
 
 dependencies:
   apm:
-    - eaglesakura/agent-skills/packages/agent-creator
-    - eaglesakura/agent-skills/packages/agentic-workspace
-    - eaglesakura/agent-skills/packages/coding-xm3
-    - eaglesakura/agent-skills/packages/coding-security
-    - eaglesakura/agent-skills/packages/connect-rpc
-    - eaglesakura/agent-skills/packages/cursor-extensions
-    - eaglesakura/agent-skills/packages/flutter
-    - eaglesakura/agent-skills/packages/github
-    - eaglesakura/agent-skills/packages/golang
-    - eaglesakura/agent-skills/packages/machine
-    - eaglesakura/agent-skills/packages/ohitorisama
+    - eaglesakura/agent-skills/packages/agent-creator#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/agentic-workspace#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/coding-xm3#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/coding-security#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/connect-rpc#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/cursor-extensions#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/flutter#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/github#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/golang#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/machine#554a910a44719e176db3142f599e0a0395fe29f5
+    - eaglesakura/agent-skills/packages/ohitorisama#554a910a44719e176db3142f599e0a0395fe29f5

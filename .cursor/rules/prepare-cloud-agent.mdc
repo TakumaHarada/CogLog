@@ -3,8 +3,8 @@ description: Cloud Agent のチャット開始時に APM コマンドを使え�
 alwaysApply: true
 ---
 
-Cloud Agent で作業を始める前に、`~/.cursor/skills/coding-design/SKILL.md` が存在し、リポジトリルートの `apm.yml` より新しいことを確認する。
+Cloud Agent で作業を始める前に、リポジトリルートで `python3 .cursor/scripts/publish-cursor-skills.py --check` を実行する。終了コード 0 が準備完了である。判定は、現在のリポジトリ識別子、`apm.yml` の SHA-256、期待する全コマンド一覧を記録したマーカーと、`~/.cursor/skills` の実体を照合する。
 
-無いか古い場合は、`.cursor/skills/prepare-cloud-agent/SKILL.md` を読み、その手順に従う。導入が終わったら利用者の他の依頼には進まず、コマンドを使える状態で待機する。
+終了コードが 0 でない場合は、`.cursor/skills/prepare-cloud-agent/SKILL.md` を読み、その手順に従う。導入が終わったら利用者の他の依頼には進まず、コマンドを使える状態で待機する。
 
-すでに準備できている場合は、この確認だけで終え、利用者の依頼へ進む。
+終了コードが 0 の場合は、この確認だけで終え、利用者の依頼へ進む。
