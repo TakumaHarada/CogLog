@@ -67,11 +67,17 @@ class TopScreenBody extends HookConsumerWidget {
           FSelect<PeriodTotalMetric>(
             control: .lifted(
               value: entity.metric,
-              onChange: (metric) {
+              onChange: (metric) async {
                 if (metric == null || metric == entity.metric) {
                   return;
                 }
-                ref.read(TopScreenViewModel.provider).onSelectMetric(metric);
+                try {
+                  await ref
+                      .read(TopScreenViewModel.provider)
+                      .onSelectMetric(metric);
+                } on Object {
+                  // 保存に失敗したときは State を変えない。未処理のエラーにしない。
+                }
               },
             ),
             items: {
@@ -111,29 +117,67 @@ class TopScreenBody extends HookConsumerWidget {
   }
 }
 
+/// [metric] の表示名。
+///
+/// Example:
+/// ```dart
+/// _metricLabel(PeriodTotalMetric.calories);
+/// ```
 String _metricLabel(PeriodTotalMetric metric) => switch (metric) {
   PeriodTotalMetric.distance => strings.screen_feature_top_distance,
   PeriodTotalMetric.calories => strings.screen_feature_top_calories,
   PeriodTotalMetric.duration => strings.screen_feature_top_duration,
 };
 
+/// [metric] の単位。運動時間は数値の中に単位を含むので null。
+///
+/// Example:
+/// ```dart
+/// _unit(PeriodTotalMetric.distance);
+/// ```
 String? _unit(PeriodTotalMetric metric) => switch (metric) {
   PeriodTotalMetric.distance => strings.screen_feature_top_distance_unit,
   PeriodTotalMetric.calories => strings.screen_feature_top_calories_unit,
   PeriodTotalMetric.duration => null,
 };
 
+/// 1 期間の合計を、左上の期間名と中央の数字で示す。
 class _PeriodBox extends StatelessWidget {
+  /// [label] を左上に、[value] を中央に置く。
+  ///
+  /// Example:
+  /// ```dart
+  /// _PeriodBox(
+  ///   label: '本日',
+  ///   value: '--',
+  ///   metric: PeriodTotalMetric.calories,
+  /// );
+  /// ```
   const _PeriodBox({
     required this.label,
     required this.value,
     required this.metric,
   });
 
+  /// 左上に出す期間名。
   final String label;
+
+  /// 中央に出す合計の表記。
   final String value;
+
+  /// 単位を決める指標。
   final PeriodTotalMetric metric;
 
+  /// 期間名を上に、数字を中央に置く。
+  ///
+  /// Example:
+  /// ```dart
+  /// _PeriodBox(
+  ///   label: '本日',
+  ///   value: '--',
+  ///   metric: PeriodTotalMetric.calories,
+  /// );
+  /// ```
   @override
   Widget build(BuildContext context) {
     final labelStyle = context.theme.typography.body.xs.copyWith(
@@ -161,12 +205,28 @@ class _PeriodBox extends StatelessWidget {
   }
 }
 
+/// 合計の数字を大きく、単位を小さく示す。
 class _HeroValue extends StatelessWidget {
+  /// [value] を [metric] の単位とともに中央へ置く。
+  ///
+  /// Example:
+  /// ```dart
+  /// _HeroValue(value: '1.3', metric: PeriodTotalMetric.calories);
+  /// ```
   const _HeroValue({required this.value, required this.metric});
 
+  /// 合計の表記。履歴が無いときは `--`。
   final String value;
+
+  /// 単位を決める指標。
   final PeriodTotalMetric metric;
 
+  /// 数字を単位より大きくする。
+  ///
+  /// Example:
+  /// ```dart
+  /// _HeroValue(value: '--', metric: PeriodTotalMetric.calories);
+  /// ```
   @override
   Widget build(BuildContext context) {
     final numberStyle = context.theme.typography.display.md.copyWith(

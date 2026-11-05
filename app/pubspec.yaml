@@ -25,7 +25,6 @@ dependencies:
   usecase_injection: any
 
 dev_dependencies:
-  data_repository_exercise_history: any
   data_repository_exercise_history_testing: any
   domain_exercise_history: any
   flutter_test:

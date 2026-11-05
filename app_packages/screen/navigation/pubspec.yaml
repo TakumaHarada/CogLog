@@ -8,7 +8,6 @@ environment:
   sdk: ^3.13.7
 
 dependencies:
-  meta: any
   riverpod: any
 
 dev_dependencies:

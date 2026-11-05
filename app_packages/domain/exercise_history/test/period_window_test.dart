@@ -24,6 +24,12 @@ void main() {
     expect(month.contains(DateTime(2026, 11, 1, 12)), isTrue);
   });
 
+  test('今週の両端は現地日付の 0:00 である', () {
+    final week = PeriodWindow.week(now);
+    expect(week.start, DateTime(2026, 11, 2));
+    expect(week.end, DateTime(2026, 11, 9));
+  });
+
   test('11月5日の履歴は本日と今週と今月に入る', () {
     final recordedAt = DateTime(2026, 11, 5, 12);
     expect(PeriodWindow.today(now).contains(recordedAt), isTrue);

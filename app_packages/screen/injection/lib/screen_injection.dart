@@ -7,4 +7,5 @@
 /// ```
 library;
 
+export 'src/screen_graph.dart';
 export 'src/screen_overrides.dart';
