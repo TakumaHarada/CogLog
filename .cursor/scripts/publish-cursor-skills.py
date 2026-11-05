@@ -75,8 +75,19 @@ def repository_id(root: Path) -> str:
     return re.sub(r"\.git$", "", url)
 
 
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def apm_yml_sha256(root: Path) -> str:
-    return hashlib.sha256((root / "apm.yml").read_bytes()).hexdigest()
+    return sha256_file(root / "apm.yml")
+
+
+def apm_lock_sha256(root: Path) -> str | None:
+    path = root / "apm.lock.yaml"
+    if not path.is_file():
+        return None
+    return sha256_file(path)
 
 
 def expected_commands(root: Path) -> list[str]:
@@ -194,7 +205,51 @@ def replace_owned(source: Path, target: Path) -> None:
         shutil.copy2(source, target)
 
 
+class SkillNameCollision(Exception):
+    def __init__(self, conflicts: list[str]) -> None:
+        self.conflicts = conflicts
+
+
+def foreign_owner(name: str, manifests_dir: Path, self_marker: Path) -> str | None:
+    if not manifests_dir.is_dir():
+        return None
+    for path in sorted(manifests_dir.glob("*.json")):
+        if self_marker.exists() and path.resolve() == self_marker.resolve():
+            continue
+        data = load_manifest(path)
+        if name not in owned_names(data):
+            continue
+        repo = data.get("repository")
+        return repo if isinstance(repo, str) and repo else path.name
+    return None
+
+
+def name_conflicts(
+    home: Path,
+    new_names: set[str],
+    previous: set[str],
+    manifests_dir: Path,
+    self_marker: Path,
+) -> list[str]:
+    conflicts: list[str] = []
+    for name in sorted(new_names):
+        if name in previous:
+            continue
+        target = home / name
+        if not target.exists() and not target.is_symlink():
+            continue
+        owner = foreign_owner(name, manifests_dir, self_marker)
+        if owner is None:
+            conflicts.append(f"{name} already exists and is not owned by this repository")
+        else:
+            conflicts.append(f"{name} is owned by {owner}")
+    return conflicts
+
+
 def sync_home(root: Path) -> tuple[int, list[str]]:
+    lock_hash = apm_lock_sha256(root)
+    if lock_hash is None:
+        raise SkillNameCollision(["apm.lock.yaml is absent"])
     home = Path.home() / ".cursor" / "skills"
     home.mkdir(parents=True, exist_ok=True)
     repo = repository_id(root)
@@ -204,6 +259,9 @@ def sync_home(root: Path) -> tuple[int, list[str]]:
         staged = Path(tmp) / "skills"
         count = publish(root, staged)
         new_names = {child.name for child in staged.iterdir()}
+        conflicts = name_conflicts(home, new_names, previous, marker.parent, marker)
+        if conflicts:
+            raise SkillNameCollision(conflicts)
         for name in sorted(previous - new_names):
             target = home / name
             if target.is_dir() and not target.is_symlink():
@@ -219,6 +277,7 @@ def sync_home(root: Path) -> tuple[int, list[str]]:
             {
                 "repository": repo,
                 "apm_yml_sha256": apm_yml_sha256(root),
+                "apm_lock_sha256": lock_hash,
                 "commands": commands,
                 "owned": sorted(new_names),
             },
@@ -237,6 +296,8 @@ def is_ready(root: Path) -> bool:
     if manifest.get("repository") != repo:
         return False
     if manifest.get("apm_yml_sha256") != apm_yml_sha256(root):
+        return False
+    if manifest.get("apm_lock_sha256") != apm_lock_sha256(root):
         return False
     commands = expected_commands(root)
     if manifest.get("commands") != commands:
@@ -262,7 +323,12 @@ def main() -> int:
         print("ready")
         print("commands: " + " ".join(expected_commands(root)))
         return 0
-    count, commands = sync_home(root)
+    try:
+        count, commands = sync_home(root)
+    except SkillNameCollision as error:
+        for conflict in error.conflicts:
+            print(conflict, file=sys.stderr)
+        return 1
     print(f"published {count} skills to {Path.home() / '.cursor' / 'skills'}")
     print("commands: " + " ".join(commands))
     return 0
