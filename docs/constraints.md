@@ -81,7 +81,14 @@ iOS のファイル参照は `op://AppDevelopment/CogLog_develop/GoogleService-I
 - `GCP_WORKLOAD_IDENTITY_PROVIDER`。このリポジトリ向けの Workload Identity Federation プロバイダ資源名。
 - `GCP_SERVICE_ACCOUNT`。サービスアカウントのメールアドレス。Google Cloud のプロジェクト IAM で、このメンバーに `roles/firebaseappdistro.admin` を付ける。
 
-同じサービスアカウントには、リポジトリ `madahataraku/CogLog` の `main` からだけなれるようにする。Workload Identity プロバイダの属性条件は次にする。この条件が、`main` 以外の ref を拒否する。
+同じサービスアカウントには、リポジトリ `madahataraku/CogLog` の `main` からだけなれるようにする。Workload Identity プロバイダの属性マッピングは次にする。`attribute.repository` が無いと、IAM の principal はトークンと一致しない。
+
+```text
+google.subject=assertion.sub
+attribute.repository=assertion.repository
+```
+
+属性条件は次にする。この条件が、`main` 以外の ref を拒否する。
 
 ```text
 assertion.repository=='madahataraku/CogLog' && assertion.ref=='refs/heads/main'
