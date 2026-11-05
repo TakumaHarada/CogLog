@@ -59,3 +59,28 @@ Monolith が書く次のファイルは手で編集しない。
 `development`、`production`、`test` は dart-define のフレーバーであり、ネイティブの applicationId と Bundle Identifier は共通である。Firebase アプリは Android と iOS で 1 つずつなので、手元に置く設定ファイルも 1 組である。
 
 XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。そのとき plist は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` へ移し、ビルド前にアプリバンドルへコピーする。このパスも Git では追跡しない。
+
+## App Distribution
+
+`.github/workflows/app-distribution.yml` は、`main` への push と手動の `workflow_dispatch` で Android の release APK を Firebase App Distribution へ出す。
+
+push のフレーバーは `development`。手動起動では `development` または `production` を選ぶ。`test` は配布しない。dart-define は、リポジトリルートの `dart run monolith_runner:define` が書く `secrets/dart-define/<flavor>.json` を使う。`secrets/monolith.yaml` が無い include は読み飛ばす。
+
+Android のクライアント設定は、Actions 上で次の参照から配置する。
+
+```bash
+op read --force --out-file app/android/app/google-services.json \
+  "op://AppDevelopment/CogLog_develop/google-services.json"
+```
+
+iOS のファイル参照は `op://AppDevelopment/CogLog_develop/GoogleService-Info.plist`。IPA の配布は Team ID、証明書、Provisioning Profile が揃ってからワークフローへ足す。
+
+Actions に置く secret は次のとおり。
+
+- `OP_SERVICE_ACCOUNT_TOKEN`。vault `AppDevelopment` を読める 1Password サービスアカウント。
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`。このリポジトリ向けの Workload Identity Federation プロバイダ資源名。
+- `GCP_SERVICE_ACCOUNT`。`roles/firebaseappdistro.admin` だけを持つサービスアカウントのメールアドレス。
+
+テスターグループはリポジトリ変数 `FIREBASE_APP_DISTRIBUTION_GROUPS` にカンマ区切りで置く。手動起動の `groups` 入力があるときはそれを使う。
+
+versionName は `pubspec.yaml` のままにする。versionCode は GitHub Actions の run number にする。release 署名は `app/android/app/build.gradle.kts` の debug 署名のままなので、ランナーが毎回作る debug キーストアでは、前回インストールした APK の上から更新できない。安定した更新にするときは、先に release 用キーストアの置き場をこの文書へ書いてから署名を切り替える。
