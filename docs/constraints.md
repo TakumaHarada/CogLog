@@ -62,7 +62,7 @@ XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。
 
 ## App Distribution
 
-`.github/workflows/app-distribution.yml` は、`main` への push と手動の `workflow_dispatch` で Android の release APK を Firebase App Distribution へ出す。
+`.github/workflows/app-distribution.yml` は、`main` への push と、`main` を選んだ手動の `workflow_dispatch` で Android の release APK を Firebase App Distribution へ出す。ジョブは `github.ref == refs/heads/main` のときだけ動き、Environment `app-distribution` を使う。
 
 push のフレーバーは `development`。手動起動では `development` または `production` を選ぶ。`test` は配布しない。dart-define は、リポジトリルートの `dart run monolith_runner:define` が書く `secrets/dart-define/<flavor>.json` を使う。`secrets/monolith.yaml` が無い include は読み飛ばす。
 
@@ -75,13 +75,19 @@ op read --force --out-file app/android/app/google-services.json \
 
 iOS のファイル参照は `op://AppDevelopment/CogLog_develop/GoogleService-Info.plist`。IPA の配布は Team ID、証明書、Provisioning Profile が揃ってからワークフローへ足す。
 
-Actions に置く secret は次のとおり。
+配布用 secret は、GitHub の Environment `app-distribution` に置く。リポジトリ secret には置かない。Environment の Deployment branches は Selected branches で `main` だけを許可する。設定場所は **Settings → Environments → app-distribution** である。
 
 - `OP_SERVICE_ACCOUNT_TOKEN`。vault `AppDevelopment` を読める 1Password サービスアカウント。
 - `GCP_WORKLOAD_IDENTITY_PROVIDER`。このリポジトリ向けの Workload Identity Federation プロバイダ資源名。
 - `GCP_SERVICE_ACCOUNT`。サービスアカウントのメールアドレス。Google Cloud のプロジェクト IAM で、このメンバーに `roles/firebaseappdistro.admin` を付ける。
 
-同じサービスアカウントには、リポジトリ `madahataraku/CogLog` の `main` からだけなれるようにする。管理場所は Google Cloud コンソールの **IAM と管理 → サービス アカウント → 対象アカウント → 権限** である。そこへ次の principal に `roles/iam.workloadIdentityUser` を付ける。
+同じサービスアカウントには、リポジトリ `madahataraku/CogLog` の `main` からだけなれるようにする。Workload Identity プロバイダの属性条件は次にする。この条件が、`main` 以外の ref を拒否する。
+
+```text
+assertion.repository=='madahataraku/CogLog' && assertion.ref=='refs/heads/main'
+```
+
+IAM の principal はリポジトリ単位である。管理場所は Google Cloud コンソールの **IAM と管理 → サービス アカウント → 対象アカウント → 権限** である。そこへ次の principal に `roles/iam.workloadIdentityUser` を付ける。
 
 ```text
 principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/madahataraku/CogLog

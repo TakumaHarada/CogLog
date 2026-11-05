@@ -1,10 +1,10 @@
 # main への push と workflow_dispatch で、Android の release APK を
 # Firebase App Distribution へ出す。
 #
-# GitHub Actions secret:
+# Environment app-distribution の secret。リポジトリ secret には置かない。
 #   OP_SERVICE_ACCOUNT_TOKEN          vault AppDevelopment を読める 1Password サービスアカウント
 #   GCP_WORKLOAD_IDENTITY_PROVIDER    Workload Identity Federation のプロバイダ資源名
-#   GCP_SERVICE_ACCOUNT               roles/firebaseappdistro.admin だけのサービスアカウント
+#   GCP_SERVICE_ACCOUNT               Firebase App Distribution へ出すサービスアカウント
 # リポジトリ変数:
 #   FIREBASE_APP_DISTRIBUTION_GROUPS  カンマ区切りのテスターグループ
 #
@@ -39,6 +39,8 @@ concurrency:
 
 jobs:
   android:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    environment: app-distribution
     name: Distribute Android
     runs-on: ubuntu-latest
     timeout-minutes: 60
