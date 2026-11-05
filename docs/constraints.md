@@ -46,3 +46,14 @@ Monolith が書く次のファイルは手で編集しない。
 ## iOS
 
 `dart run monolith_runner:xcodegen` は、各構成の Bundle Identifier、Provisioning Profile、Team ID が揃ってから実行する。これらの値が指示に無いときは、値を作らずに不足項目を残す。
+
+## Firebase
+
+クライアント設定はリポジトリに置く。これは Firebase のクライアント向け API キーであり、`secrets/` には置かない。サービスアカウント秘密鍵は置かない。
+
+- Android は `app/android/app/google-services.json`。プラグイン `com.google.gms.google-services` を `app/android/settings.gradle.kts` で宣言し、`app/android/app/build.gradle.kts` で適用する。対象の `applicationId` は `io.github.madahataraku.coglog`。
+- iOS は `app/ios/Runner/GoogleService-Info.plist` を Runner ターゲットのリソースに含める。対象の Bundle Identifier は `io.github.madahataraku.coglog`。
+
+`development`、`production`、`test` は dart-define のフレーバーであり、ネイティブの applicationId と Bundle Identifier は共通である。Firebase アプリは Android と iOS で 1 つずつなので、設定ファイルも 1 組である。
+
+XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。そのとき plist は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` へ移し、ビルド前にアプリバンドルへコピーする。

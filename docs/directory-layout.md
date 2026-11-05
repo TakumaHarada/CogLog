@@ -25,6 +25,13 @@
 
 `app/runner` は画面ではない。生成された多言語リソースのホストである。ネイティブの対象は `app/android` と `app/ios` だけである。
 
+Firebase のクライアント設定は次に置く。置き方の制約は `docs/constraints.md` に従う。
+
+| ファイル | パス |
+| --- | --- |
+| Android | `app/android/app/google-services.json` |
+| iOS | `app/ios/Runner/GoogleService-Info.plist` |
+
 ## 目標の配置
 
 未作成のディレクトリは、機能を追加するときにこの形で作る。空のディレクトリは先に作らない。
