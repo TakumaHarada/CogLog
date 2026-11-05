@@ -10,6 +10,7 @@ environment:
 workspace:
   - app
   - app/runner
+  - app_packages/domain/exercise_history
   - app_packages/foundation/metadata
   - app_packages/foundation/resources
 
