@@ -1,0 +1,20 @@
+name: usecase_injection
+description: Production overrides for CogLog usecases.
+publish_to: none
+resolution: workspace
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  data_repository_exercise_history: any
+  data_repository_top_screen_metric: any
+  riverpod: any
+  usecase_load_top_screen: any
+  usecase_load_top_screen_impl: any
+  usecase_save_top_screen_metric: any
+  usecase_save_top_screen_metric_impl: any
+
+dev_dependencies:
+  flutter_lints: any

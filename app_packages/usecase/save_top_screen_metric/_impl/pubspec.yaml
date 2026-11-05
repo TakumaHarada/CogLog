@@ -1,0 +1,18 @@
+name: usecase_save_top_screen_metric_impl
+description: Saves the top screen metric through its repository.
+publish_to: none
+resolution: workspace
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  data_repository_top_screen_metric: any
+  domain_exercise_history: any
+  usecase_save_top_screen_metric: any
+
+dev_dependencies:
+  data_repository_top_screen_metric_testing: any
+  flutter_lints: any
+  test: any
