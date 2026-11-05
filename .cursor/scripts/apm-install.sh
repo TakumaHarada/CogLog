@@ -18,8 +18,19 @@ install_apm_cli() {
   fi
   export PATH="/usr/local/bin:${HOME}/.local/bin:${PATH}"
   local escaped="${version//./\\.}"
+  # sha256 of https://aka.ms/apm-unix. Re-pin this when intentionally changing installers.
+  local installer_sha256="0e813353630c02a9eb961fbad82cf916967e855aa84a533940975c5d699c9caa"
   if ! apm --version 2>/dev/null | grep -Eq "(^|[^0-9.])${escaped}([^0-9.]|$)"; then
-    curl -fsSL https://aka.ms/apm-unix | APM_NO_MODIFY_PATH=1 VERSION="v${version}" sh
+    local installer
+    installer="$(mktemp)"
+    curl -fsSL https://aka.ms/apm-unix -o "${installer}"
+    if [[ "$(sha256sum "${installer}" | awk '{ print $1 }')" != "${installer_sha256}" ]]; then
+      rm -f "${installer}"
+      log "apm installer checksum mismatch"
+      exit 1
+    fi
+    APM_NO_MODIFY_PATH=1 VERSION="v${version}" sh "${installer}"
+    rm -f "${installer}"
   fi
   if [[ -x "${launcher}" && ! -e /usr/local/bin/apm ]]; then
     if [[ -w /usr/local/bin ]]; then
@@ -32,6 +43,10 @@ install_apm_cli() {
   export PATH="/usr/local/bin:${HOME}/.local/bin:${PATH}"
   if ! command -v apm >/dev/null 2>&1; then
     log "apm is not on PATH after install"
+    exit 1
+  fi
+  if ! apm --version 2>/dev/null | grep -Eq "(^|[^0-9.])${escaped}([^0-9.]|$)"; then
+    log "apm version does not match ${version}"
     exit 1
   fi
 }
