@@ -32,3 +32,8 @@ flutter run --dart-define-from-file=../secrets/dart-define/development.json
 ```
 
 iOS の XcodeGen (`dart run monolith_runner:xcodegen`) は、Bundle Identifier、Provisioning Profile、Team ID が揃ってから行う。
+
+Firebase のクライアント設定は次に置く。制約は `docs/constraints.md` を参照する。
+
+- Android: `app/android/app/google-services.json`
+- iOS: `app/ios/Runner/GoogleService-Info.plist`
