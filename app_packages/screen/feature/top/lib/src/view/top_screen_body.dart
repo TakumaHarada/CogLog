@@ -1,4 +1,5 @@
 import 'package:domain_exercise_history/domain_exercise_history.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:foundation_resources/gen/strings.dart' as foundation_resources;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -46,6 +47,7 @@ class TopScreenBody extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final entity = ref.watch(TopScreenProviders.entity);
+    final saving = useState(false);
     return FScaffold(
       header: FHeader(
         title: Text(strings.foundation_resources_app_name),
@@ -65,18 +67,22 @@ class TopScreenBody extends HookConsumerWidget {
         spacing: 16,
         children: [
           FSelect<PeriodTotalMetric>(
+            enabled: !saving.value,
             control: .lifted(
               value: entity.metric,
               onChange: (metric) async {
-                if (metric == null || metric == entity.metric) {
+                if (metric == null || metric == entity.metric || saving.value) {
                   return;
                 }
+                saving.value = true;
                 try {
                   await ref
                       .read(TopScreenViewModel.provider)
                       .onSelectMetric(metric);
                 } on Object {
                   // 保存に失敗したときは State を変えない。未処理のエラーにしない。
+                } finally {
+                  saving.value = false;
                 }
               },
             ),

@@ -53,8 +53,15 @@ final class SharedPreferencesTopScreenMetricRepository
       PeriodTotalMetric.calories => 'calories',
       PeriodTotalMetric.duration => 'duration',
     };
-    final saved = await _preferences.setString(_key, value);
+    var saved = false;
+    try {
+      saved = await _preferences.setString(_key, value);
+    } on Object {
+      await _preferences.reload();
+      rethrow;
+    }
     if (!saved) {
+      await _preferences.reload();
       throw StateError('$_key を保存できなかった。');
     }
   }
