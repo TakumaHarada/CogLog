@@ -25,7 +25,7 @@
 
 `app/runner` は画面ではない。生成された多言語リソースのホストである。ネイティブの対象は `app/android` と `app/ios` だけである。
 
-Firebase のクライアント設定は次に置く。置き方の制約は `docs/constraints.md` に従う。
+Firebase のクライアント設定は手元に置く。Git では追跡しない。置き方の制約は `docs/constraints.md` に従う。
 
 | ファイル | パス |
 | --- | --- |
