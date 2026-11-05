@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "791405831895",
+    "project_id": "coglog-47b99",
+    "storage_bucket": "coglog-47b99.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791405831895:android:3af912286de7ff90413292",
+        "android_client_info": {
+          "package_name": "io.github.madahataraku.coglog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCPHZXsq41H0rb2yDTucVz_WvdWEYZeJ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
