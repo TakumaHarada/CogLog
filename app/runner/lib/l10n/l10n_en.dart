@@ -19,4 +19,31 @@ class L10nEn extends L10n {
 
   @override
   String get foundation_resources_app_name => 'CogLog';
+
+  @override
+  String get screen_feature_top_calories => 'Calories';
+
+  @override
+  String get screen_feature_top_calories_unit => 'kcal';
+
+  @override
+  String get screen_feature_top_distance => 'Distance';
+
+  @override
+  String get screen_feature_top_distance_unit => 'km';
+
+  @override
+  String get screen_feature_top_duration => 'Exercise time';
+
+  @override
+  String get screen_feature_top_open_camera => 'Photograph the meter panel';
+
+  @override
+  String get screen_feature_top_this_month => 'This month';
+
+  @override
+  String get screen_feature_top_this_week => 'This week';
+
+  @override
+  String get screen_feature_top_today => 'Today';
 }
