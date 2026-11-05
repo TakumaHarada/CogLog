@@ -49,11 +49,13 @@ Monolith が書く次のファイルは手で編集しない。
 
 ## Firebase
 
-クライアント設定はリポジトリに置く。これは Firebase のクライアント向け API キーであり、`secrets/` には置かない。サービスアカウント秘密鍵は置かない。
+クライアント設定は手元に置き、Git では追跡しない。
 
 - Android は `app/android/app/google-services.json`。プラグイン `com.google.gms.google-services` を `app/android/settings.gradle.kts` で宣言し、`app/android/app/build.gradle.kts` で適用する。対象の `applicationId` は `io.github.madahataraku.coglog`。
 - iOS は `app/ios/Runner/GoogleService-Info.plist` を Runner ターゲットのリソースに含める。対象の Bundle Identifier は `io.github.madahataraku.coglog`。
 
-`development`、`production`、`test` は dart-define のフレーバーであり、ネイティブの applicationId と Bundle Identifier は共通である。Firebase アプリは Android と iOS で 1 つずつなので、設定ファイルも 1 組である。
+`google-services.json` と `GoogleService-Info.plist` は `.gitignore` に入る。リポジトリへ追加しない。
 
-XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。そのとき plist は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` へ移し、ビルド前にアプリバンドルへコピーする。
+`development`、`production`、`test` は dart-define のフレーバーであり、ネイティブの applicationId と Bundle Identifier は共通である。Firebase アプリは Android と iOS で 1 つずつなので、手元に置く設定ファイルも 1 組である。
+
+XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。そのとき plist は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` へ移し、ビルド前にアプリバンドルへコピーする。このパスも Git では追跡しない。

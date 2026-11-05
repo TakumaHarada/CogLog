@@ -28,6 +28,10 @@ apm_modules/
 # under secrets/dart-define/ and is not committed.
 /secrets/
 
+# Firebase client config stays on the build machine.
+**/google-services.json
+**/GoogleService-Info.plist
+
 
 
 # Flutter repo-specific
