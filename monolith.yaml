@@ -1,0 +1,46 @@
+# Flutter Monolith の統合設定。
+# 秘密情報はコミットしない。1Password 利用時は次で注入する。
+#   op inject --force --in-file monolith.yaml --out-file secrets/monolith.yaml
+includes:
+  - secrets/monolith.yaml
+
+define:
+  output_path: secrets/dart-define/
+  generate:
+    package_name: foundation_metadata
+    helper_path: lib/gen/defines.dart
+    test_flavor: test
+  flavors:
+    development:
+      FLAVOR: development
+    production:
+      FLAVOR: production
+    test:
+      FLAVOR: development
+
+localization:
+  languages:
+    - ja
+    - en
+  app:
+    package_name: app_runner
+    arb_path: lib/l10n/
+    arb_file_prefix: intl_app_
+    l10n_helper_class_name: L10nHelper
+    l10n_helper_path: lib/l10n/l10n_helper.dart
+  package:
+    path_prefixes:
+      - app/
+      - app_packages/
+    resources_path: res/
+    module_helper_class_name: L10nStringsMixin
+    module_helper_path: lib/gen/strings.dart
+  test_helper:
+    package_name: foundation_resources
+    test_helper_class_name: StringsTestHelper
+    test_helper_path: lib/gen/strings_test_helper.dart
+
+# iOS の Xcode プロジェクト生成。Bundle ID / Provisioning Profile / Team ID
+# が揃ってから project.yml を追加し、`dart run monolith_runner:xcodegen` を実行する。
+xcodegen:
+  package_name: app
