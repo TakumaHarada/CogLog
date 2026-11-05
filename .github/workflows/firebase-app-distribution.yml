@@ -1,0 +1,333 @@
+name: Firebase App Distribution
+
+# main への push（マージを含む）と、手動の workflow_dispatch で
+# Android の release APK と iOS の Ad Hoc IPA を Firebase App Distribution へ出す。
+#
+# アプリ ID は次のクライアント設定から読む。
+# - app/android/app/google-services.json
+# - app/ios/Runner/GoogleService-Info.plist
+#
+# secret（値はリポジトリに置かない）:
+# - FIREBASE_SERVICE_ACCOUNT_JSON
+#     プロジェクト coglog-47b99 のサービスアカウント JSON。
+#     ロールは Firebase App Distribution 管理者。
+# - IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64
+# - IOS_DISTRIBUTION_CERTIFICATE_PASSWORD
+# - IOS_PROVISIONING_PROFILE_BASE64
+#     Bundle Identifier io.github.madahataraku.coglog の Ad Hoc プロファイル。
+#
+# テスターグループは手動入力、リポジトリ変数 FIREBASE_DISTRIBUTION_GROUPS、
+# どちらも無いときは testers。
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: 配布するフレーバー
+        required: true
+        type: choice
+        options:
+          - development
+          - production
+        default: development
+      groups:
+        description: テスターグループ（カンマ区切り）
+        required: false
+        type: string
+        default: testers
+
+concurrency:
+  group: firebase-app-distribution-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # app/.metadata の stable リビジョン（3.47.9）に合わせる。
+  FLUTTER_VERSION: "3.47.9"
+  FIREBASE_TOOLS_VERSION: "15.35.0"
+  BUNDLE_ID: io.github.madahataraku.coglog
+
+jobs:
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      FLAVOR: ${{ github.event_name == 'workflow_dispatch' && inputs.flavor || 'development' }}
+      TESTER_GROUPS: ${{ github.event_name == 'workflow_dispatch' && inputs.groups || vars.FIREBASE_DISTRIBUTION_GROUPS || 'testers' }}
+    steps:
+      - name: 配布 secret を確認する
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          if [ -z "${FIREBASE_SERVICE_ACCOUNT_JSON}" ]; then
+            echo "GitHub Actions secret FIREBASE_SERVICE_ACCOUNT_JSON が未設定です。" >&2
+            exit 1
+          fi
+
+      - name: チェックアウト
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Java を用意する
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # actions/setup-java@v6.2.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Flutter を用意する
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+
+      - name: Android SDK を使う
+        run: |
+          set -euo pipefail
+          if [ -n "${ANDROID_HOME:-}" ] && [ -d "$ANDROID_HOME" ]; then
+            sdk="$ANDROID_HOME"
+          elif [ -d /usr/local/lib/android/sdk ]; then
+            sdk=/usr/local/lib/android/sdk
+          else
+            echo "Android SDK が見つかりません。" >&2
+            exit 1
+          fi
+          echo "ANDROID_HOME=${sdk}" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=${sdk}" >> "$GITHUB_ENV"
+          if [ -x "${sdk}/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "${sdk}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          fi
+
+      - name: dart-define を生成する
+        run: |
+          set -euo pipefail
+          case "$FLAVOR" in
+            development|production) ;;
+            *)
+              echo "配布できるフレーバーは development と production です: ${FLAVOR}" >&2
+              exit 1
+              ;;
+          esac
+          flutter pub get
+          dart run monolith_runner:define
+          test -f "secrets/dart-define/${FLAVOR}.json"
+
+      - name: Android App ID を読む
+        run: |
+          set -euo pipefail
+          app_id="$(python3 -c '
+          import json
+          from pathlib import Path
+          data = json.loads(Path("app/android/app/google-services.json").read_text())
+          info = data["client"][0]["client_info"]
+          package = info["android_client_info"]["package_name"]
+          app_id = info["mobilesdk_app_id"]
+          if package != "io.github.madahataraku.coglog" or not app_id.startswith("1:"):
+              raise SystemExit("google-services.json のアプリ ID を読めませんでした")
+          print(app_id)
+          ')"
+          echo "FIREBASE_APP_ID=${app_id}" >> "$GITHUB_ENV"
+
+      - name: release APK をビルドする
+        working-directory: app
+        run: |
+          set -euo pipefail
+          # release 署名は debug 署名のまま（app/android/app/build.gradle.kts）。
+          flutter build apk --release \
+            --dart-define-from-file="../secrets/dart-define/${FLAVOR}.json"
+          apk="${PWD}/build/app/outputs/flutter-apk/app-release.apk"
+          if [ ! -f "$apk" ]; then
+            echo "APK が見つかりません: ${apk}" >&2
+            find build -name '*.apk' -print >&2 || true
+            exit 1
+          fi
+          echo "ARTIFACT_PATH=${apk}" >> "$GITHUB_ENV"
+
+      - name: Firebase App Distribution へアップロードする
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: bash .github/scripts/upload-firebase-app-distribution.sh "$ARTIFACT_PATH"
+
+  ios:
+    name: iOS
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      FLAVOR: ${{ github.event_name == 'workflow_dispatch' && inputs.flavor || 'development' }}
+      TESTER_GROUPS: ${{ github.event_name == 'workflow_dispatch' && inputs.groups || vars.FIREBASE_DISTRIBUTION_GROUPS || 'testers' }}
+    steps:
+      - name: 配布 secret を確認する
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          status=0
+          check() {
+            local env_name="$1"
+            local secret_name="$2"
+            if [ -z "${!env_name}" ]; then
+              echo "GitHub Actions secret ${secret_name} が未設定です。" >&2
+              status=1
+            fi
+          }
+          check FIREBASE_SERVICE_ACCOUNT_JSON FIREBASE_SERVICE_ACCOUNT_JSON
+          check IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64
+          check IOS_DISTRIBUTION_CERTIFICATE_PASSWORD IOS_DISTRIBUTION_CERTIFICATE_PASSWORD
+          check IOS_PROVISIONING_PROFILE_BASE64 IOS_PROVISIONING_PROFILE_BASE64
+          exit "$status"
+
+      - name: チェックアウト
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Flutter を用意する
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+
+      - name: 配布証明書を読み込む
+        id: codesign
+        uses: apple-actions/import-codesign-certs@288b8ec97b82c66b6f2a6baaf7acc8dfbcbe331c # apple-actions/import-codesign-certs@v7.2.0
+        with:
+          p12-file-base64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          p12-password: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+
+      - name: dart-define を生成する
+        run: |
+          set -euo pipefail
+          case "$FLAVOR" in
+            development|production) ;;
+            *)
+              echo "配布できるフレーバーは development と production です: ${FLAVOR}" >&2
+              exit 1
+              ;;
+          esac
+          flutter pub get
+          dart run monolith_runner:define
+          test -f "secrets/dart-define/${FLAVOR}.json"
+
+      - name: iOS App ID を読む
+        run: |
+          set -euo pipefail
+          app_id="$(plutil -extract GOOGLE_APP_ID raw app/ios/Runner/GoogleService-Info.plist)"
+          bundle_id="$(plutil -extract BUNDLE_ID raw app/ios/Runner/GoogleService-Info.plist)"
+          if [ "$bundle_id" != "$BUNDLE_ID" ] || [[ "$app_id" != 1:* ]]; then
+            echo "GoogleService-Info.plist のアプリ ID を読めませんでした。" >&2
+            exit 1
+          fi
+          echo "FIREBASE_APP_ID=${app_id}" >> "$GITHUB_ENV"
+
+      - name: Ad Hoc IPA をビルドする
+        env:
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          IDENTITIES: ${{ steps.codesign.outputs.identities }}
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode.app
+
+          identity_hash="$(python3 -c '
+          import json, os, sys
+          raw = os.environ.get("IDENTITIES", "")
+          identities = json.loads(raw) if raw else []
+          if not identities:
+              sys.exit("証明書からコード署名の identity を読めませんでした")
+          print(identities[0]["hash"])
+          ')"
+
+          profile_path="${RUNNER_TEMP}/app.mobileprovision"
+          PROFILE_PATH="$profile_path" python3 - <<'PY'
+          import base64, os
+          from pathlib import Path
+          raw = os.environ["IOS_PROVISIONING_PROFILE_BASE64"].strip()
+          Path(os.environ["PROFILE_PATH"]).write_bytes(base64.b64decode(raw))
+          PY
+          decoded="${RUNNER_TEMP}/profile.plist"
+          security cms -D -i "$profile_path" > "$decoded"
+          uuid="$(plutil -extract UUID raw "$decoded")"
+          team="$(plutil -extract TeamIdentifier.0 raw "$decoded")"
+          profile_name="$(plutil -extract Name raw "$decoded")"
+          app_identifier="$(plutil -extract Entitlements.application-identifier raw "$decoded")"
+          profile_bundle_id="${app_identifier#"${team}."}"
+          if [ "$profile_bundle_id" != "$BUNDLE_ID" ]; then
+            echo "Provisioning Profile の Bundle Identifier は ${profile_bundle_id} です。アプリは ${BUNDLE_ID} です。" >&2
+            exit 1
+          fi
+          install_dir="${HOME}/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$install_dir"
+          cp "$profile_path" "${install_dir}/${uuid}.mobileprovision"
+          echo "Team ID: ${team}"
+          echo "Provisioning Profile: ${profile_name}"
+
+          export_plist="${RUNNER_TEMP}/ExportOptions.plist"
+          BUNDLE_ID="$BUNDLE_ID" TEAM_ID="$team" PROFILE_UUID="$uuid" EXPORT_PLIST="$export_plist" python3 - <<'PY'
+          import os
+          import plistlib
+          from pathlib import Path
+          plist = {
+              "method": "ad-hoc",
+              "signingStyle": "manual",
+              "teamID": os.environ["TEAM_ID"],
+              "stripSwiftSymbols": True,
+              "provisioningProfiles": {
+                  os.environ["BUNDLE_ID"]: os.environ["PROFILE_UUID"],
+              },
+          }
+          Path(os.environ["EXPORT_PLIST"]).write_bytes(plistlib.dumps(plist))
+          PY
+
+          cd app
+          flutter build ios --release --config-only \
+            --dart-define-from-file="../secrets/dart-define/${FLAVOR}.json"
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "${RUNNER_TEMP}/Runner.xcarchive" \
+            archive \
+            CODE_SIGN_STYLE=Manual \
+            "DEVELOPMENT_TEAM=${team}" \
+            "CODE_SIGN_IDENTITY=${identity_hash}" \
+            "CODE_SIGN_IDENTITY[sdk=iphoneos*]=${identity_hash}" \
+            "PROVISIONING_PROFILE=${uuid}" \
+            "PROVISIONING_PROFILE_SPECIFIER=${profile_name}"
+          xcodebuild \
+            -exportArchive \
+            -archivePath "${RUNNER_TEMP}/Runner.xcarchive" \
+            -exportPath "${RUNNER_TEMP}/ipa" \
+            -exportOptionsPlist "$export_plist"
+          ipa=""
+          while IFS= read -r candidate; do
+            ipa="$candidate"
+            break
+          done < <(find "${RUNNER_TEMP}/ipa" -name '*.ipa')
+          if [ -z "$ipa" ]; then
+            echo "IPA が生成されませんでした。" >&2
+            exit 1
+          fi
+          echo "ARTIFACT_PATH=${ipa}" >> "$GITHUB_ENV"
+
+      - name: Firebase App Distribution へアップロードする
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: bash .github/scripts/upload-firebase-app-distribution.sh "$ARTIFACT_PATH"

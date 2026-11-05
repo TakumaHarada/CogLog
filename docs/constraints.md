@@ -57,3 +57,29 @@ Monolith が書く次のファイルは手で編集しない。
 `development`、`production`、`test` は dart-define のフレーバーであり、ネイティブの applicationId と Bundle Identifier は共通である。Firebase アプリは Android と iOS で 1 つずつなので、設定ファイルも 1 組である。
 
 XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。そのとき plist は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` へ移し、ビルド前にアプリバンドルへコピーする。
+
+## Firebase App Distribution
+
+`.github/workflows/firebase-app-distribution.yml` が Android の release APK と iOS の Ad Hoc IPA を Firebase App Distribution へ出す。
+
+起動は次の 2 つ。
+
+- `main` への push。マージで `main` が進んだときを含む。フレーバーは `development`。
+- `workflow_dispatch`。任意のタイミングで実行し、フレーバーは `development` または `production`。
+
+配布するフレーバーは `development` と `production` である。`test` はテストが読むフレーバーのままにする。ネイティブの applicationId と Bundle Identifier はフレーバーで分かれない。配布先の Firebase アプリ ID は、コミット済みの `app/android/app/google-services.json` と `app/ios/Runner/GoogleService-Info.plist` から読む。
+
+ビルド前にリポジトリルートで `flutter pub get` と `dart run monolith_runner:define` を実行し、`app/` のビルドへ `--dart-define-from-file=../secrets/dart-define/<flavor>.json` を渡す。
+
+Android の release は `app/android/app/build.gradle.kts` の debug 署名を使う。
+
+iOS の署名材料は GitHub Actions の secret に置く。ワークフローは Provisioning Profile から Team ID とプロファイル名を読む。Bundle Identifier は `io.github.madahataraku.coglog`。Ad Hoc プロファイルに登録した端末が iOS ビルドをインストールできる。
+
+| secret | 内容 |
+| --- | --- |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | プロジェクト `coglog-47b99` のサービスアカウント JSON。ロールは Firebase App Distribution 管理者 |
+| `IOS_DISTRIBUTION_CERTIFICATE_P12_BASE64` | Apple Distribution 証明書の PKCS#12 を Base64 にしたもの |
+| `IOS_DISTRIBUTION_CERTIFICATE_PASSWORD` | その PKCS#12 のパスワード |
+| `IOS_PROVISIONING_PROFILE_BASE64` | Bundle Identifier `io.github.madahataraku.coglog` の Ad Hoc Provisioning Profile を Base64 にしたもの |
+
+テスターグループの初期値は `testers`。手動実行の入力、またはリポジトリ変数 `FIREBASE_DISTRIBUTION_GROUPS` で置き換える。
