@@ -37,7 +37,7 @@ class TopScreenBody extends HookConsumerWidget {
   /// ```
   const TopScreenBody({super.key});
 
-  /// 指標ボタン、3 期間、撮影導線を並べる。
+  /// 指標の Select を上に、3 期間のボックスを横に並べる。
   ///
   /// Example:
   /// ```dart
@@ -62,38 +62,48 @@ class TopScreenBody extends HookConsumerWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 16,
         children: [
-          Wrap(
+          FSelect<PeriodTotalMetric>(
+            control: .lifted(
+              value: entity.metric,
+              onChange: (metric) {
+                if (metric == null || metric == entity.metric) {
+                  return;
+                }
+                ref.read(TopScreenViewModel.provider).onSelectMetric(metric);
+              },
+            ),
+            items: {
+              for (final metric in PeriodTotalMetric.values)
+                _metricLabel(metric): metric,
+            },
+          ),
+          Row(
             spacing: 8,
             children: [
-              for (final metric in PeriodTotalMetric.values)
-                FButton(
-                  variant: entity.metric == metric
-                      ? FButtonVariant.primary
-                      : FButtonVariant.outline,
-                  onPress: () {
-                    ref
-                        .read(TopScreenViewModel.provider)
-                        .onSelectMetric(metric);
-                  },
-                  child: Text(_metricLabel(metric)),
+              Expanded(
+                child: _PeriodBox(
+                  label: strings.screen_feature_top_today,
+                  value: entity.todayText,
+                  metric: entity.metric,
                 ),
+              ),
+              Expanded(
+                child: _PeriodBox(
+                  label: strings.screen_feature_top_this_week,
+                  value: entity.weekText,
+                  metric: entity.metric,
+                ),
+              ),
+              Expanded(
+                child: _PeriodBox(
+                  label: strings.screen_feature_top_this_month,
+                  value: entity.monthText,
+                  metric: entity.metric,
+                ),
+              ),
             ],
-          ),
-          _PeriodRow(
-            label: strings.screen_feature_top_today,
-            value: entity.todayText,
-            metric: entity.metric,
-          ),
-          _PeriodRow(
-            label: strings.screen_feature_top_this_week,
-            value: entity.weekText,
-            metric: entity.metric,
-          ),
-          _PeriodRow(
-            label: strings.screen_feature_top_this_month,
-            value: entity.monthText,
-            metric: entity.metric,
           ),
         ],
       ),
@@ -113,8 +123,8 @@ String? _unit(PeriodTotalMetric metric) => switch (metric) {
   PeriodTotalMetric.duration => null,
 };
 
-class _PeriodRow extends StatelessWidget {
-  const _PeriodRow({
+class _PeriodBox extends StatelessWidget {
+  const _PeriodBox({
     required this.label,
     required this.value,
     required this.metric,
@@ -126,13 +136,72 @@ class _PeriodRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labelStyle = context.theme.typography.body.xs.copyWith(
+      color: context.theme.colors.mutedForeground,
+    );
+    return FCard(
+      child: SizedBox(
+        height: 148,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: labelStyle),
+              Expanded(
+                child: Center(
+                  child: _HeroValue(value: value, metric: metric),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroValue extends StatelessWidget {
+  const _HeroValue({required this.value, required this.metric});
+
+  final String value;
+  final PeriodTotalMetric metric;
+
+  @override
+  Widget build(BuildContext context) {
+    final numberStyle = context.theme.typography.display.md.copyWith(
+      fontSize: 32,
+      height: 1.1,
+      fontWeight: FontWeight.w700,
+    );
+    final unitStyle = context.theme.typography.body.sm.copyWith(
+      color: context.theme.colors.mutedForeground,
+    );
+    final duration = RegExp(r'^(\d+)h(\d+)m$').firstMatch(value);
+    if (duration != null) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: duration.group(1), style: numberStyle),
+              TextSpan(text: 'h', style: unitStyle),
+              TextSpan(text: duration.group(2), style: numberStyle),
+              TextSpan(text: 'm', style: unitStyle),
+            ],
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
     final unit = _unit(metric);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: Text(label)),
-          Text(unit == null ? value : '$value $unit'),
+          Text(value, style: numberStyle, textAlign: TextAlign.center),
+          if (unit != null) Text(unit, style: unitStyle),
         ],
       ),
     );

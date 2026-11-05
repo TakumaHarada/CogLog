@@ -12,6 +12,7 @@ void main() {
 
     expect(find.text('CogLog'), findsOneWidget);
     expect(find.text('本日'), findsOneWidget);
-    expect(find.text('-- kcal'), findsNWidgets(3));
+    expect(find.text('--'), findsNWidgets(3));
+    expect(find.text('kcal'), findsNWidgets(3));
   });
 }

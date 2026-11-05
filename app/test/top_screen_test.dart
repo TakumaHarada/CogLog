@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +14,8 @@ void main() {
     expect(find.text('本日'), findsOneWidget);
     expect(find.text('今週'), findsOneWidget);
     expect(find.text('今月'), findsOneWidget);
-    expect(find.text('-- kcal'), findsNWidgets(3));
+    expect(find.text('--'), findsNWidgets(3));
+    expect(find.text('kcal'), findsNWidgets(3));
   });
 
   testWidgets('距離へ切り替えると 3 期間が距離になる', (tester) async {
@@ -27,10 +27,11 @@ void main() {
       histories: [rideNow(distanceKm: 2.5, caloriesKcal: 1.25)],
     );
 
-    expect(find.text('1.3 kcal'), findsNWidgets(3));
-    await tester.tap(find.widgetWithText(FButton, '走行距離'));
-    await tester.pumpAndSettle();
-    expect(find.text('2.5 km'), findsNWidgets(3));
+    expect(find.text('1.3'), findsNWidgets(3));
+    expect(find.text('kcal'), findsNWidgets(3));
+    await _chooseMetric(tester, '消費カロリー', '走行距離');
+    expect(find.text('2.5'), findsNWidgets(3));
+    expect(find.text('km'), findsNWidgets(3));
   });
 
   testWidgets('選んだ指標は再び開いても残る', (tester) async {
@@ -41,11 +42,11 @@ void main() {
     final histories = [rideNow(distanceKm: 2.5, caloriesKcal: 1.25)];
 
     await pumpTopScreen(tester, histories: histories, preferences: preferences);
-    await tester.tap(find.widgetWithText(FButton, '走行距離'));
-    await tester.pumpAndSettle();
+    await _chooseMetric(tester, '消費カロリー', '走行距離');
 
     await pumpTopScreen(tester, histories: histories, preferences: preferences);
-    expect(find.text('2.5 km'), findsNWidgets(3));
+    expect(find.text('2.5'), findsNWidgets(3));
+    expect(find.text('km'), findsNWidgets(3));
   });
 
   testWidgets('英語で期間と指標を区別できる', (tester) async {
@@ -57,8 +58,10 @@ void main() {
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('This week'), findsOneWidget);
     expect(find.text('This month'), findsOneWidget);
-    expect(find.text('Distance'), findsOneWidget);
     expect(find.text('Calories'), findsOneWidget);
+    await tester.tap(find.text('Calories'));
+    await tester.pumpAndSettle();
+    expect(find.text('Distance'), findsOneWidget);
     expect(find.text('Exercise time'), findsOneWidget);
   });
 
@@ -75,4 +78,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('本日'), findsOneWidget);
   });
+}
+
+Future<void> _chooseMetric(
+  WidgetTester tester,
+  String current,
+  String label,
+) async {
+  await tester.tap(find.text(current));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(label).last);
+  await tester.pumpAndSettle();
 }
