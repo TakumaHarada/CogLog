@@ -30,6 +30,16 @@ void main() {
     expect(week.end, DateTime(2026, 11, 9));
   });
 
+  test('夏時間をまたぐ週も現地の 0:00 で切る', () {
+    // 2026-03-08 は America/New_York の夏時間開始日。
+    // 3月4日の週は月曜 3月2日 0:00 から月曜 3月9日 0:00 の直前まで。
+    final week = PeriodWindow.week(DateTime(2026, 3, 4, 15));
+    expect(week.start, DateTime(2026, 3, 2));
+    expect(week.end, DateTime(2026, 3, 9));
+    expect(week.end.hour, 0);
+    expect(week.end.minute, 0);
+  });
+
   test('11月5日の履歴は本日と今週と今月に入る', () {
     final recordedAt = DateTime(2026, 11, 5, 12);
     expect(PeriodWindow.today(now).contains(recordedAt), isTrue);
