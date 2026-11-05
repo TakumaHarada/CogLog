@@ -7,15 +7,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// 運動履歴と指標選択の本番実装を上書きする。
 ///
+/// [histories] を渡したときは、空の実装の代わりにそれを読む。
+///
 /// Example:
 /// ```dart
 /// dataRepositoryOverrides(preferences: preferences);
 /// ```
 List<Override> dataRepositoryOverrides({
   required SharedPreferences preferences,
+  ExerciseHistoryRepository? histories,
 }) => [
   exerciseHistoryRepositoryProvider.overrideWith(
-    (ref) => const EmptyExerciseHistoryRepository(),
+    (ref) => histories ?? const EmptyExerciseHistoryRepository(),
   ),
   topScreenMetricRepositoryProvider.overrideWith(
     (ref) => SharedPreferencesTopScreenMetricRepository(preferences),
