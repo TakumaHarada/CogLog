@@ -13,8 +13,7 @@ apm.lock.yaml
 .cursor/agents/
 .cursor/commands/
 .cursor/rules/
-# .cursor/skills/ is committed. Cloud Agents list that directory in the
-# slash menu. The publisher refreshes the command wrappers there.
+.cursor/skills/
 
 # Agent workspace (local only)
 .ai-agent/
