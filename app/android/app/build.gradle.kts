@@ -52,10 +52,6 @@ android {
             dimension = "app"
             applicationId = "io.github.madahataraku.coglog"
         }
-        create("test") {
-            dimension = "app"
-            applicationId = "io.github.madahataraku.coglog.debug"
-        }
     }
 
     if (keystorePropertiesFile.exists()) {
