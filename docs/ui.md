@@ -19,6 +19,14 @@ dart run forui theme create
 4. `builder` で `FTheme`、`FToaster`、`FTooltipGroup` の順に子を包む。明暗はプラットフォームの明るさに合わせ、`lightTheme` と `darkTheme` を使う。
 5. 画面の入れ物は `FScaffold` を使う。
 
+## ボトムナビゲーション
+
+アプリの主導線はボトムナビゲーションである。項目はホーム、メーター撮影、運動履歴、目標設定の 4 つ。
+
+- `FBottomNavigationBar` をシェルの `FScaffold.footer` に置く。
+- タブは同列に切り替え、履歴には積まない。
+- `FBottomNavigationBar` を `FScaffold.footer` に置くときは、双方の上ボーダーが二重にならないよう調整する。
+
 Forui の Widget と、Cupertino または Material の Widget は同じ木に置いてよい。
 
 ## 置き場所
