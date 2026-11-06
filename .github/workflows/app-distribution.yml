@@ -212,6 +212,7 @@ jobs:
             python3 - <<'PY'
           import os
           import plistlib
+          import shlex
           import subprocess
           from pathlib import Path
 
@@ -287,21 +288,13 @@ jobs:
           with Path("secrets/ios/ExportOptions.plist").open("wb") as handle:
               plistlib.dump(export_options, handle)
 
-          def escape_env(value: str) -> str:
-              return (
-                  value.replace("\\", "\\\\")
-                  .replace('"', '\\"')
-                  .replace("\n", "\\n")
-                  .replace("\r", "\\r")
-              )
-
           Path("secrets/ios/signing.env").write_text(
               "\n".join(
                   [
-                      f'TEAM_ID="{escape_env(team_id)}"',
-                      f'PROFILE_NAME="{escape_env(profile_name)}"',
-                      f'P12_PASSWORD="{escape_env(p12_password)}"',
-                      f'BUNDLE_ID="{escape_env(expected_bundle)}"',
+                      f"TEAM_ID={shlex.quote(team_id)}",
+                      f"PROFILE_NAME={shlex.quote(profile_name)}",
+                      f"P12_PASSWORD={shlex.quote(p12_password)}",
+                      f"BUNDLE_ID={shlex.quote(expected_bundle)}",
                       "",
                   ]
               ),
