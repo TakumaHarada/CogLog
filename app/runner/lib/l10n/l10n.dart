@@ -115,6 +115,48 @@ abstract class L10n {
   /// **'CogLog'**
   String get foundation_resources_app_name;
 
+  /// 画面タイトル
+  ///
+  /// In ja, this message translates to:
+  /// **'運動履歴'**
+  String get screen_feature_exercise_history_title;
+
+  /// 画面タイトル
+  ///
+  /// In ja, this message translates to:
+  /// **'目標設定'**
+  String get screen_feature_goal_settings_title;
+
+  /// ボトムナビ
+  ///
+  /// In ja, this message translates to:
+  /// **'運動履歴'**
+  String get screen_feature_main_nav_exercise_history;
+
+  /// ボトムナビ
+  ///
+  /// In ja, this message translates to:
+  /// **'目標設定'**
+  String get screen_feature_main_nav_goal_settings;
+
+  /// ボトムナビ
+  ///
+  /// In ja, this message translates to:
+  /// **'ホーム'**
+  String get screen_feature_main_nav_home;
+
+  /// ボトムナビ
+  ///
+  /// In ja, this message translates to:
+  /// **'メーター撮影'**
+  String get screen_feature_main_nav_meter_capture;
+
+  /// 画面タイトル
+  ///
+  /// In ja, this message translates to:
+  /// **'メーター撮影'**
+  String get screen_feature_meter_capture_title;
+
   /// 指標
   ///
   /// In ja, this message translates to:
@@ -144,12 +186,6 @@ abstract class L10n {
   /// In ja, this message translates to:
   /// **'運動時間'**
   String get screen_feature_top_duration;
-
-  /// 撮影導線
-  ///
-  /// In ja, this message translates to:
-  /// **'メーターパネルを撮影'**
-  String get screen_feature_top_open_camera;
 
   /// 集計期間
   ///

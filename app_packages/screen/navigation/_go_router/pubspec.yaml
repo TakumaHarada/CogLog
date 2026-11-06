@@ -13,6 +13,10 @@ dependencies:
     sdk: flutter
   go_router: any
   material_ui: any
+  screen_feature_exercise_history: any
+  screen_feature_goal_settings: any
+  screen_feature_main: any
+  screen_feature_meter_capture: any
   screen_feature_top: any
   screen_navigation: any
 

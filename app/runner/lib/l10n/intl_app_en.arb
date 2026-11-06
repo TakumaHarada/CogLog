@@ -17,6 +17,34 @@
   "@foundation_resources_app_name": {
     "description": "アプリケーション名"
   },
+  "screen_feature_exercise_history_title": "Exercise history",
+  "@screen_feature_exercise_history_title": {
+    "description": "画面タイトル"
+  },
+  "screen_feature_goal_settings_title": "Goals",
+  "@screen_feature_goal_settings_title": {
+    "description": "画面タイトル"
+  },
+  "screen_feature_main_nav_exercise_history": "Exercise history",
+  "@screen_feature_main_nav_exercise_history": {
+    "description": "ボトムナビ"
+  },
+  "screen_feature_main_nav_goal_settings": "Goals",
+  "@screen_feature_main_nav_goal_settings": {
+    "description": "ボトムナビ"
+  },
+  "screen_feature_main_nav_home": "Home",
+  "@screen_feature_main_nav_home": {
+    "description": "ボトムナビ"
+  },
+  "screen_feature_main_nav_meter_capture": "Meter capture",
+  "@screen_feature_main_nav_meter_capture": {
+    "description": "ボトムナビ"
+  },
+  "screen_feature_meter_capture_title": "Meter capture",
+  "@screen_feature_meter_capture_title": {
+    "description": "画面タイトル"
+  },
   "screen_feature_top_calories": "Calories",
   "@screen_feature_top_calories": {
     "description": "指標"
@@ -36,10 +64,6 @@
   "screen_feature_top_duration": "Exercise time",
   "@screen_feature_top_duration": {
     "description": "指標"
-  },
-  "screen_feature_top_open_camera": "Photograph the meter panel",
-  "@screen_feature_top_open_camera": {
-    "description": "撮影導線"
   },
   "screen_feature_top_this_month": "This month",
   "@screen_feature_top_this_month": {

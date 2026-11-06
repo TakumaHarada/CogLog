@@ -21,6 +21,27 @@ class L10nEn extends L10n {
   String get foundation_resources_app_name => 'CogLog';
 
   @override
+  String get screen_feature_exercise_history_title => 'Exercise history';
+
+  @override
+  String get screen_feature_goal_settings_title => 'Goals';
+
+  @override
+  String get screen_feature_main_nav_exercise_history => 'Exercise history';
+
+  @override
+  String get screen_feature_main_nav_goal_settings => 'Goals';
+
+  @override
+  String get screen_feature_main_nav_home => 'Home';
+
+  @override
+  String get screen_feature_main_nav_meter_capture => 'Meter capture';
+
+  @override
+  String get screen_feature_meter_capture_title => 'Meter capture';
+
+  @override
   String get screen_feature_top_calories => 'Calories';
 
   @override
@@ -34,9 +55,6 @@ class L10nEn extends L10n {
 
   @override
   String get screen_feature_top_duration => 'Exercise time';
-
-  @override
-  String get screen_feature_top_open_camera => 'Photograph the meter panel';
 
   @override
   String get screen_feature_top_this_month => 'This month';

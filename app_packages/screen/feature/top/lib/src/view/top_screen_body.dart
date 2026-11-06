@@ -5,7 +5,6 @@ import 'package:foundation_resources/gen/strings.dart' as foundation_resources;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:meta/meta.dart';
-import 'package:screen_navigation/screen_navigation.dart';
 
 import '../../gen/strings.dart';
 import '../viewmodel/top_screen_view_model.dart';
@@ -49,19 +48,7 @@ class TopScreenBody extends HookConsumerWidget {
     final entity = ref.watch(TopScreenProviders.entity);
     final saving = useState(false);
     return FScaffold(
-      header: FHeader(
-        title: Text(strings.foundation_resources_app_name),
-        suffixes: [
-          FHeaderAction(
-            icon: const Icon(FLucideIcons.camera),
-            semanticsLabel: strings.screen_feature_top_open_camera,
-            onPress: () async {
-              await ref.read(screenNavigationProvider).openMeterPanelCamera();
-              await ref.read(TopScreenViewModel.provider).onInitialize();
-            },
-          ),
-        ],
-      ),
+      header: FHeader(title: Text(strings.foundation_resources_app_name)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 16,

@@ -20,6 +20,10 @@ workspace:
   - app_packages/domain/exercise_history
   - app_packages/foundation/metadata
   - app_packages/foundation/resources
+  - app_packages/screen/feature/exercise_history
+  - app_packages/screen/feature/goal_settings
+  - app_packages/screen/feature/main
+  - app_packages/screen/feature/meter_capture
   - app_packages/screen/feature/top
   - app_packages/screen/injection
   - app_packages/screen/navigation

@@ -21,6 +21,27 @@ class L10nJa extends L10n {
   String get foundation_resources_app_name => 'CogLog';
 
   @override
+  String get screen_feature_exercise_history_title => '運動履歴';
+
+  @override
+  String get screen_feature_goal_settings_title => '目標設定';
+
+  @override
+  String get screen_feature_main_nav_exercise_history => '運動履歴';
+
+  @override
+  String get screen_feature_main_nav_goal_settings => '目標設定';
+
+  @override
+  String get screen_feature_main_nav_home => 'ホーム';
+
+  @override
+  String get screen_feature_main_nav_meter_capture => 'メーター撮影';
+
+  @override
+  String get screen_feature_meter_capture_title => 'メーター撮影';
+
+  @override
   String get screen_feature_top_calories => '消費カロリー';
 
   @override
@@ -34,9 +55,6 @@ class L10nJa extends L10n {
 
   @override
   String get screen_feature_top_duration => '運動時間';
-
-  @override
-  String get screen_feature_top_open_camera => 'メーターパネルを撮影';
 
   @override
   String get screen_feature_top_this_month => '今月';

@@ -60,6 +60,34 @@ final class L10nHelper {
         // No Placeholders
         return l10n.foundation_resources_app_name;
       },
+      'screen_feature_exercise_history_title': (source) {
+        // No Placeholders
+        return l10n.screen_feature_exercise_history_title;
+      },
+      'screen_feature_goal_settings_title': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_title;
+      },
+      'screen_feature_main_nav_exercise_history': (source) {
+        // No Placeholders
+        return l10n.screen_feature_main_nav_exercise_history;
+      },
+      'screen_feature_main_nav_goal_settings': (source) {
+        // No Placeholders
+        return l10n.screen_feature_main_nav_goal_settings;
+      },
+      'screen_feature_main_nav_home': (source) {
+        // No Placeholders
+        return l10n.screen_feature_main_nav_home;
+      },
+      'screen_feature_main_nav_meter_capture': (source) {
+        // No Placeholders
+        return l10n.screen_feature_main_nav_meter_capture;
+      },
+      'screen_feature_meter_capture_title': (source) {
+        // No Placeholders
+        return l10n.screen_feature_meter_capture_title;
+      },
       'screen_feature_top_calories': (source) {
         // No Placeholders
         return l10n.screen_feature_top_calories;
@@ -79,10 +107,6 @@ final class L10nHelper {
       'screen_feature_top_duration': (source) {
         // No Placeholders
         return l10n.screen_feature_top_duration;
-      },
-      'screen_feature_top_open_camera': (source) {
-        // No Placeholders
-        return l10n.screen_feature_top_open_camera;
       },
       'screen_feature_top_this_month': (source) {
         // No Placeholders
