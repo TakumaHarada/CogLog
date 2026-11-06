@@ -5,7 +5,7 @@ import '../strings.dart';
 
 /// ボトムナビゲーションを持つアプリの入れ物。
 ///
-/// [go_router] には依存しない。タブ切替は [onIndexChange] に任せる。
+/// go_router には依存しない。タブ切替は [onIndexChange] に任せる。
 ///
 /// Example:
 /// ```dart
