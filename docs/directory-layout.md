@@ -29,8 +29,9 @@ Firebase のクライアント設定は手元に置く。Git では追跡しな�
 
 | ファイル | パス |
 | --- | --- |
-| Android | `app/android/app/google-services.json` |
-| iOS | `app/ios/Runner/GoogleService-Info.plist` |
+| Android | `app/android/app/src/<flavor>/google-services.json` |
+| iOS（保管） | `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` |
+| iOS（ビルド投入） | ビルド前に `app/ios/Runner/GoogleService-Info.plist` へコピー |
 
 ## 目標の配置
 
