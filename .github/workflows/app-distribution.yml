@@ -255,7 +255,8 @@ jobs:
           print(matches[0])
           PY
           )"
-          firebase --non-interactive appdistribution:distribute \
+          # --debug で ADC/WIF 失敗の実エラーを出す（login 促し文だけだと原因が隠れる）。
+          firebase --non-interactive --debug appdistribution:distribute \
             "build/app/outputs/flutter-apk/app-${FLAVOR}-release.apk" \
             --app "${app_id}" \
             --groups "${DISTRIBUTION_GROUPS}" \
