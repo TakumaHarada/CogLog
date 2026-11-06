@@ -1,0 +1,3 @@
+#include "../test.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = io.github.madahataraku.coglog.debug
