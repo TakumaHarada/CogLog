@@ -66,19 +66,6 @@ void main() {
     expect(find.text('Exercise time'), findsOneWidget);
   });
 
-  testWidgets('撮影操作で /camera へ進み、戻るとトップ画面がある', (tester) async {
-    tester.platformDispatcher.localesTestValue = const [Locale('ja')];
-    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-
-    final screens = await pumpTopScreen(tester);
-    await tester.tap(find.bySemanticsLabel('メーターパネルを撮影'));
-    await tester.pumpAndSettle();
-
-    expect(screens.router.state.uri.path, '/camera');
-    screens.router.pop();
-    await tester.pumpAndSettle();
-    expect(find.text('本日'), findsOneWidget);
-  });
 }
 
 Future<void> _chooseMetric(

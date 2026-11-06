@@ -1,20 +1,15 @@
 import 'package:riverpod/riverpod.dart';
 
-/// トップ画面からメーターパネル撮影の遷移先を開く。
+/// 画面遷移の窓口。
+///
+/// タブ切替は go_router の StatefulShellRoute が担う。
+/// スタック型の子画面遷移が必要になったときにメソッドを足す。
 ///
 /// Example:
 /// ```dart
-/// navigation.openMeterPanelCamera();
+/// screenNavigationProvider;
 /// ```
-abstract interface class ScreenNavigation {
-  /// `/camera` を開き、閉じられるまで待つ。
-  ///
-  /// Example:
-  /// ```dart
-  /// await navigation.openMeterPanelCamera();
-  /// ```
-  Future<void> openMeterPanelCamera();
-}
+abstract interface class ScreenNavigation {}
 
 /// 画面遷移の注入点。未接続のときは失敗する。
 ///

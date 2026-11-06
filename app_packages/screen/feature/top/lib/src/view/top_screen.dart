@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../viewmodel/top_screen_view_model.dart';
 import 'top_screen_impl.dart';
 
-/// 本日、今週、今月の合計を示す画面。
+/// ホーム。本日、今週、今月の合計を示す。
 ///
 /// Example:
 /// ```dart

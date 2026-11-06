@@ -13,7 +13,7 @@ import 'theme/theme.dart';
 
 /// CogLog を起動する。
 ///
-/// 保存済みの指標を読み、トップ画面を最初に出す。
+/// 保存済みの指標を読み、ホームを最初に出す。
 ///
 /// Example:
 /// ```dart
@@ -62,7 +62,7 @@ class Application extends StatelessWidget {
   /// ```
   const Application({required this.router, super.key});
 
-  /// トップ画面から始まる遷移。
+  /// ホームから始まる遷移。
   final GoRouter router;
 
   /// [FTheme] と [L10nHelper] を [MaterialApp] に載せる。

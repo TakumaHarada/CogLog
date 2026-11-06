@@ -29,10 +29,6 @@ mixin class L10nStringsMixin {
   String get screen_feature_top_duration =>
       LocalizeStringDelegate.get('screen_feature_top_duration');
 
-  /// 撮影導線
-  String get screen_feature_top_open_camera =>
-      LocalizeStringDelegate.get('screen_feature_top_open_camera');
-
   /// 集計期間
   String get screen_feature_top_this_month =>
       LocalizeStringDelegate.get('screen_feature_top_this_month');
