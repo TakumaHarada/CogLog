@@ -79,22 +79,42 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
           set -euo pipefail
-          mkdir -p app/android/app
-          rm -f app/android/app/google-services.json
-          op read --force --out-file app/android/app/google-services.json \
-            "op://AppDevelopment/CogLog_develop/google-services.json"
-          python3 - <<'PY'
+          case "${FLAVOR}" in
+            production)
+              op_item="CogLog_production"
+              expected_package="io.github.madahataraku.coglog"
+              ;;
+            development)
+              op_item="CogLog_develop"
+              expected_package="io.github.madahataraku.coglog.debug"
+              ;;
+            *)
+              echo "unsupported flavor: ${FLAVOR}" >&2
+              exit 1
+              ;;
+          esac
+          dest_dir="app/android/app/src/${FLAVOR}"
+          mkdir -p "${dest_dir}"
+          rm -f "${dest_dir}/google-services.json"
+          op read --force --out-file "${dest_dir}/google-services.json" \
+            "op://AppDevelopment/${op_item}/google-services.json"
+          EXPECTED_PACKAGE="${expected_package}" DEST_DIR="${dest_dir}" python3 - <<'PY'
           import json
+          import os
           from pathlib import Path
 
-          path = Path("app/android/app/google-services.json")
+          expected = os.environ["EXPECTED_PACKAGE"]
+          path = Path(os.environ["DEST_DIR"]) / "google-services.json"
           document = json.loads(path.read_text())
           names = [
               client["client_info"]["android_client_info"]["package_name"]
               for client in document["client"]
           ]
-          if "io.github.madahataraku.coglog" not in names:
-              raise SystemExit("google-services.json package_name mismatch")
+          if expected not in names:
+              raise SystemExit(
+                  "google-services.json package_name mismatch: want %s in %s"
+                  % (expected, names)
+              )
           PY
 
       - name: Place release keystore
@@ -186,7 +206,7 @@ jobs:
         working-directory: app
         run: |
           set -euo pipefail
-          flutter build apk --release \
+          flutter build apk --release --flavor "${FLAVOR}" \
             --build-number "${GITHUB_RUN_NUMBER}" \
             --dart-define-from-file="../secrets/dart-define/${FLAVOR}.json"
 
@@ -208,16 +228,27 @@ jobs:
         working-directory: app
         run: |
           set -euo pipefail
-          app_id="$(python3 - <<'PY'
+          case "${FLAVOR}" in
+            production) expected_package="io.github.madahataraku.coglog" ;;
+            development) expected_package="io.github.madahataraku.coglog.debug" ;;
+            *)
+              echo "unsupported flavor: ${FLAVOR}" >&2
+              exit 1
+              ;;
+          esac
+          app_id="$(EXPECTED_PACKAGE="${expected_package}" FLAVOR="${FLAVOR}" python3 - <<'PY'
           import json
+          import os
           from pathlib import Path
 
-          document = json.loads(Path("android/app/google-services.json").read_text())
+          expected = os.environ["EXPECTED_PACKAGE"]
+          path = Path("android/app/src") / os.environ["FLAVOR"] / "google-services.json"
+          document = json.loads(path.read_text())
           matches = [
               client["client_info"]["mobilesdk_app_id"]
               for client in document["client"]
               if client["client_info"]["android_client_info"]["package_name"]
-              == "io.github.madahataraku.coglog"
+              == expected
           ]
           if len(matches) != 1:
               raise SystemExit("Firebase Android app id count is %s" % len(matches))
@@ -225,7 +256,7 @@ jobs:
           PY
           )"
           firebase --non-interactive appdistribution:distribute \
-            build/app/outputs/flutter-apk/app-release.apk \
+            "build/app/outputs/flutter-apk/app-${FLAVOR}-release.apk" \
             --app "${app_id}" \
             --groups "${DISTRIBUTION_GROUPS}" \
             --release-notes "CogLog ${FLAVOR} versionCode ${GITHUB_RUN_NUMBER} ${GITHUB_SHA}"
