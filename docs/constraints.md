@@ -76,7 +76,9 @@ XcodeGen へ移すときは、署名条件が揃ってから行う。そのと�
 
 ## App Distribution
 
-`.github/workflows/app-distribution.yml` は、`main` への push と、`main` を選んだ手動の `workflow_dispatch` で Android の release APK を Firebase App Distribution へ出す。ジョブは `github.ref == refs/heads/main` のときだけ動き、Environment `app-distribution` を使う。
+`.github/workflows/app-distribution.yml` は、`main` への push と、`main` を選んだ手動の `workflow_dispatch` で、Android の release APK と iOS の Ad Hoc IPA を Firebase App Distribution へ出す。ジョブは `github.ref == refs/heads/main` のときだけ動き、Environment `app-distribution` を使う。
+
+単一ジョブ `distribute` を `strategy.matrix.platform`（`android` / `ios`）で回す。`fail-fast: false` とし、Android と iOS は並列で、片方の失敗がもう片方をキャンセルしない。runner は Android が `ubuntu-latest`、iOS が `macos-15` である。
 
 push のフレーバーは `development`。手動起動では `development` または `production` を選ぶ。`test` は配布しない。dart-define は、リポジトリルートの `dart run monolith_runner:define` が書く `secrets/dart-define/<flavor>.json` を使う。`secrets/monolith.yaml` が無い include は読み飛ばす。
 
@@ -98,7 +100,19 @@ op read --force --out-file app/android/app/src/production/google-services.json \
 
 配置後、ファイル内の `package_name` がそのフレーバーの `applicationId` と一致することを検証する。APK は `flutter build apk --release --flavor <flavor>` で出し、成果物は `app-<flavor>-release.apk` である。Firebase App Distribution のアプリ ID も、同じフレーバーの `package_name` から解決する。
 
-iOS の development 向け参照は `op://AppDevelopment/CogLog_develop/GoogleService-Info.plist`、production 向けは `op://AppDevelopment/CogLog_production/GoogleService-Info.plist`。IPA の配布は Team ID、証明書、Provisioning Profile が揃ってからワークフローへ足す。
+iOS のクライアント設定と署名も、同じフレーバーの 1Password アイテムから読む。development は `CogLog_develop`、production は `CogLog_production`。Team ID・証明書・Provisioning Profile の実値はリポジトリに書かず、Actions 上だけで使う。`ExportOptions.plist` も CI で生成する（method は `ad-hoc`、signingStyle は `manual`）。
+
+```bash
+# development の例（production は CogLog_production）
+op read --force --out-file secrets/ios/GoogleService-Info.plist \
+  "op://AppDevelopment/CogLog_develop/GoogleService-Info.plist"
+op read --force --out-file secrets/ios/ios-distribution.p12 \
+  "op://AppDevelopment/CogLog_develop/ios-distribution.p12"
+op read --force --out-file secrets/ios/ios-adhoc.mobileprovision \
+  "op://AppDevelopment/CogLog_develop/ios-adhoc.mobileprovision"
+```
+
+同じアイテムのフィールド `ios-distribution-password` と `ios-team-id` も読む。プロファイル名は `.mobileprovision` から取り、リポジトリへは書かない。`BUNDLE_ID` / プロファイルの App ID は、そのフレーバーの Bundle Identifier と一致することを検証する。plist は `app/ios/Configurations/<CONFIGURATION>-<flavor>/` と `app/ios/Runner/GoogleService-Info.plist` へコピーする。IPA は `flutter build ipa --release --flavor <flavor> --export-options-plist ...` で出し、Firebase App Distribution のアプリ ID は plist の `GOOGLE_APP_ID` から解決する。
 
 配布用 secret は、GitHub の Environment `app-distribution` に置く。リポジトリ secret には置かない。Environment の Deployment branches は Selected branches で `main` だけを許可する。設定場所は **Settings → Environments → app-distribution** である。
 
@@ -127,9 +141,9 @@ principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workl
 
 テスターグループはリポジトリ変数 `FIREBASE_APP_DISTRIBUTION_GROUPS` にカンマ区切りで置く。手動起動の `groups` 入力があるときはそれを使う。
 
-配布の前に、リポジトリルートで `flutter analyze` を実行し、`test/` がある各パッケージでテストを実行する。`sdk: flutter` を持つパッケージは `flutter test`、それ以外は `dart test` である。
+配布の前に、各 matrix レッグでリポジトリルートの `flutter analyze` と、`test/` がある各パッケージのテストを実行する。`sdk: flutter` を持つパッケージは `flutter test`、それ以外は `dart test` である。
 
-versionName は `pubspec.yaml` のままにする。versionCode は GitHub Actions の run number にする。release 署名は同じ upload keystore を使い、配布済みの APK を上書き更新できるようにする。debug 署名は release に使わない。
+versionName は `pubspec.yaml` のままにする。versionCode / CFBundleVersion は GitHub Actions の run number にする。Android の release 署名は同じ upload keystore を使い、配布済みの APK を上書き更新できるようにする。debug 署名は release に使わない。
 
 keystore とパスワードは、アイテム `CogLog_develop` に置く。Actions は次の参照を読み、標準出力へパスワードを出さずに `app/android/key.properties` を書く。
 
@@ -152,3 +166,5 @@ keytool -genkeypair -v \
 ```
 
 `storePassword` と `keyPassword` は、そのときに入力したパスワードである。同じファイルを後から作り直すと、すでに配布した APK を上書き更新できなくなる。
+
+iOS の配布用証明書（`.p12`）と Ad Hoc プロファイル（`.mobileprovision`）も、リポジトリの外で用意してフレーバー別アイテムへ添付する。証明書やプロファイルを差し替えると、端末側の信頼やインストール条件が変わることがある。
