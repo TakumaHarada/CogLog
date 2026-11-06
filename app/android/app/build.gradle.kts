@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -8,8 +10,9 @@ plugins {
 
 // release 署名は app/android/key.properties と、そこが指す keystore を使う。
 // どちらも Git には置かない。配置手順は docs/constraints.md の App Distribution。
+// Android プラグイン適用後は java が影付きになるため、FQCN ではなく import した Properties を使う。
 val keystorePropertiesFile = rootProject.file("key.properties")
-val keystoreProperties = java.util.Properties()
+val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.reader(Charsets.UTF_8).use { reader ->
         keystoreProperties.load(reader)
@@ -75,8 +78,8 @@ android {
     }
 }
 
-gradle.taskGraph.whenReady { graph ->
-    val releaseRequested = graph.allTasks.any { task -> task.name.contains("Release") }
+gradle.taskGraph.whenReady {
+    val releaseRequested = allTasks.any { task -> task.name.contains("Release") }
     if (releaseRequested && !keystorePropertiesFile.exists()) {
         throw GradleException(
             "release 署名には app/android/key.properties が必要です。docs/constraints.md の App Distribution を参照してください。",
