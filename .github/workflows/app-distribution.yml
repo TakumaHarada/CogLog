@@ -1,0 +1,231 @@
+# main への push と workflow_dispatch で、Android の release APK を
+# Firebase App Distribution へ出す。
+#
+# Environment app-distribution の secret。リポジトリ secret には置かない。
+#   OP_SERVICE_ACCOUNT_TOKEN          vault AppDevelopment を読める 1Password サービスアカウント
+#   GCP_WORKLOAD_IDENTITY_PROVIDER    Workload Identity Federation のプロバイダ資源名
+#   GCP_SERVICE_ACCOUNT               Firebase App Distribution へ出すサービスアカウント
+# リポジトリ変数:
+#   FIREBASE_APP_DISTRIBUTION_GROUPS  カンマ区切りのテスターグループ
+#
+# iOS の IPA は Team ID、証明書、Provisioning Profile が揃ってから追加する。
+# release 署名は 1Password の upload-keystore.jks を使う。
+name: App Distribution
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: dart-define のフレーバー
+        type: choice
+        default: development
+        options:
+          - development
+          - production
+      groups:
+        description: テスターグループ。空ならリポジトリ変数 FIREBASE_APP_DISTRIBUTION_GROUPS
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-distribution-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  android:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    environment: app-distribution
+    name: Distribute Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FLAVOR: ${{ github.event_name == 'workflow_dispatch' && inputs.flavor || 'development' }}
+      DISTRIBUTION_GROUPS: ${{ github.event_name == 'workflow_dispatch' && inputs.groups || vars.FIREBASE_APP_DISTRIBUTION_GROUPS }}
+    steps:
+      - name: Check distribution inputs
+        run: |
+          set -euo pipefail
+          case "${FLAVOR}" in
+            development|production) ;;
+            *)
+              echo "配布できないフレーバーです: ${FLAVOR}"
+              exit 1
+              ;;
+          esac
+          if [ -z "${DISTRIBUTION_GROUPS}" ]; then
+            echo "テスターグループがありません。リポジトリ変数 FIREBASE_APP_DISTRIBUTION_GROUPS を設定するか、手動起動で groups を指定してください。"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install 1Password CLI
+        uses: 1Password/install-cli-action@1a3160d5e9de1ae0803eaa08a88746f5ae3daa50 # 1Password/install-cli-action@v4.1.0
+
+      - name: Place google-services.json
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p app/android/app
+          rm -f app/android/app/google-services.json
+          op read --force --out-file app/android/app/google-services.json \
+            "op://AppDevelopment/CogLog_develop/google-services.json"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("app/android/app/google-services.json")
+          document = json.loads(path.read_text())
+          names = [
+              client["client_info"]["android_client_info"]["package_name"]
+              for client in document["client"]
+          ]
+          if "io.github.madahataraku.coglog" not in names:
+              raise SystemExit("google-services.json package_name mismatch")
+          PY
+
+      - name: Place release keystore
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p secrets/android
+          rm -f secrets/android/upload-keystore.jks app/android/key.properties
+          op read --force --out-file secrets/android/upload-keystore.jks \
+            "op://AppDevelopment/CogLog_develop/upload-keystore.jks"
+          store_password="$(op read 'op://AppDevelopment/CogLog_develop/storePassword')"
+          key_password="$(op read 'op://AppDevelopment/CogLog_develop/keyPassword')"
+          key_alias="$(op read 'op://AppDevelopment/CogLog_develop/keyAlias')"
+          STORE_PASSWORD="$store_password" KEY_PASSWORD="$key_password" KEY_ALIAS="$key_alias" \
+            python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          def escape(value: str) -> str:
+              return (
+                  value.replace("\\", "\\\\")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace("=", "\\=")
+                  .replace(":", "\\:")
+                  .replace("#", "\\#")
+                  .replace("!", "\\!")
+              )
+
+          path = Path("app/android/key.properties")
+          path.write_text(
+              "\n".join(
+                  [
+                      f"storePassword={escape(os.environ['STORE_PASSWORD'])}",
+                      f"keyPassword={escape(os.environ['KEY_PASSWORD'])}",
+                      f"keyAlias={escape(os.environ['KEY_ALIAS'])}",
+                      "storeFile=../../../secrets/android/upload-keystore.jks",
+                      "",
+                  ]
+              ),
+              encoding="utf-8",
+          )
+          path.chmod(0o600)
+          PY
+
+      - name: Setup Java
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # actions/setup-java@v6.2.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          flutter-version: 3.47.9
+          cache: true
+
+      - name: Generate dart-define
+        run: |
+          set -euo pipefail
+          flutter pub get
+          dart run monolith_runner:define
+
+      - name: Analyze and test
+        run: |
+          set -euo pipefail
+          flutter analyze
+          while IFS= read -r pubspec; do
+            dir="$(dirname "$pubspec")"
+            if [ ! -d "${dir}/test" ]; then
+              continue
+            fi
+            echo "test ${dir}"
+            if grep -q 'sdk: flutter' "$pubspec"; then
+              (cd "$dir" && flutter test)
+            else
+              (cd "$dir" && dart test)
+            fi
+          done < <(find . -name pubspec.yaml -not -path '*/.dart_tool/*' -not -path '*/build/*' | sort)
+
+      - name: Accept Android licenses
+        run: |
+          set +o pipefail
+          yes | flutter doctor --android-licenses
+
+      - name: Build release APK
+        working-directory: app
+        run: |
+          set -euo pipefail
+          flutter build apk --release \
+            --build-number "${GITHUB_RUN_NUMBER}" \
+            --dart-define-from-file="../secrets/dart-define/${FLAVOR}.json"
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # actions/setup-node@v7.1.0
+        with:
+          node-version: 22
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools@15.35.0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # google-github-actions/auth@v3.0.0
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Upload to Firebase App Distribution
+        working-directory: app
+        run: |
+          set -euo pipefail
+          app_id="$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          document = json.loads(Path("android/app/google-services.json").read_text())
+          matches = [
+              client["client_info"]["mobilesdk_app_id"]
+              for client in document["client"]
+              if client["client_info"]["android_client_info"]["package_name"]
+              == "io.github.madahataraku.coglog"
+          ]
+          if len(matches) != 1:
+              raise SystemExit("Firebase Android app id count is %s" % len(matches))
+          print(matches[0])
+          PY
+          )"
+          firebase --non-interactive appdistribution:distribute \
+            build/app/outputs/flutter-apk/app-release.apk \
+            --app "${app_id}" \
+            --groups "${DISTRIBUTION_GROUPS}" \
+            --release-notes "CogLog ${FLAVOR} versionCode ${GITHUB_RUN_NUMBER} ${GITHUB_SHA}"

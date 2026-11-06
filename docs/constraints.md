@@ -59,3 +59,71 @@ Monolith が書く次のファイルは手で編集しない。
 `development`、`production`、`test` は dart-define のフレーバーであり、ネイティブの applicationId と Bundle Identifier は共通である。Firebase アプリは Android と iOS で 1 つずつなので、手元に置く設定ファイルも 1 組である。
 
 XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。そのとき plist は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` へ移し、ビルド前にアプリバンドルへコピーする。このパスも Git では追跡しない。
+
+## App Distribution
+
+`.github/workflows/app-distribution.yml` は、`main` への push と、`main` を選んだ手動の `workflow_dispatch` で Android の release APK を Firebase App Distribution へ出す。ジョブは `github.ref == refs/heads/main` のときだけ動き、Environment `app-distribution` を使う。
+
+push のフレーバーは `development`。手動起動では `development` または `production` を選ぶ。`test` は配布しない。dart-define は、リポジトリルートの `dart run monolith_runner:define` が書く `secrets/dart-define/<flavor>.json` を使う。`secrets/monolith.yaml` が無い include は読み飛ばす。
+
+Android のクライアント設定は、Actions 上で次の参照から配置する。
+
+```bash
+op read --force --out-file app/android/app/google-services.json \
+  "op://AppDevelopment/CogLog_develop/google-services.json"
+```
+
+iOS のファイル参照は `op://AppDevelopment/CogLog_develop/GoogleService-Info.plist`。IPA の配布は Team ID、証明書、Provisioning Profile が揃ってからワークフローへ足す。
+
+配布用 secret は、GitHub の Environment `app-distribution` に置く。リポジトリ secret には置かない。Environment の Deployment branches は Selected branches で `main` だけを許可する。設定場所は **Settings → Environments → app-distribution** である。
+
+- `OP_SERVICE_ACCOUNT_TOKEN`。vault `AppDevelopment` を読める 1Password サービスアカウント。
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`。このリポジトリ向けの Workload Identity Federation プロバイダ資源名。
+- `GCP_SERVICE_ACCOUNT`。サービスアカウントのメールアドレス。Google Cloud のプロジェクト IAM で、このメンバーに `roles/firebaseappdistro.admin` を付ける。
+
+同じサービスアカウントには、リポジトリ `madahataraku/CogLog` の `main` からだけなれるようにする。Workload Identity プロバイダの属性マッピングは次にする。`attribute.repository` が無いと、IAM の principal はトークンと一致しない。
+
+```text
+google.subject=assertion.sub
+attribute.repository=assertion.repository
+```
+
+属性条件は次にする。この条件が、`main` 以外の ref を拒否する。
+
+```text
+assertion.repository=='madahataraku/CogLog' && assertion.ref=='refs/heads/main'
+```
+
+IAM の principal はリポジトリ単位である。管理場所は Google Cloud コンソールの **IAM と管理 → サービス アカウント → 対象アカウント → 権限** である。そこへ次の principal に `roles/iam.workloadIdentityUser` を付ける。
+
+```text
+principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/madahataraku/CogLog
+```
+
+テスターグループはリポジトリ変数 `FIREBASE_APP_DISTRIBUTION_GROUPS` にカンマ区切りで置く。手動起動の `groups` 入力があるときはそれを使う。
+
+配布の前に、リポジトリルートで `flutter analyze` を実行し、`test/` がある各パッケージでテストを実行する。`sdk: flutter` を持つパッケージは `flutter test`、それ以外は `dart test` である。
+
+versionName は `pubspec.yaml` のままにする。versionCode は GitHub Actions の run number にする。release 署名は同じ upload keystore を使い、配布済みの APK を上書き更新できるようにする。debug 署名は release に使わない。
+
+keystore とパスワードは、アイテム `CogLog_develop` に置く。Actions は次の参照を読み、標準出力へパスワードを出さずに `app/android/key.properties` を書く。
+
+- `op://AppDevelopment/CogLog_develop/upload-keystore.jks`
+- `op://AppDevelopment/CogLog_develop/storePassword`
+- `op://AppDevelopment/CogLog_develop/keyPassword`
+- `op://AppDevelopment/CogLog_develop/keyAlias`
+
+`storeFile` は `app/android/app` から `../../../secrets/android/upload-keystore.jks` を指す。keystore、`key.properties`、パスワードは Git に入れない。
+
+keystore がまだ無いときは、リポジトリの外で一度だけ作り、同じアイテムへファイル添付する。`keyAlias` に入れる別名は、このコマンドの `-alias` と揃える。
+
+```bash
+keytool -genkeypair -v \
+  -keystore upload-keystore.jks \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000 \
+  -alias upload
+```
+
+`storePassword` と `keyPassword` は、そのときに入力したパスワードである。同じファイルを後から作り直すと、すでに配布した APK を上書き更新できなくなる。
