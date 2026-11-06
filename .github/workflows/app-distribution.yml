@@ -1,5 +1,7 @@
-# main への push と workflow_dispatch で、Android の release APK を
-# Firebase App Distribution へ出す。
+# main への push と workflow_dispatch で、Android release APK と
+# iOS Ad Hoc IPA を Firebase App Distribution へ出す。
+#
+# matrix.platform = android | ios。fail-fast: false で並列・独立。
 #
 # Environment app-distribution の secret。リポジトリ secret には置かない。
 #   OP_SERVICE_ACCOUNT_TOKEN          vault AppDevelopment を読める 1Password サービスアカウント
@@ -8,8 +10,9 @@
 # リポジトリ変数:
 #   FIREBASE_APP_DISTRIBUTION_GROUPS  カンマ区切りのテスターグループ
 #
-# iOS の IPA は Team ID、証明書、Provisioning Profile が揃ってから追加する。
-# release 署名は 1Password の upload-keystore.jks を使う。
+# Android release 署名は 1Password の upload-keystore.jks を使う。
+# iOS 署名はフレーバー別アイテムの ios-distribution.p12 /
+# ios-distribution-password / ios-adhoc.mobileprovision / ios-team-id を使う。
 name: App Distribution
 
 on:
@@ -38,18 +41,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  android:
+  distribute:
     if: ${{ github.ref == 'refs/heads/main' }}
     environment: app-distribution
-    name: Distribute Android
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+    name: Distribute ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
     permissions:
       contents: read
       id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: android
+            runner: ubuntu-latest
+          - platform: ios
+            runner: macos-15
     env:
       FLAVOR: ${{ github.event_name == 'workflow_dispatch' && inputs.flavor || 'development' }}
       DISTRIBUTION_GROUPS: ${{ github.event_name == 'workflow_dispatch' && inputs.groups || vars.FIREBASE_APP_DISTRIBUTION_GROUPS }}
+      PLATFORM: ${{ matrix.platform }}
     steps:
       - name: Check distribution inputs
         run: |
@@ -74,31 +86,39 @@ jobs:
       - name: Install 1Password CLI
         uses: 1Password/install-cli-action@1a3160d5e9de1ae0803eaa08a88746f5ae3daa50 # 1Password/install-cli-action@v4.1.0
 
-      - name: Place google-services.json
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      - name: Resolve 1Password item
+        id: op_item
         run: |
           set -euo pipefail
           case "${FLAVOR}" in
             production)
-              op_item="CogLog_production"
-              expected_package="io.github.madahataraku.coglog"
+              echo "name=CogLog_production" >> "${GITHUB_OUTPUT}"
+              echo "bundle_id=io.github.madahataraku.coglog" >> "${GITHUB_OUTPUT}"
               ;;
             development)
-              op_item="CogLog_develop"
-              expected_package="io.github.madahataraku.coglog.debug"
+              echo "name=CogLog_develop" >> "${GITHUB_OUTPUT}"
+              echo "bundle_id=io.github.madahataraku.coglog.debug" >> "${GITHUB_OUTPUT}"
               ;;
             *)
               echo "unsupported flavor: ${FLAVOR}" >&2
               exit 1
               ;;
           esac
+
+      - name: Place google-services.json
+        if: ${{ matrix.platform == 'android' }}
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          OP_ITEM: ${{ steps.op_item.outputs.name }}
+          EXPECTED_PACKAGE: ${{ steps.op_item.outputs.bundle_id }}
+        run: |
+          set -euo pipefail
           dest_dir="app/android/app/src/${FLAVOR}"
           mkdir -p "${dest_dir}"
           rm -f "${dest_dir}/google-services.json"
           op read --force --out-file "${dest_dir}/google-services.json" \
-            "op://AppDevelopment/${op_item}/google-services.json"
-          EXPECTED_PACKAGE="${expected_package}" DEST_DIR="${dest_dir}" python3 - <<'PY'
+            "op://AppDevelopment/${OP_ITEM}/google-services.json"
+          EXPECTED_PACKAGE="${EXPECTED_PACKAGE}" DEST_DIR="${dest_dir}" python3 - <<'PY'
           import json
           import os
           from pathlib import Path
@@ -118,6 +138,7 @@ jobs:
           PY
 
       - name: Place release keystore
+        if: ${{ matrix.platform == 'android' }}
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: |
@@ -161,7 +182,162 @@ jobs:
           path.chmod(0o600)
           PY
 
+      - name: Place iOS Firebase config and signing materials
+        if: ${{ matrix.platform == 'ios' }}
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          OP_ITEM: ${{ steps.op_item.outputs.name }}
+          EXPECTED_BUNDLE_ID: ${{ steps.op_item.outputs.bundle_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p secrets/ios
+          rm -f \
+            secrets/ios/GoogleService-Info.plist \
+            secrets/ios/ios-distribution.p12 \
+            secrets/ios/ios-adhoc.mobileprovision \
+            secrets/ios/ExportOptions.plist \
+            secrets/ios/signing.env
+          op read --force --out-file secrets/ios/GoogleService-Info.plist \
+            "op://AppDevelopment/${OP_ITEM}/GoogleService-Info.plist"
+          op read --force --out-file secrets/ios/ios-distribution.p12 \
+            "op://AppDevelopment/${OP_ITEM}/ios-distribution.p12"
+          op read --force --out-file secrets/ios/ios-adhoc.mobileprovision \
+            "op://AppDevelopment/${OP_ITEM}/ios-adhoc.mobileprovision"
+          p12_password="$(op read "op://AppDevelopment/${OP_ITEM}/ios-distribution-password")"
+          team_id="$(op read "op://AppDevelopment/${OP_ITEM}/ios-team-id")"
+          EXPECTED_BUNDLE_ID="${EXPECTED_BUNDLE_ID}" \
+          P12_PASSWORD="${p12_password}" \
+          TEAM_ID="${team_id}" \
+          FLAVOR="${FLAVOR}" \
+            python3 - <<'PY'
+          import os
+          import plistlib
+          import subprocess
+          from pathlib import Path
+
+          expected_bundle = os.environ["EXPECTED_BUNDLE_ID"]
+          flavor = os.environ["FLAVOR"]
+          team_id = os.environ["TEAM_ID"].strip()
+          p12_password = os.environ["P12_PASSWORD"]
+          if not team_id:
+              raise SystemExit("ios-team-id is empty")
+          if not p12_password:
+              raise SystemExit("ios-distribution-password is empty")
+
+          google_plist_path = Path("secrets/ios/GoogleService-Info.plist")
+          with google_plist_path.open("rb") as handle:
+              google = plistlib.load(handle)
+          bundle_id = google.get("BUNDLE_ID")
+          if bundle_id != expected_bundle:
+              raise SystemExit(
+                  "GoogleService-Info.plist BUNDLE_ID mismatch: want %s got %s"
+                  % (expected_bundle, bundle_id)
+              )
+          if not google.get("GOOGLE_APP_ID"):
+              raise SystemExit("GoogleService-Info.plist GOOGLE_APP_ID is missing")
+
+          for configuration in ("Debug", "Profile", "Release"):
+              dest_dir = Path("app/ios/Configurations") / f"{configuration}-{flavor}"
+              dest_dir.mkdir(parents=True, exist_ok=True)
+              dest = dest_dir / "GoogleService-Info.plist"
+              dest.write_bytes(google_plist_path.read_bytes())
+          runner_plist = Path("app/ios/Runner/GoogleService-Info.plist")
+          runner_plist.write_bytes(google_plist_path.read_bytes())
+
+          profile_path = Path("secrets/ios/ios-adhoc.mobileprovision")
+          decoded = subprocess.check_output(
+              ["security", "cms", "-D", "-i", str(profile_path)],
+              stderr=subprocess.DEVNULL,
+          )
+          profile = plistlib.loads(decoded)
+          profile_name = profile.get("Name")
+          profile_uuid = profile.get("UUID")
+          app_id_prefix = profile.get("ApplicationIdentifierPrefix") or []
+          entitlements = profile.get("Entitlements") or {}
+          application_identifier = entitlements.get("application-identifier", "")
+          if not profile_name or not profile_uuid:
+              raise SystemExit("mobileprovision Name/UUID is missing")
+          if not application_identifier.endswith("." + expected_bundle):
+              raise SystemExit(
+                  "mobileprovision bundle mismatch: want suffix .%s got %s"
+                  % (expected_bundle, application_identifier)
+              )
+          profile_teams = set(app_id_prefix) | set(profile.get("TeamIdentifier") or [])
+          if profile_teams and team_id not in profile_teams:
+              raise SystemExit(
+                  "ios-team-id %s does not match profile teams %s"
+                  % (team_id, sorted(profile_teams))
+              )
+
+          profiles_dir = Path.home() / "Library/MobileDevice/Provisioning Profiles"
+          profiles_dir.mkdir(parents=True, exist_ok=True)
+          installed = profiles_dir / f"{profile_uuid}.mobileprovision"
+          installed.write_bytes(profile_path.read_bytes())
+
+          export_options = {
+              "destination": "export",
+              "method": "ad-hoc",
+              "signingStyle": "manual",
+              "stripSwiftSymbols": True,
+              "provisioningProfiles": {expected_bundle: profile_name},
+              "uploadSymbols": False,
+              "compileBitcode": False,
+              "teamID": team_id,
+          }
+          with Path("secrets/ios/ExportOptions.plist").open("wb") as handle:
+              plistlib.dump(export_options, handle)
+
+          def escape_env(value: str) -> str:
+              return (
+                  value.replace("\\", "\\\\")
+                  .replace('"', '\\"')
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+              )
+
+          Path("secrets/ios/signing.env").write_text(
+              "\n".join(
+                  [
+                      f'TEAM_ID="{escape_env(team_id)}"',
+                      f'PROFILE_NAME="{escape_env(profile_name)}"',
+                      f'P12_PASSWORD="{escape_env(p12_password)}"',
+                      f'BUNDLE_ID="{escape_env(expected_bundle)}"',
+                      "",
+                  ]
+              ),
+              encoding="utf-8",
+          )
+          Path("secrets/ios/signing.env").chmod(0o600)
+          PY
+
+      - name: Install iOS signing certificate
+        if: ${{ matrix.platform == 'ios' }}
+        run: |
+          set -euo pipefail
+          set -a
+          # shellcheck disable=SC1091
+          source secrets/ios/signing.env
+          set +a
+          KEYCHAIN_PATH="${RUNNER_TEMP}/coglog-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
+          security create-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security set-keychain-settings -lut 21600 "${KEYCHAIN_PATH}"
+          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security import secrets/ios/ios-distribution.p12 \
+            -P "${P12_PASSWORD}" \
+            -A \
+            -t cert \
+            -f pkcs12 \
+            -k "${KEYCHAIN_PATH}"
+          security list-keychains -d user -s "${KEYCHAIN_PATH}" $(security list-keychains -d user | sed 's/"//g')
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s \
+            -k "${KEYCHAIN_PASSWORD}" \
+            "${KEYCHAIN_PATH}"
+
       - name: Setup Java
+        if: ${{ matrix.platform == 'android' }}
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # actions/setup-java@v6.2.0
         with:
           distribution: temurin
@@ -198,17 +374,72 @@ jobs:
           done < <(find . -name pubspec.yaml -not -path '*/.dart_tool/*' -not -path '*/build/*' | sort)
 
       - name: Accept Android licenses
+        if: ${{ matrix.platform == 'android' }}
         run: |
           set +o pipefail
           yes | flutter doctor --android-licenses
 
       - name: Build release APK
+        if: ${{ matrix.platform == 'android' }}
         working-directory: app
         run: |
           set -euo pipefail
           flutter build apk --release --flavor "${FLAVOR}" \
             --build-number "${GITHUB_RUN_NUMBER}" \
             --dart-define-from-file="../secrets/dart-define/${FLAVOR}.json"
+
+      - name: Apply iOS manual signing for CI
+        if: ${{ matrix.platform == 'ios' }}
+        run: |
+          set -euo pipefail
+          set -a
+          # shellcheck disable=SC1091
+          source secrets/ios/signing.env
+          set +a
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          team_id = os.environ["TEAM_ID"]
+          profile_name = os.environ["PROFILE_NAME"]
+          flavor = os.environ["FLAVOR"]
+
+          for configuration in ("Debug", "Profile", "Release"):
+              path = Path("app/ios/Configurations") / f"{configuration}-{flavor}" / "flavor.xcconfig"
+              text = path.read_text(encoding="utf-8")
+              additions = [
+                  "CODE_SIGN_STYLE = Manual",
+                  f"DEVELOPMENT_TEAM = {team_id}",
+                  f"PROVISIONING_PROFILE_SPECIFIER = {profile_name}",
+                  "CODE_SIGN_IDENTITY = iPhone Distribution",
+              ]
+              if "DEVELOPMENT_TEAM =" not in text:
+                  path.write_text(text.rstrip() + "\n" + "\n".join(additions) + "\n", encoding="utf-8")
+
+          pbxproj = Path("app/ios/Runner.xcodeproj/project.pbxproj")
+          contents = pbxproj.read_text(encoding="utf-8")
+          contents = contents.replace(
+              "CODE_SIGN_STYLE = Automatic;",
+              "CODE_SIGN_STYLE = Manual;",
+          )
+          contents = re.sub(
+              r'"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer";',
+              '"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";',
+              contents,
+          )
+          pbxproj.write_text(contents, encoding="utf-8")
+          PY
+
+      - name: Build Ad Hoc IPA
+        if: ${{ matrix.platform == 'ios' }}
+        working-directory: app
+        run: |
+          set -euo pipefail
+          flutter build ipa --release --flavor "${FLAVOR}" \
+            --build-number "${GITHUB_RUN_NUMBER}" \
+            --dart-define-from-file="../secrets/dart-define/${FLAVOR}.json" \
+            --export-options-plist="../secrets/ios/ExportOptions.plist"
 
       - name: Setup Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # actions/setup-node@v7.1.0
@@ -224,19 +455,14 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Upload to Firebase App Distribution
+      - name: Upload Android APK to Firebase App Distribution
+        if: ${{ matrix.platform == 'android' }}
         working-directory: app
+        env:
+          EXPECTED_PACKAGE: ${{ steps.op_item.outputs.bundle_id }}
         run: |
           set -euo pipefail
-          case "${FLAVOR}" in
-            production) expected_package="io.github.madahataraku.coglog" ;;
-            development) expected_package="io.github.madahataraku.coglog.debug" ;;
-            *)
-              echo "unsupported flavor: ${FLAVOR}" >&2
-              exit 1
-              ;;
-          esac
-          app_id="$(EXPECTED_PACKAGE="${expected_package}" FLAVOR="${FLAVOR}" python3 - <<'PY'
+          app_id="$(EXPECTED_PACKAGE="${EXPECTED_PACKAGE}" FLAVOR="${FLAVOR}" python3 - <<'PY'
           import json
           import os
           from pathlib import Path
@@ -260,4 +486,34 @@ jobs:
             "build/app/outputs/flutter-apk/app-${FLAVOR}-release.apk" \
             --app "${app_id}" \
             --groups "${DISTRIBUTION_GROUPS}" \
-            --release-notes "CogLog ${FLAVOR} versionCode ${GITHUB_RUN_NUMBER} ${GITHUB_SHA}"
+            --release-notes "CogLog ${FLAVOR} android versionCode ${GITHUB_RUN_NUMBER} ${GITHUB_SHA}"
+
+      - name: Upload iOS IPA to Firebase App Distribution
+        if: ${{ matrix.platform == 'ios' }}
+        working-directory: app
+        run: |
+          set -euo pipefail
+          app_id="$(python3 - <<'PY'
+          import plistlib
+          from pathlib import Path
+
+          with Path("ios/Runner/GoogleService-Info.plist").open("rb") as handle:
+              document = plistlib.load(handle)
+          app_id = document.get("GOOGLE_APP_ID")
+          if not app_id:
+              raise SystemExit("GOOGLE_APP_ID is missing")
+          print(app_id)
+          PY
+          )"
+          shopt -s nullglob
+          ipas=(build/ios/ipa/*.ipa)
+          if [ "${#ipas[@]}" -ne 1 ]; then
+            echo "expected exactly one IPA, found ${#ipas[@]}" >&2
+            printf '%s\n' "${ipas[@]:-}" >&2
+            exit 1
+          fi
+          firebase --non-interactive --debug appdistribution:distribute \
+            "${ipas[0]}" \
+            --app "${app_id}" \
+            --groups "${DISTRIBUTION_GROUPS}" \
+            --release-notes "CogLog ${FLAVOR} ios build ${GITHUB_RUN_NUMBER} ${GITHUB_SHA}"
