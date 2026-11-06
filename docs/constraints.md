@@ -11,7 +11,7 @@
 
 ## フレーバー
 
-`monolith.yaml` の `define.flavors` は `development`、`production`、`test`。値はすべて文字列にする。`test` はテストが読むフレーバーで、中身は development に揃える。
+`monolith.yaml` の `define.flavors` は `development`、`production`、`test`。値はすべて文字列にする。`test` はテストが読む dart-define 用で、中身は development に揃える。ネイティブの `--flavor` には `test` を置かない（AGP が `test` で始まる productFlavor 名を拒否するためでもある）。
 
 ```bash
 dart run monolith_runner:define
@@ -19,11 +19,19 @@ dart run monolith_runner:define
 
 出力先 `secrets/dart-define/` は git に入れない。`foundation_metadata` のテストは `secrets/dart-define/test.json` がある状態で実行する。
 
+ネイティブのアプリ ID（Android `applicationId` / iOS Bundle Identifier）は `--flavor`（`development` / `production`）だけで切り替える。buildType（debug / release）では変えない。
+
+| flavor | applicationId / Bundle Identifier |
+| --- | --- |
+| development | `io.github.madahataraku.coglog.debug` |
+| production | `io.github.madahataraku.coglog` |
+
 開発ビルド:
 
 ```bash
 cd app
-flutter run --dart-define-from-file=../secrets/dart-define/development.json
+flutter run --flavor development \
+  --dart-define-from-file=../secrets/dart-define/development.json
 ```
 
 ## 秘密情報
@@ -45,20 +53,26 @@ Monolith が書く次のファイルは手で編集しない。
 
 ## iOS
 
-`dart run monolith_runner:xcodegen` は、各構成の Bundle Identifier、Provisioning Profile、Team ID が揃ってから実行する。これらの値が指示に無いときは、値を作らずに不足項目を残す。
+Bundle Identifier は上記フレーバー対応表に従う。`dart run monolith_runner:xcodegen` は、各構成の Bundle Identifier、Provisioning Profile、Team ID が揃ってから実行する。Provisioning Profile と Team ID は未指定のため、いまは xcodegen を実行しない。指示に無い署名の値は作らない。
 
 ## Firebase
 
-クライアント設定は手元に置き、Git では追跡しない。
+クライアント設定は手元に置き、Git では追跡しない。フレーバーごとにファイルを分ける（1 ファイルに両アプリ ID を入れない）。
 
-- Android は `app/android/app/google-services.json`。プラグイン `com.google.gms.google-services` を `app/android/settings.gradle.kts` で宣言し、`app/android/app/build.gradle.kts` で適用する。対象の `applicationId` は `io.github.madahataraku.coglog`。
-- iOS は `app/ios/Runner/GoogleService-Info.plist` を Runner ターゲットのリソースに含める。対象の Bundle Identifier は `io.github.madahataraku.coglog`。
+- Android は `app/android/app/src/<flavor>/google-services.json`。プラグイン `com.google.gms.google-services` を `app/android/settings.gradle.kts` で宣言し、`app/android/app/build.gradle.kts` で適用する。各ファイルの `package_name` は、そのフレーバーの `applicationId` と一致させる。
+- iOS の保管先は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist`（例: `Debug-development`）。同一フレーバーの Debug / Profile / Release は同じ内容を置く。ビルド前に選んだ構成の plist を `app/ios/Runner/GoogleService-Info.plist` へコピーし、Runner ターゲットのリソースとして含める。
+
+```bash
+# flavor=development・Debug の例
+cp app/ios/Configurations/Debug-development/GoogleService-Info.plist \
+  app/ios/Runner/GoogleService-Info.plist
+```
 
 `google-services.json` と `GoogleService-Info.plist` は `.gitignore` に入る。リポジトリへ追加しない。
 
-`development`、`production`、`test` は dart-define のフレーバーであり、ネイティブの applicationId と Bundle Identifier は共通である。Firebase アプリは Android と iOS で 1 つずつなので、手元に置く設定ファイルも 1 組である。
+Firebase コンソールでは、Android / iOS それぞれに development（`.debug`）用と production 用のアプリを持つ。1Password の `CogLog_develop` に置く development 向け添付は、package name / Bundle ID が `io.github.madahataraku.coglog.debug` であることを期待する。production 向けはアイテム `CogLog_production` を使う。
 
-XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。そのとき plist は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` へ移し、ビルド前にアプリバンドルへコピーする。このパスも Git では追跡しない。
+XcodeGen へ移すときは、署名条件が揃ってから行う。そのときも plist の保管は `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist` とし、ビルド前にアプリバンドルへコピーする。
 
 ## App Distribution
 
@@ -66,14 +80,25 @@ XcodeGen へ移すときは、上記の iOS の条件が揃ってから行う。
 
 push のフレーバーは `development`。手動起動では `development` または `production` を選ぶ。`test` は配布しない。dart-define は、リポジトリルートの `dart run monolith_runner:define` が書く `secrets/dart-define/<flavor>.json` を使う。`secrets/monolith.yaml` が無い include は読み飛ばす。
 
-Android のクライアント設定は、Actions 上で次の参照から配置する。
+Android のクライアント設定は、Actions 上でフレーバー別パスへ配置する。`development` は `CogLog_develop`、`production` は `CogLog_production` を読む。
 
 ```bash
-op read --force --out-file app/android/app/google-services.json \
+# development の例
+mkdir -p app/android/app/src/development
+op read --force --out-file app/android/app/src/development/google-services.json \
   "op://AppDevelopment/CogLog_develop/google-services.json"
 ```
 
-iOS のファイル参照は `op://AppDevelopment/CogLog_develop/GoogleService-Info.plist`。IPA の配布は Team ID、証明書、Provisioning Profile が揃ってからワークフローへ足す。
+```bash
+# production の例
+mkdir -p app/android/app/src/production
+op read --force --out-file app/android/app/src/production/google-services.json \
+  "op://AppDevelopment/CogLog_production/google-services.json"
+```
+
+配置後、ファイル内の `package_name` がそのフレーバーの `applicationId` と一致することを検証する。APK は `flutter build apk --release --flavor <flavor>` で出し、成果物は `app-<flavor>-release.apk` である。Firebase App Distribution のアプリ ID も、同じフレーバーの `package_name` から解決する。
+
+iOS の development 向け参照は `op://AppDevelopment/CogLog_develop/GoogleService-Info.plist`、production 向けは `op://AppDevelopment/CogLog_production/GoogleService-Info.plist`。IPA の配布は Team ID、証明書、Provisioning Profile が揃ってからワークフローへ足す。
 
 配布用 secret は、GitHub の Environment `app-distribution` に置く。リポジトリ secret には置かない。Environment の Deployment branches は Selected branches で `main` だけを許可する。設定場所は **Settings → Environments → app-distribution** である。
 
