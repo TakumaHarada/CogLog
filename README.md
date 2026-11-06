@@ -28,12 +28,14 @@ dart run forui theme create
 
 ```bash
 cd app
-flutter run --dart-define-from-file=../secrets/dart-define/development.json
+flutter run --flavor development \
+  --dart-define-from-file=../secrets/dart-define/development.json
 ```
 
-iOS の XcodeGen (`dart run monolith_runner:xcodegen`) は、Bundle Identifier、Provisioning Profile、Team ID が揃ってから行う。
+iOS の XcodeGen (`dart run monolith_runner:xcodegen`) は、Bundle Identifier、Provisioning Profile、Team ID が揃ってから行う。Provisioning Profile と Team ID が未指定のあいだは実行しない。
 
 Firebase のクライアント設定は手元に置き、Git では追跡しない。制約は `docs/constraints.md` を参照する。
 
-- Android: `app/android/app/google-services.json`
-- iOS: `app/ios/Runner/GoogleService-Info.plist`
+- Android: `app/android/app/src/<flavor>/google-services.json`
+- iOS（保管）: `app/ios/Configurations/<CONFIGURATION>/GoogleService-Info.plist`
+- iOS（ビルド投入）: `app/ios/Runner/GoogleService-Info.plist` へコピー

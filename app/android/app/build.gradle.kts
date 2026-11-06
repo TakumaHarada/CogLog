@@ -27,6 +27,7 @@ android {
     }
 
     defaultConfig {
+        // applicationId は productFlavors で上書きする。ここは production と同じ値を置く。
         applicationId = "io.github.madahataraku.coglog"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
@@ -38,6 +39,23 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    // アプリ ID はフレーバーだけで切り替える。buildTypes では変えない。
+    flavorDimensions += "app"
+    productFlavors {
+        create("development") {
+            dimension = "app"
+            applicationId = "io.github.madahataraku.coglog.debug"
+        }
+        create("production") {
+            dimension = "app"
+            applicationId = "io.github.madahataraku.coglog"
+        }
+        create("test") {
+            dimension = "app"
+            applicationId = "io.github.madahataraku.coglog.debug"
+        }
     }
 
     if (keystorePropertiesFile.exists()) {
