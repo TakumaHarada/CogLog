@@ -10,9 +10,7 @@ void main() {
     final golden = brightness == Brightness.light
         ? 'goldens/main_shell_home.png'
         : 'goldens/main_shell_home_dark.png';
-    testWidgets('シェル付きホームの $brightness / ja / Android の空状態', (
-      tester,
-    ) async {
+    testWidgets('シェル付きホームの $brightness / ja / Android の空状態', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       tester.platformDispatcher.platformBrightnessTestValue = brightness;
       addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
@@ -79,10 +77,7 @@ Future<void> _pumpTabGolden(
     await pumpTopScreen(tester);
     await tester.tap(find.text(tab).last);
     await tester.pumpAndSettle();
-    await expectLater(
-      find.byType(MainShellScreen),
-      matchesGoldenFile(golden),
-    );
+    await expectLater(find.byType(MainShellScreen), matchesGoldenFile(golden));
   } finally {
     debugDefaultTargetPlatformOverride = null;
   }

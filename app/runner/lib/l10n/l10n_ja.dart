@@ -81,6 +81,27 @@ class L10nJa extends L10n {
   String get screen_feature_meter_capture_title => 'メーター撮影';
 
   @override
+  String get screen_feature_top_achievement_title => '目標達成率';
+
+  @override
+  String get screen_feature_top_actual_label => '実績';
+
+  @override
+  String get screen_feature_top_advice_no_exercise =>
+      '今日はまだ運動の記録がありません。無理のないペースで始めましょう。';
+
+  @override
+  String get screen_feature_top_advice_template_1 =>
+      '水分をこまめに取って、無理のないペースを保ちましょう。';
+
+  @override
+  String get screen_feature_top_advice_template_2 =>
+      'よく動けました。回復のためにも休息を大切にしましょう。';
+
+  @override
+  String get screen_feature_top_advice_template_3 => '小さな積み重ねが続きます。今日も自分のペースで。';
+
+  @override
   String get screen_feature_top_calories => '消費カロリー';
 
   @override
@@ -96,6 +117,9 @@ class L10nJa extends L10n {
   String get screen_feature_top_duration => '運動時間';
 
   @override
+  String get screen_feature_top_goal_label => '目標';
+
+  @override
   String get screen_feature_top_this_month => '今月';
 
   @override
@@ -103,4 +127,7 @@ class L10nJa extends L10n {
 
   @override
   String get screen_feature_top_today => '本日';
+
+  @override
+  String get screen_feature_top_unset_prompt => '目標設定で一日あたりの目標を設定しましょう';
 }

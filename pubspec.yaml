@@ -25,6 +25,10 @@ workspace:
   - app_packages/domain/exercise_history
   - app_packages/foundation/metadata
   - app_packages/foundation/resources
+  - app_packages/infra/injection
+  - app_packages/infra/on_device_llm
+  - app_packages/infra/on_device_llm/_mobile
+  - app_packages/infra/on_device_llm/_testing
   - app_packages/screen/feature/exercise_history
   - app_packages/screen/feature/goal_settings
   - app_packages/screen/feature/main
@@ -33,6 +37,8 @@ workspace:
   - app_packages/screen/injection
   - app_packages/screen/navigation
   - app_packages/screen/navigation/_go_router
+  - app_packages/usecase/generate_top_advice
+  - app_packages/usecase/generate_top_advice/_impl
   - app_packages/usecase/injection
   - app_packages/usecase/load_daily_goal
   - app_packages/usecase/load_daily_goal/_impl

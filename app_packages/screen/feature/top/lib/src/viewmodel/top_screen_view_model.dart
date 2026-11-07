@@ -4,6 +4,7 @@ import 'package:domain_exercise_history/domain_exercise_history.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:state_stream/state_stream.dart';
+import 'package:usecase_generate_top_advice/usecase_generate_top_advice.dart';
 import 'package:usecase_load_top_screen/usecase_load_top_screen.dart';
 import 'package:usecase_save_top_screen_metric/usecase_save_top_screen_metric.dart';
 
@@ -25,7 +26,7 @@ part 'top_screen_view_model.action.dart';
 /// ```
 @internal
 final class TopScreenViewModel {
-  /// 読み込みと保存の Usecase を注入して作る。
+  /// 読み込みと保存・アドバイス生成の Usecase を注入して作る。
   ///
   /// Example:
   /// ```dart
@@ -39,6 +40,7 @@ final class TopScreenViewModel {
         saveTopScreenMetricUsecase: ref.watch(
           SaveTopScreenMetricUsecase.provider,
         ),
+        generateTopAdviceUsecase: ref.watch(GenerateTopAdviceUsecase.provider),
         stateToEntity: const TopScreenStateToEntityDelegate(),
       );
       ref.onDispose(() {
@@ -49,6 +51,7 @@ final class TopScreenViewModel {
     dependencies: [
       LoadTopScreenUsecase.provider,
       SaveTopScreenMetricUsecase.provider,
+      GenerateTopAdviceUsecase.provider,
     ],
   );
 
@@ -64,6 +67,10 @@ final class TopScreenViewModel {
   @visibleForTesting
   final SaveTopScreenMetricUsecase saveTopScreenMetricUsecase;
 
+  /// ワンポイントアドバイスの生成。
+  @visibleForTesting
+  final GenerateTopAdviceUsecase generateTopAdviceUsecase;
+
   /// State から表示文字列への変換。
   @visibleForTesting
   final TopScreenStateToEntityDelegate stateToEntity;
@@ -78,6 +85,7 @@ final class TopScreenViewModel {
     required this.state,
     required this.loadTopScreenUsecase,
     required this.saveTopScreenMetricUsecase,
+    required this.generateTopAdviceUsecase,
     required this.stateToEntity,
   });
 

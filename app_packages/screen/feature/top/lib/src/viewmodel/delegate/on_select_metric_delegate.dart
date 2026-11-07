@@ -54,6 +54,8 @@ final class OnSelectMetricDelegate {
           today: current.today,
           week: current.week,
           month: current.month,
+          goal: current.goal,
+          adviceText: current.adviceText,
         ),
       );
     });

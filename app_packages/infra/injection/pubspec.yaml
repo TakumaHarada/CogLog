@@ -1,0 +1,16 @@
+name: infra_injection
+description: Production overrides for CogLog infra.
+publish_to: none
+resolution: workspace
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  infra_on_device_llm: any
+  infra_on_device_llm_mobile: any
+  riverpod: any
+
+dev_dependencies:
+  flutter_lints: any

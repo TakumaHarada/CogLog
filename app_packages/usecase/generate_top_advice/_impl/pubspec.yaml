@@ -1,0 +1,19 @@
+name: usecase_generate_top_advice_impl
+description: Generates top-screen advice via OnDeviceLlm with template fallback.
+publish_to: none
+resolution: workspace
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  domain_exercise_history: any
+  infra_on_device_llm: any
+  meta: any
+  usecase_generate_top_advice: any
+
+dev_dependencies:
+  flutter_lints: any
+  infra_on_device_llm_testing: any
+  test: any

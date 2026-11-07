@@ -97,6 +97,30 @@
   "@screen_feature_meter_capture_title": {
     "description": "画面タイトル"
   },
+  "screen_feature_top_achievement_title": "Goal progress",
+  "@screen_feature_top_achievement_title": {
+    "description": "目標達成率セクションの見出し"
+  },
+  "screen_feature_top_actual_label": "Actual",
+  "@screen_feature_top_actual_label": {
+    "description": "実績のラベル"
+  },
+  "screen_feature_top_advice_no_exercise": "No exercise logged today. Start at a comfortable pace.",
+  "@screen_feature_top_advice_no_exercise": {
+    "description": "履歴0件のワンポイント"
+  },
+  "screen_feature_top_advice_template_1": "Stay hydrated and keep a comfortable pace.",
+  "@screen_feature_top_advice_template_1": {
+    "description": "LLM不可時の定型1"
+  },
+  "screen_feature_top_advice_template_2": "Nice work. Rest matters as much as the workout.",
+  "@screen_feature_top_advice_template_2": {
+    "description": "LLM不可時の定型2"
+  },
+  "screen_feature_top_advice_template_3": "Small steps add up. Keep your own pace today.",
+  "@screen_feature_top_advice_template_3": {
+    "description": "LLM不可時の定型3"
+  },
   "screen_feature_top_calories": "Calories",
   "@screen_feature_top_calories": {
     "description": "指標"
@@ -117,6 +141,10 @@
   "@screen_feature_top_duration": {
     "description": "指標"
   },
+  "screen_feature_top_goal_label": "Goal",
+  "@screen_feature_top_goal_label": {
+    "description": "目標のラベル"
+  },
   "screen_feature_top_this_month": "This month",
   "@screen_feature_top_this_month": {
     "description": "集計期間"
@@ -128,5 +156,9 @@
   "screen_feature_top_today": "Today",
   "@screen_feature_top_today": {
     "description": "集計期間"
+  },
+  "screen_feature_top_unset_prompt": "Set a daily goal in Goals",
+  "@screen_feature_top_unset_prompt": {
+    "description": "目標未設定時の設定促進"
   }
 }

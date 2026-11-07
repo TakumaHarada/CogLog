@@ -140,6 +140,30 @@ final class L10nHelper {
         // No Placeholders
         return l10n.screen_feature_meter_capture_title;
       },
+      'screen_feature_top_achievement_title': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_achievement_title;
+      },
+      'screen_feature_top_actual_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_actual_label;
+      },
+      'screen_feature_top_advice_no_exercise': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_advice_no_exercise;
+      },
+      'screen_feature_top_advice_template_1': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_advice_template_1;
+      },
+      'screen_feature_top_advice_template_2': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_advice_template_2;
+      },
+      'screen_feature_top_advice_template_3': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_advice_template_3;
+      },
       'screen_feature_top_calories': (source) {
         // No Placeholders
         return l10n.screen_feature_top_calories;
@@ -160,6 +184,10 @@ final class L10nHelper {
         // No Placeholders
         return l10n.screen_feature_top_duration;
       },
+      'screen_feature_top_goal_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_goal_label;
+      },
       'screen_feature_top_this_month': (source) {
         // No Placeholders
         return l10n.screen_feature_top_this_month;
@@ -171,6 +199,10 @@ final class L10nHelper {
       'screen_feature_top_today': (source) {
         // No Placeholders
         return l10n.screen_feature_top_today;
+      },
+      'screen_feature_top_unset_prompt': (source) {
+        // No Placeholders
+        return l10n.screen_feature_top_unset_prompt;
       },
     };
 

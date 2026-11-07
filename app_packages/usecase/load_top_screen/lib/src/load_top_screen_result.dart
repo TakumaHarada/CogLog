@@ -1,6 +1,7 @@
+import 'package:domain_daily_goal/domain_daily_goal.dart';
 import 'package:domain_exercise_history/domain_exercise_history.dart';
 
-/// トップ画面の指標と 3 期間の合計。
+/// トップ画面の指標と 3 期間の合計、目標、本日履歴。
 ///
 /// 合計は丸めていない。
 ///
@@ -11,10 +12,12 @@ import 'package:domain_exercise_history/domain_exercise_history.dart';
 ///   today: PeriodAggregate.empty,
 ///   week: PeriodAggregate.empty,
 ///   month: PeriodAggregate.empty,
+///   goal: DailyGoal.unset,
+///   todayHistories: const [],
 /// );
 /// ```
 final class LoadTopScreenResult {
-  /// 指標と 3 期間を持つ。
+  /// 指標・期間・目標・本日履歴を持つ。
   ///
   /// Example:
   /// ```dart
@@ -23,6 +26,8 @@ final class LoadTopScreenResult {
   ///   today: PeriodAggregate.empty,
   ///   week: PeriodAggregate.empty,
   ///   month: PeriodAggregate.empty,
+  ///   goal: DailyGoal.unset,
+  ///   todayHistories: const [],
   /// );
   /// ```
   const LoadTopScreenResult({
@@ -30,6 +35,8 @@ final class LoadTopScreenResult {
     required this.today,
     required this.week,
     required this.month,
+    required this.goal,
+    required this.todayHistories,
   });
 
   /// 表示する指標。保存が無いときは消費カロリー。
@@ -44,7 +51,13 @@ final class LoadTopScreenResult {
   /// 今月の合計。
   final PeriodAggregate month;
 
-  /// 指標だけを差し替える。期間の合計は変えない。
+  /// 一日あたり目標。未保存なら未設定。
+  final DailyGoal goal;
+
+  /// 本日の期間に入る運動履歴。
+  final List<ExerciseHistory> todayHistories;
+
+  /// 指標だけを差し替える。期間の合計・目標・本日履歴は変えない。
   ///
   /// Example:
   /// ```dart
@@ -56,5 +69,7 @@ final class LoadTopScreenResult {
         today: today,
         week: week,
         month: month,
+        goal: goal,
+        todayHistories: todayHistories,
       );
 }

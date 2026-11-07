@@ -6,8 +6,10 @@ import 'package:data_repository_exercise_history_testing/data_repository_exercis
 import 'package:domain_exercise_history/domain_exercise_history.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:infra_injection/infra_injection.dart';
 import 'package:screen_injection/screen_injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:usecase_generate_top_advice_impl/usecase_generate_top_advice_impl.dart';
 import 'package:usecase_injection/usecase_injection.dart';
 
 import 'package:app/main.dart';
@@ -37,7 +39,10 @@ Future<ScreenGraph> pumpTopScreen(
           documentsDirectory: documents,
           histories: FixedExerciseHistoryRepository(histories),
         ),
-        ...usecaseOverrides(),
+        ...infraOverrides(),
+        ...usecaseOverrides(
+          adviceTemplatePicker: const FixedAdviceTemplatePicker(),
+        ),
         ...screenOverrides(screens),
       ],
       child: Application(router: screens.router),

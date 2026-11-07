@@ -83,6 +83,28 @@ class L10nEn extends L10n {
   String get screen_feature_meter_capture_title => 'Meter capture';
 
   @override
+  String get screen_feature_top_achievement_title => 'Goal progress';
+
+  @override
+  String get screen_feature_top_actual_label => 'Actual';
+
+  @override
+  String get screen_feature_top_advice_no_exercise =>
+      'No exercise logged today. Start at a comfortable pace.';
+
+  @override
+  String get screen_feature_top_advice_template_1 =>
+      'Stay hydrated and keep a comfortable pace.';
+
+  @override
+  String get screen_feature_top_advice_template_2 =>
+      'Nice work. Rest matters as much as the workout.';
+
+  @override
+  String get screen_feature_top_advice_template_3 =>
+      'Small steps add up. Keep your own pace today.';
+
+  @override
   String get screen_feature_top_calories => 'Calories';
 
   @override
@@ -98,6 +120,9 @@ class L10nEn extends L10n {
   String get screen_feature_top_duration => 'Exercise time';
 
   @override
+  String get screen_feature_top_goal_label => 'Goal';
+
+  @override
   String get screen_feature_top_this_month => 'This month';
 
   @override
@@ -105,4 +130,7 @@ class L10nEn extends L10n {
 
   @override
   String get screen_feature_top_today => 'Today';
+
+  @override
+  String get screen_feature_top_unset_prompt => 'Set a daily goal in Goals';
 }

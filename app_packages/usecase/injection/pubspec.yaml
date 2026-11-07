@@ -11,7 +11,10 @@ dependencies:
   data_repository_daily_goal: any
   data_repository_exercise_history: any
   data_repository_top_screen_metric: any
+  infra_on_device_llm: any
   riverpod: any
+  usecase_generate_top_advice: any
+  usecase_generate_top_advice_impl: any
   usecase_load_daily_goal: any
   usecase_load_daily_goal_impl: any
   usecase_load_top_screen: any

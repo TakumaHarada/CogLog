@@ -1,8 +1,12 @@
-/// 保存済みの履歴と指標からトップ画面を組み立てる。
+/// 保存済みの履歴・指標・目標からトップ画面を組み立てる。
 ///
 /// Example:
 /// ```dart
-/// LoadTopScreenUsecaseImpl(histories: histories, metrics: metrics);
+/// LoadTopScreenUsecaseImpl(
+///   histories: histories,
+///   metrics: metrics,
+///   goals: goals,
+/// );
 /// ```
 library;
 
