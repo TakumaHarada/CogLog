@@ -1,32 +1,17 @@
 import 'package:domain_exercise_history/domain_exercise_history.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:foundation_resources/gen/strings.dart' as foundation_resources;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:meta/meta.dart';
 
-import '../../gen/strings.dart';
+import '../strings.dart';
+import '../viewmodel/entity/top_goal_ring_entity.dart';
 import '../viewmodel/top_screen_view_model.dart';
+import 'goal_achievement_ring.dart';
 import 'top_screen_providers.dart';
 
-/// この画面と共通リソースの文言。
-final class _Strings
-    with L10nStringsMixin, foundation_resources.L10nStringsMixin {
-  /// 生成 mixin を束ねる。
-  const _Strings();
-}
-
-/// 画面から参照する文言。
-///
-/// Example:
-/// ```dart
-/// strings.screen_feature_top_today;
-/// ```
-@internal
-final strings = _Strings();
-
-/// 期間の合計と指標の切り替え。
+/// 期間の合計と指標の切り替え、アドバイス、目標達成率。
 @internal
 class TopScreenBody extends HookConsumerWidget {
   /// 本文を作る。
@@ -37,7 +22,7 @@ class TopScreenBody extends HookConsumerWidget {
   /// ```
   const TopScreenBody({super.key});
 
-  /// 指標の Select を上に、3 期間のボックスを横に並べる。
+  /// 指標の Select、3 期間、アドバイス、達成率リングを縦に並べる。
   ///
   /// Example:
   /// ```dart
@@ -47,67 +32,124 @@ class TopScreenBody extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final entity = ref.watch(TopScreenProviders.entity);
     final saving = useState(false);
+    final titleStyle = context.theme.typography.body.sm.copyWith(
+      fontWeight: FontWeight.w600,
+    );
     return FScaffold(
       header: FHeader(title: Text(strings.foundation_resources_app_name)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          FSelect<PeriodTotalMetric>(
-            enabled: !saving.value,
-            control: .lifted(
-              value: entity.metric,
-              onChange: (metric) async {
-                if (metric == null || metric == entity.metric || saving.value) {
-                  return;
-                }
-                saving.value = true;
-                try {
-                  await ref
-                      .read(TopScreenViewModel.provider)
-                      .onSelectMetric(metric);
-                } on Object {
-                  // 保存に失敗したときは State を変えない。未処理のエラーにしない。
-                } finally {
-                  saving.value = false;
-                }
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 16,
+          children: [
+            FSelect<PeriodTotalMetric>(
+              enabled: !saving.value,
+              control: .lifted(
+                value: entity.metric,
+                onChange: (metric) async {
+                  if (metric == null ||
+                      metric == entity.metric ||
+                      saving.value) {
+                    return;
+                  }
+                  saving.value = true;
+                  try {
+                    await ref
+                        .read(TopScreenViewModel.provider)
+                        .onSelectMetric(metric);
+                  } on Object {
+                    // 保存に失敗したときは State を変えない。未処理のエラーにしない。
+                  } finally {
+                    saving.value = false;
+                  }
+                },
+              ),
+              items: {
+                for (final metric in PeriodTotalMetric.values)
+                  _metricLabel(metric): metric,
               },
             ),
-            items: {
-              for (final metric in PeriodTotalMetric.values)
-                _metricLabel(metric): metric,
-            },
-          ),
-          Row(
-            spacing: 8,
-            children: [
-              Expanded(
-                child: _PeriodBox(
-                  label: strings.screen_feature_top_today,
-                  value: entity.todayText,
-                  metric: entity.metric,
+            Row(
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: _PeriodBox(
+                    label: strings.screen_feature_top_today,
+                    value: entity.todayText,
+                    metric: entity.metric,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _PeriodBox(
-                  label: strings.screen_feature_top_this_week,
-                  value: entity.weekText,
-                  metric: entity.metric,
+                Expanded(
+                  child: _PeriodBox(
+                    label: strings.screen_feature_top_this_week,
+                    value: entity.weekText,
+                    metric: entity.metric,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _PeriodBox(
-                  label: strings.screen_feature_top_this_month,
-                  value: entity.monthText,
-                  metric: entity.metric,
+                Expanded(
+                  child: _PeriodBox(
+                    label: strings.screen_feature_top_this_month,
+                    value: entity.monthText,
+                    metric: entity.metric,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            if (entity.adviceText.isNotEmpty)
+              Text(entity.adviceText, style: context.theme.typography.body.sm),
+            Text(
+              strings.screen_feature_top_achievement_title,
+              style: titleStyle,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: _ring(
+                    title: strings.screen_feature_top_duration,
+                    ring: entity.duration,
+                  ),
+                ),
+                Expanded(
+                  child: _ring(
+                    title: strings.screen_feature_top_calories,
+                    ring: entity.calories,
+                  ),
+                ),
+                Expanded(
+                  child: _ring(
+                    title: strings.screen_feature_top_distance,
+                    ring: entity.distance,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// [ring] を [GoalAchievementRing] に載せる。
+///
+/// Example:
+/// ```dart
+/// _ring(title: '運動時間', ring: entity.duration);
+/// ```
+Widget _ring({required String title, required TopGoalRingEntity ring}) {
+  return GoalAchievementRing(
+    title: title,
+    lap1: ring.lap1,
+    lap2: ring.lap2,
+    percentText: ring.percentText,
+    actualText: ring.actualText,
+    goalText: ring.goalText,
+    actualLabel: strings.screen_feature_top_actual_label,
+    goalLabel: strings.screen_feature_top_goal_label,
+    unsetPrompt: ring.isUnset ? strings.screen_feature_top_unset_prompt : null,
+  );
 }
 
 /// [metric] の表示名。

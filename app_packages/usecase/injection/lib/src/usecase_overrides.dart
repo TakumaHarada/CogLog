@@ -16,11 +16,15 @@ import 'package:usecase_save_top_screen_metric_impl/usecase_save_top_screen_metr
 
 /// トップ画面の読み込みと指標保存、一日あたり目標の読み書き、アドバイス生成を上書きする。
 ///
+/// [adviceTemplatePicker] を渡すと定型選択を差し替える（Golden 用）。
+///
 /// Example:
 /// ```dart
 /// usecaseOverrides();
 /// ```
-List<Override> usecaseOverrides() => [
+List<Override> usecaseOverrides({
+  AdviceTemplatePicker? adviceTemplatePicker,
+}) => [
   LoadTopScreenUsecase.provider.overrideWith(
     (ref) => LoadTopScreenUsecaseImpl(
       histories: ref.watch(exerciseHistoryRepositoryProvider),
@@ -42,6 +46,9 @@ List<Override> usecaseOverrides() => [
         SaveDailyGoalUsecaseImpl(goals: ref.watch(dailyGoalRepositoryProvider)),
   ),
   GenerateTopAdviceUsecase.provider.overrideWith(
-    (ref) => GenerateTopAdviceUsecaseImpl(llm: ref.watch(onDeviceLlmProvider)),
+    (ref) => GenerateTopAdviceUsecaseImpl(
+      llm: ref.watch(onDeviceLlmProvider),
+      picker: adviceTemplatePicker,
+    ),
   ),
 ];

@@ -3,18 +3,31 @@ part of 'top_screen_view_model.dart';
 /// トップ画面の操作。
 @internal
 extension TopScreenViewModelActions on TopScreenViewModel {
-  /// 現在時刻で期間合計を読み直す。
+  /// 現在時刻で期間合計を読み、アドバイスを再生成する。
   ///
   /// Example:
   /// ```dart
-  /// viewModel.onInitialize();
+  /// viewModel.onInitialize(
+  ///   locale: 'ja',
+  ///   noExerciseTemplate: '今日はまだ運動していません',
+  ///   fallbackTemplates: const ['a', 'b', 'c'],
+  /// );
   /// ```
-  Future<void> onInitialize() {
+  Future<void> onInitialize({
+    required String locale,
+    required String noExerciseTemplate,
+    required List<String> fallbackTemplates,
+  }) {
     final delegate = OnInitializeDelegate(
       state: state,
       loadTopScreenUsecase: loadTopScreenUsecase,
+      generateTopAdviceUsecase: generateTopAdviceUsecase,
     );
-    return delegate.execute();
+    return delegate.execute(
+      locale: locale,
+      noExerciseTemplate: noExerciseTemplate,
+      fallbackTemplates: fallbackTemplates,
+    );
   }
 
   /// [metric] を保存し、表示中の合計は振り分け直さない。

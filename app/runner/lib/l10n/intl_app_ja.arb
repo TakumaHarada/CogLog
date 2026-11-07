@@ -97,6 +97,30 @@
   "@screen_feature_meter_capture_title": {
     "description": "画面タイトル"
   },
+  "screen_feature_top_achievement_title": "目標達成率",
+  "@screen_feature_top_achievement_title": {
+    "description": "目標達成率セクションの見出し"
+  },
+  "screen_feature_top_actual_label": "実績",
+  "@screen_feature_top_actual_label": {
+    "description": "実績のラベル"
+  },
+  "screen_feature_top_advice_no_exercise": "今日はまだ運動の記録がありません。無理のないペースで始めましょう。",
+  "@screen_feature_top_advice_no_exercise": {
+    "description": "履歴0件のワンポイント"
+  },
+  "screen_feature_top_advice_template_1": "水分をこまめに取って、無理のないペースを保ちましょう。",
+  "@screen_feature_top_advice_template_1": {
+    "description": "LLM不可時の定型1"
+  },
+  "screen_feature_top_advice_template_2": "よく動けました。回復のためにも休息を大切にしましょう。",
+  "@screen_feature_top_advice_template_2": {
+    "description": "LLM不可時の定型2"
+  },
+  "screen_feature_top_advice_template_3": "小さな積み重ねが続きます。今日も自分のペースで。",
+  "@screen_feature_top_advice_template_3": {
+    "description": "LLM不可時の定型3"
+  },
   "screen_feature_top_calories": "消費カロリー",
   "@screen_feature_top_calories": {
     "description": "指標"
@@ -117,6 +141,10 @@
   "@screen_feature_top_duration": {
     "description": "指標"
   },
+  "screen_feature_top_goal_label": "目標",
+  "@screen_feature_top_goal_label": {
+    "description": "目標のラベル"
+  },
   "screen_feature_top_this_month": "今月",
   "@screen_feature_top_this_month": {
     "description": "集計期間"
@@ -128,5 +156,9 @@
   "screen_feature_top_today": "本日",
   "@screen_feature_top_today": {
     "description": "集計期間"
+  },
+  "screen_feature_top_unset_prompt": "目標設定で一日あたりの目標を設定しましょう",
+  "@screen_feature_top_unset_prompt": {
+    "description": "目標未設定時の設定促進"
   }
 }

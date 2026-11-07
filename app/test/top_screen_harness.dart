@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:infra_injection/infra_injection.dart';
 import 'package:screen_injection/screen_injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:usecase_generate_top_advice_impl/usecase_generate_top_advice_impl.dart';
 import 'package:usecase_injection/usecase_injection.dart';
 
 import 'package:app/main.dart';
@@ -39,7 +40,9 @@ Future<ScreenGraph> pumpTopScreen(
           histories: FixedExerciseHistoryRepository(histories),
         ),
         ...infraOverrides(),
-        ...usecaseOverrides(),
+        ...usecaseOverrides(
+          adviceTemplatePicker: const FixedAdviceTemplatePicker(),
+        ),
         ...screenOverrides(screens),
       ],
       child: Application(router: screens.router),

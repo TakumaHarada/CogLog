@@ -6,6 +6,7 @@ import 'package:screen_feature_top/src/viewmodel/delegate/on_select_metric_deleg
 import 'package:screen_feature_top/src/viewmodel/delegate/top_screen_state_to_entity_delegate.dart';
 import 'package:screen_feature_top/src/viewmodel/state/top_screen_state.dart';
 import 'package:state_stream/state_stream.dart';
+import 'package:usecase_generate_top_advice/usecase_generate_top_advice.dart';
 import 'package:usecase_load_top_screen/usecase_load_top_screen.dart';
 import 'package:usecase_save_top_screen_metric/usecase_save_top_screen_metric.dart';
 
@@ -19,6 +20,23 @@ final class _Load implements LoadTopScreenUsecase {
   Future<LoadTopScreenResult> execute(LoadTopScreenRequest request) async {
     calls += 1;
     return result;
+  }
+}
+
+final class _Advice implements GenerateTopAdviceUsecase {
+  _Advice({this.advice = '定型'});
+
+  final String advice;
+  var calls = 0;
+  GenerateTopAdviceRequest? lastRequest;
+
+  @override
+  Future<GenerateTopAdviceResult> execute(
+    GenerateTopAdviceRequest request,
+  ) async {
+    calls += 1;
+    lastRequest = request;
+    return GenerateTopAdviceResult(advice: advice);
   }
 }
 
@@ -41,6 +59,20 @@ final class _Save implements SaveTopScreenMetricUsecase {
   }
 }
 
+const _loadResult = LoadTopScreenResult(
+  metric: PeriodTotalMetric.calories,
+  today: PeriodAggregate(
+    count: 1,
+    distanceKm: 1.25,
+    caloriesKcal: 1.25,
+    duration: Duration(minutes: 1),
+  ),
+  week: PeriodAggregate.empty,
+  month: PeriodAggregate.empty,
+  goal: DailyGoal.unset,
+  todayHistories: [],
+);
+
 void main() {
   late MutableStateStream<TopScreenState> state;
 
@@ -52,30 +84,49 @@ void main() {
     await state.close();
   });
 
-  test('初期化で合計を入れ、loaded にする', () async {
-    final load = _Load(
-      const LoadTopScreenResult(
-        metric: PeriodTotalMetric.calories,
-        today: PeriodAggregate(
-          count: 1,
-          distanceKm: 1.25,
-          caloriesKcal: 1.25,
-          duration: Duration(minutes: 1),
-        ),
-        week: PeriodAggregate.empty,
-        month: PeriodAggregate.empty,
-        goal: DailyGoal.unset,
-        todayHistories: [],
-      ),
-    );
+  test('初期化で合計とアドバイスを入れ、loaded にする', () async {
+    final load = _Load(_loadResult);
+    final advice = _Advice(advice: '今日はまだ運動していません');
     await OnInitializeDelegate(
       state: state,
       loadTopScreenUsecase: load,
-    ).execute();
+      generateTopAdviceUsecase: advice,
+    ).execute(
+      locale: 'ja',
+      noExerciseTemplate: '今日はまだ運動していません',
+      fallbackTemplates: const ['a', 'b', 'c'],
+    );
 
     expect(state.state.loaded, isTrue);
     expect(state.state.today.count, 1);
+    expect(state.state.goal, DailyGoal.unset);
+    expect(state.state.adviceText, '今日はまだ運動していません');
     expect(load.calls, 1);
+    expect(advice.calls, 1);
+    expect(advice.lastRequest?.locale, 'ja');
+  });
+
+  test('OnInitialize を 2 回呼ぶと Generate も 2 回', () async {
+    final load = _Load(_loadResult);
+    final advice = _Advice();
+    final delegate = OnInitializeDelegate(
+      state: state,
+      loadTopScreenUsecase: load,
+      generateTopAdviceUsecase: advice,
+    );
+    await delegate.execute(
+      locale: 'ja',
+      noExerciseTemplate: '未運動',
+      fallbackTemplates: const ['a', 'b', 'c'],
+    );
+    await delegate.execute(
+      locale: 'ja',
+      noExerciseTemplate: '未運動',
+      fallbackTemplates: const ['a', 'b', 'c'],
+    );
+
+    expect(load.calls, 2);
+    expect(advice.calls, 2);
   });
 
   test('未読込の指標選択は状態を変えない', () async {
@@ -102,6 +153,8 @@ void main() {
         ),
         week: PeriodAggregate.empty,
         month: PeriodAggregate.empty,
+        goal: DailyGoal(caloriesKcal: 200),
+        adviceText: '助言',
       ),
     );
     final save = _Save();
@@ -112,6 +165,8 @@ void main() {
 
     expect(state.state.metric, PeriodTotalMetric.distance);
     expect(state.state.today.distanceKm, 1.25);
+    expect(state.state.goal.caloriesKcal, 200);
+    expect(state.state.adviceText, '助言');
     expect(save.calls, 1);
   });
 
@@ -123,6 +178,8 @@ void main() {
         today: PeriodAggregate.empty,
         week: PeriodAggregate.empty,
         month: PeriodAggregate.empty,
+        goal: DailyGoal.unset,
+        adviceText: '',
       ),
     );
     await expectLater(
@@ -150,9 +207,65 @@ void main() {
         ),
         week: PeriodAggregate.empty,
         month: PeriodAggregate.empty,
+        goal: DailyGoal.unset,
+        adviceText: '定型',
       ),
     );
     expect(entity.todayText, '1.3');
     expect(entity.weekText, '--');
+    expect(entity.adviceText, '定型');
+    expect(entity.calories.isUnset, isTrue);
+  });
+
+  test('達成率 150% の Entity は lap とパーセントを持つ', () {
+    final entity = const TopScreenStateToEntityDelegate().execute(
+      const TopScreenState(
+        loaded: true,
+        metric: PeriodTotalMetric.calories,
+        today: PeriodAggregate(
+          count: 1,
+          distanceKm: 0,
+          caloriesKcal: 300,
+          duration: Duration.zero,
+        ),
+        week: PeriodAggregate.empty,
+        month: PeriodAggregate.empty,
+        goal: DailyGoal(caloriesKcal: 200),
+        adviceText: '',
+      ),
+    );
+    expect(entity.calories.percentText, '150%');
+    expect(entity.calories.lap1, 1);
+    expect(entity.calories.lap2, 0.5);
+    expect(entity.calories.actualText, '300.0');
+    expect(entity.calories.goalText, '200.0');
+  });
+
+  test('目標 0 は進捗ゼロ', () {
+    final entity = const TopScreenStateToEntityDelegate().execute(
+      const TopScreenState(
+        loaded: true,
+        metric: PeriodTotalMetric.calories,
+        today: PeriodAggregate(
+          count: 1,
+          distanceKm: 1,
+          caloriesKcal: 50,
+          duration: Duration(minutes: 10),
+        ),
+        week: PeriodAggregate.empty,
+        month: PeriodAggregate.empty,
+        goal: DailyGoal(
+          duration: Duration.zero,
+          caloriesKcal: 0,
+          distanceKm: 0,
+        ),
+        adviceText: '',
+      ),
+    );
+    expect(entity.duration.percentText, '0%');
+    expect(entity.duration.lap1, 0);
+    expect(entity.duration.lap2, 0);
+    expect(entity.calories.percentText, '0%');
+    expect(entity.distance.percentText, '0%');
   });
 }

@@ -235,6 +235,42 @@ abstract class L10n {
   /// **'メーター撮影'**
   String get screen_feature_meter_capture_title;
 
+  /// 目標達成率セクションの見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'目標達成率'**
+  String get screen_feature_top_achievement_title;
+
+  /// 実績のラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'実績'**
+  String get screen_feature_top_actual_label;
+
+  /// 履歴0件のワンポイント
+  ///
+  /// In ja, this message translates to:
+  /// **'今日はまだ運動の記録がありません。無理のないペースで始めましょう。'**
+  String get screen_feature_top_advice_no_exercise;
+
+  /// LLM不可時の定型1
+  ///
+  /// In ja, this message translates to:
+  /// **'水分をこまめに取って、無理のないペースを保ちましょう。'**
+  String get screen_feature_top_advice_template_1;
+
+  /// LLM不可時の定型2
+  ///
+  /// In ja, this message translates to:
+  /// **'よく動けました。回復のためにも休息を大切にしましょう。'**
+  String get screen_feature_top_advice_template_2;
+
+  /// LLM不可時の定型3
+  ///
+  /// In ja, this message translates to:
+  /// **'小さな積み重ねが続きます。今日も自分のペースで。'**
+  String get screen_feature_top_advice_template_3;
+
   /// 指標
   ///
   /// In ja, this message translates to:
@@ -265,6 +301,12 @@ abstract class L10n {
   /// **'運動時間'**
   String get screen_feature_top_duration;
 
+  /// 目標のラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'目標'**
+  String get screen_feature_top_goal_label;
+
   /// 集計期間
   ///
   /// In ja, this message translates to:
@@ -282,6 +324,12 @@ abstract class L10n {
   /// In ja, this message translates to:
   /// **'本日'**
   String get screen_feature_top_today;
+
+  /// 目標未設定時の設定促進
+  ///
+  /// In ja, this message translates to:
+  /// **'目標設定で一日あたりの目標を設定しましょう'**
+  String get screen_feature_top_unset_prompt;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

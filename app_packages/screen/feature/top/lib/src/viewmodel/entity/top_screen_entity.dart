@@ -1,6 +1,8 @@
 import 'package:domain_exercise_history/domain_exercise_history.dart';
 
-/// トップ画面が表示する文字列。
+import 'top_goal_ring_entity.dart';
+
+/// トップ画面が表示する文字列と達成率。
 ///
 /// Example:
 /// ```dart
@@ -9,10 +11,35 @@ import 'package:domain_exercise_history/domain_exercise_history.dart';
 ///   todayText: '--',
 ///   weekText: '--',
 ///   monthText: '--',
+///   adviceText: '',
+///   duration: const TopGoalRingEntity(
+///     status: GoalMetricStatus.unset,
+///     lap1: 0,
+///     lap2: 0,
+///     percentText: '',
+///     actualText: '',
+///     goalText: '',
+///   ),
+///   calories: const TopGoalRingEntity(
+///     status: GoalMetricStatus.unset,
+///     lap1: 0,
+///     lap2: 0,
+///     percentText: '',
+///     actualText: '',
+///     goalText: '',
+///   ),
+///   distance: const TopGoalRingEntity(
+///     status: GoalMetricStatus.unset,
+///     lap1: 0,
+///     lap2: 0,
+///     percentText: '',
+///     actualText: '',
+///     goalText: '',
+///   ),
 /// );
 /// ```
 final class TopScreenEntity {
-  /// 指標と 3 期間の表記を持つ。
+  /// 指標・期間表記・アドバイス・3 指標の達成を持つ。
   ///
   /// Example:
   /// ```dart
@@ -21,6 +48,10 @@ final class TopScreenEntity {
   ///   todayText: '--',
   ///   weekText: '--',
   ///   monthText: '--',
+  ///   adviceText: '',
+  ///   duration: ring,
+  ///   calories: ring,
+  ///   distance: ring,
   /// );
   /// ```
   const TopScreenEntity({
@@ -28,6 +59,10 @@ final class TopScreenEntity {
     required this.todayText,
     required this.weekText,
     required this.monthText,
+    required this.adviceText,
+    required this.duration,
+    required this.calories,
+    required this.distance,
   });
 
   /// 選択中の指標。
@@ -41,4 +76,16 @@ final class TopScreenEntity {
 
   /// 今月の表記。
   final String monthText;
+
+  /// ワンポイントアドバイス。
+  final String adviceText;
+
+  /// 運動時間の達成リング。
+  final TopGoalRingEntity duration;
+
+  /// 消費カロリーの達成リング。
+  final TopGoalRingEntity calories;
+
+  /// 走行距離の達成リング。
+  final TopGoalRingEntity distance;
 }

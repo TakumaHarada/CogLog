@@ -59,13 +59,13 @@ void main() {
     expect(find.text('Today'), findsOneWidget);
     expect(find.text('This week'), findsOneWidget);
     expect(find.text('This month'), findsOneWidget);
-    expect(find.text('Calories'), findsOneWidget);
-    await tester.tap(find.text('Calories'));
+    // 指標 Select と達成率リング見出しの双方に出る。
+    expect(find.text('Calories'), findsAtLeastNWidgets(1));
+    await tester.tap(find.text('Calories').first);
     await tester.pumpAndSettle();
-    expect(find.text('Distance'), findsOneWidget);
-    expect(find.text('Exercise time'), findsOneWidget);
+    expect(find.text('Distance'), findsAtLeastNWidgets(1));
+    expect(find.text('Exercise time'), findsAtLeastNWidgets(1));
   });
-
 }
 
 Future<void> _chooseMetric(
@@ -73,8 +73,10 @@ Future<void> _chooseMetric(
   String current,
   String label,
 ) async {
-  await tester.tap(find.text(current));
+  // Select 欄が先頭。達成率リング見出しと同文言がある。
+  await tester.tap(find.text(current).first);
   await tester.pumpAndSettle();
-  await tester.tap(find.text(label).last);
+  // 開いたあとは候補が先頭、リング見出しが後ろ。
+  await tester.tap(find.text(label).first);
   await tester.pumpAndSettle();
 }

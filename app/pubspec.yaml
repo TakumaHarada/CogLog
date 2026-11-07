@@ -37,6 +37,8 @@ dev_dependencies:
   forui_cli: ^0.27.0
   screen_feature_main: any
   screen_feature_top: any
+  usecase_generate_top_advice_impl: any
+
 
 flutter:
   uses-material-design: true
