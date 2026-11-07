@@ -10,6 +10,7 @@ environment:
 dependencies:
   data_repository_exercise_history: any
   domain_exercise_history: any
+  uuid: any
 
 dev_dependencies:
   flutter_lints: any

@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   app_runner: any
+  data_database: any
   data_injection: any
   flutter_riverpod: any
   forui: any
@@ -20,8 +21,10 @@ dependencies:
   material_ui: any
   meta: any
   monolith_localization_runtime: any
+  path_provider: any
   screen_injection: any
   shared_preferences: any
+  sqlite3_flutter_libs: any
   usecase_injection: any
 
 dev_dependencies:

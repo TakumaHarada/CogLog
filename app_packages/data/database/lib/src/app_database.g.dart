@@ -4,7 +4,7 @@ part of 'app_database.dart';
 
 // ignore_for_file: type=lint
 class $ExerciseHistoriesTable extends ExerciseHistories
-    with TableInfo<$ExerciseHistoriesTable, ExerciseHistory> {
+    with TableInfo<$ExerciseHistoriesTable, ExerciseHistoryRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -154,7 +154,7 @@ class $ExerciseHistoriesTable extends ExerciseHistories
   static const String $name = 'exercise_histories';
   @override
   VerificationContext validateIntegrity(
-    Insertable<ExerciseHistory> instance, {
+    Insertable<ExerciseHistoryRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -265,9 +265,9 @@ class $ExerciseHistoriesTable extends ExerciseHistories
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  ExerciseHistory map(Map<String, dynamic> data, {String? tablePrefix}) {
+  ExerciseHistoryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ExerciseHistory(
+    return ExerciseHistoryRow(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -321,7 +321,8 @@ class $ExerciseHistoriesTable extends ExerciseHistories
   }
 }
 
-class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
+class ExerciseHistoryRow extends DataClass
+    implements Insertable<ExerciseHistoryRow> {
   /// 運動履歴 ID（UUID）。
   final String id;
 
@@ -354,7 +355,7 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
 
   /// Documents からの写真相対パス。
   final String photoRelativePath;
-  const ExerciseHistory({
+  const ExerciseHistoryRow({
     required this.id,
     required this.savedAt,
     required this.creationStartedAt,
@@ -400,12 +401,12 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
     );
   }
 
-  factory ExerciseHistory.fromJson(
+  factory ExerciseHistoryRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ExerciseHistory(
+    return ExerciseHistoryRow(
       id: serializer.fromJson<String>(json['id']),
       savedAt: serializer.fromJson<String>(json['savedAt']),
       creationStartedAt: serializer.fromJson<String>(json['creationStartedAt']),
@@ -439,7 +440,7 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
     };
   }
 
-  ExerciseHistory copyWith({
+  ExerciseHistoryRow copyWith({
     String? id,
     String? savedAt,
     String? creationStartedAt,
@@ -451,7 +452,7 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
     double? caloriesKcal,
     double? averageSpeedKmh,
     String? photoRelativePath,
-  }) => ExerciseHistory(
+  }) => ExerciseHistoryRow(
     id: id ?? this.id,
     savedAt: savedAt ?? this.savedAt,
     creationStartedAt: creationStartedAt ?? this.creationStartedAt,
@@ -464,8 +465,8 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
     averageSpeedKmh: averageSpeedKmh ?? this.averageSpeedKmh,
     photoRelativePath: photoRelativePath ?? this.photoRelativePath,
   );
-  ExerciseHistory copyWithCompanion(ExerciseHistoriesCompanion data) {
-    return ExerciseHistory(
+  ExerciseHistoryRow copyWithCompanion(ExerciseHistoriesCompanion data) {
+    return ExerciseHistoryRow(
       id: data.id.present ? data.id.value : this.id,
       savedAt: data.savedAt.present ? data.savedAt.value : this.savedAt,
       creationStartedAt: data.creationStartedAt.present
@@ -500,7 +501,7 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
 
   @override
   String toString() {
-    return (StringBuffer('ExerciseHistory(')
+    return (StringBuffer('ExerciseHistoryRow(')
           ..write('id: $id, ')
           ..write('savedAt: $savedAt, ')
           ..write('creationStartedAt: $creationStartedAt, ')
@@ -533,7 +534,7 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ExerciseHistory &&
+      (other is ExerciseHistoryRow &&
           other.id == this.id &&
           other.savedAt == this.savedAt &&
           other.creationStartedAt == this.creationStartedAt &&
@@ -547,7 +548,7 @@ class ExerciseHistory extends DataClass implements Insertable<ExerciseHistory> {
           other.photoRelativePath == this.photoRelativePath);
 }
 
-class ExerciseHistoriesCompanion extends UpdateCompanion<ExerciseHistory> {
+class ExerciseHistoriesCompanion extends UpdateCompanion<ExerciseHistoryRow> {
   final Value<String> id;
   final Value<String> savedAt;
   final Value<String> creationStartedAt;
@@ -598,7 +599,7 @@ class ExerciseHistoriesCompanion extends UpdateCompanion<ExerciseHistory> {
        caloriesKcal = Value(caloriesKcal),
        averageSpeedKmh = Value(averageSpeedKmh),
        photoRelativePath = Value(photoRelativePath);
-  static Insertable<ExerciseHistory> custom({
+  static Insertable<ExerciseHistoryRow> custom({
     Expression<String>? id,
     Expression<String>? savedAt,
     Expression<String>? creationStartedAt,
@@ -963,21 +964,21 @@ class $$ExerciseHistoriesTableTableManager
         RootTableManager<
           _$AppDatabase,
           $ExerciseHistoriesTable,
-          ExerciseHistory,
+          ExerciseHistoryRow,
           $$ExerciseHistoriesTableFilterComposer,
           $$ExerciseHistoriesTableOrderingComposer,
           $$ExerciseHistoriesTableAnnotationComposer,
           $$ExerciseHistoriesTableCreateCompanionBuilder,
           $$ExerciseHistoriesTableUpdateCompanionBuilder,
           (
-            ExerciseHistory,
+            ExerciseHistoryRow,
             BaseReferences<
               _$AppDatabase,
               $ExerciseHistoriesTable,
-              ExerciseHistory
+              ExerciseHistoryRow
             >,
           ),
-          ExerciseHistory,
+          ExerciseHistoryRow,
           PrefetchHooks Function()
         > {
   $$ExerciseHistoriesTableTableManager(
@@ -1064,17 +1065,21 @@ typedef $$ExerciseHistoriesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $ExerciseHistoriesTable,
-      ExerciseHistory,
+      ExerciseHistoryRow,
       $$ExerciseHistoriesTableFilterComposer,
       $$ExerciseHistoriesTableOrderingComposer,
       $$ExerciseHistoriesTableAnnotationComposer,
       $$ExerciseHistoriesTableCreateCompanionBuilder,
       $$ExerciseHistoriesTableUpdateCompanionBuilder,
       (
-        ExerciseHistory,
-        BaseReferences<_$AppDatabase, $ExerciseHistoriesTable, ExerciseHistory>,
+        ExerciseHistoryRow,
+        BaseReferences<
+          _$AppDatabase,
+          $ExerciseHistoriesTable,
+          ExerciseHistoryRow
+        >,
       ),
-      ExerciseHistory,
+      ExerciseHistoryRow,
       PrefetchHooks Function()
     >;
 

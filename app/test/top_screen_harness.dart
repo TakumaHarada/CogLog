@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:data_database/data_database.dart';
 import 'package:data_injection/data_injection.dart';
 import 'package:data_repository_exercise_history_testing/data_repository_exercise_history_testing.dart';
 import 'package:domain_exercise_history/domain_exercise_history.dart';
@@ -16,12 +19,22 @@ Future<ScreenGraph> pumpTopScreen(
   SharedPreferences? preferences,
 }) async {
   final stored = preferences ?? await _newPreferences();
+  final documents = Directory.systemTemp.createTempSync('coglog_test_');
+  addTearDown(() {
+    if (documents.existsSync()) {
+      documents.deleteSync(recursive: true);
+    }
+  });
+  final database = openMemoryDatabase();
+  addTearDown(database.close);
   final screens = ScreenGraph();
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         ...dataRepositoryOverrides(
           preferences: stored,
+          database: database,
+          documentsDirectory: documents,
           histories: FixedExerciseHistoryRepository(histories),
         ),
         ...usecaseOverrides(),

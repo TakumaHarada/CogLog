@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 /// 運動履歴テーブル。
+@DataClassName('ExerciseHistoryRow')
 class ExerciseHistories extends Table {
   /// 運動履歴 ID（UUID）。
   TextColumn get id => text()();
