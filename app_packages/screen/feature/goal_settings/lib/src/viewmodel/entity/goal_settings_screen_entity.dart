@@ -1,0 +1,56 @@
+/// 目標設定画面の入力欄へ一度流し込む文字列。
+///
+/// 未設定は空文字。設定済みの 0 は `'0'`。
+///
+/// Example:
+/// ```dart
+/// const GoalSettingsScreenEntity(
+///   loaded: false,
+///   hours: '',
+///   minutes: '',
+///   seconds: '',
+///   calories: '',
+///   distance: '',
+/// );
+/// ```
+final class GoalSettingsScreenEntity {
+  /// 読み込み済みフラグと各欄の初期文字列を持つ。
+  ///
+  /// Example:
+  /// ```dart
+  /// const GoalSettingsScreenEntity(
+  ///   loaded: true,
+  ///   hours: '0',
+  ///   minutes: '0',
+  ///   seconds: '0',
+  ///   calories: '0.0',
+  ///   distance: '0.0',
+  /// );
+  /// ```
+  const GoalSettingsScreenEntity({
+    required this.loaded,
+    required this.hours,
+    required this.minutes,
+    required this.seconds,
+    required this.calories,
+    required this.distance,
+  });
+
+  /// 読み込みが成功したあとに true。
+  final bool loaded;
+
+  /// 運動時間の時。
+  final String hours;
+
+  /// 運動時間の分。
+  final String minutes;
+
+  /// 運動時間の秒。
+  final String seconds;
+
+  /// 消費カロリー（kcal）。
+  final String calories;
+
+  /// 走行距離（km）。
+  final String distance;
+}

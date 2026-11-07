@@ -24,7 +24,37 @@ class L10nJa extends L10n {
   String get screen_feature_exercise_history_title => '運動履歴';
 
   @override
+  String get screen_feature_goal_settings_calories_label => '消費カロリー';
+
+  @override
+  String get screen_feature_goal_settings_calories_unit => 'kcal';
+
+  @override
+  String get screen_feature_goal_settings_distance_label => '走行距離';
+
+  @override
+  String get screen_feature_goal_settings_distance_unit => 'km';
+
+  @override
+  String get screen_feature_goal_settings_duration_label => '運動時間';
+
+  @override
+  String get screen_feature_goal_settings_hours_label => '時間';
+
+  @override
+  String get screen_feature_goal_settings_minutes_label => '分';
+
+  @override
+  String get screen_feature_goal_settings_save => '保存';
+
+  @override
+  String get screen_feature_goal_settings_seconds_label => '秒';
+
+  @override
   String get screen_feature_goal_settings_title => '目標設定';
+
+  @override
+  String get screen_feature_goal_settings_unset_hint => '未設定の欄は空のまま保存できます';
 
   @override
   String get screen_feature_main_nav_exercise_history => '運動履歴';

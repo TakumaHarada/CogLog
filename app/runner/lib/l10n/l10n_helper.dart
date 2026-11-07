@@ -64,9 +64,49 @@ final class L10nHelper {
         // No Placeholders
         return l10n.screen_feature_exercise_history_title;
       },
+      'screen_feature_goal_settings_calories_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_calories_label;
+      },
+      'screen_feature_goal_settings_calories_unit': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_calories_unit;
+      },
+      'screen_feature_goal_settings_distance_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_distance_label;
+      },
+      'screen_feature_goal_settings_distance_unit': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_distance_unit;
+      },
+      'screen_feature_goal_settings_duration_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_duration_label;
+      },
+      'screen_feature_goal_settings_hours_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_hours_label;
+      },
+      'screen_feature_goal_settings_minutes_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_minutes_label;
+      },
+      'screen_feature_goal_settings_save': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_save;
+      },
+      'screen_feature_goal_settings_seconds_label': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_seconds_label;
+      },
       'screen_feature_goal_settings_title': (source) {
         // No Placeholders
         return l10n.screen_feature_goal_settings_title;
+      },
+      'screen_feature_goal_settings_unset_hint': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_unset_hint;
       },
       'screen_feature_main_nav_exercise_history': (source) {
         // No Placeholders

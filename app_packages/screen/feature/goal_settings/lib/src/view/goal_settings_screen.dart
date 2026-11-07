@@ -1,15 +1,17 @@
-import 'package:forui/forui.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../strings.dart';
+import '../viewmodel/goal_settings_screen_view_model.dart';
+import 'goal_settings_screen_body.dart';
 
-/// 目標設定の画面。中身は別計画で足す。
+/// 一日あたり目標を入力・保存する画面。
 ///
 /// Example:
 /// ```dart
 /// const GoalSettingsScreen();
 /// ```
-class GoalSettingsScreen extends StatelessWidget {
+class GoalSettingsScreen extends HookConsumerWidget {
   /// 目標設定画面を作る。
   ///
   /// Example:
@@ -18,15 +20,19 @@ class GoalSettingsScreen extends StatelessWidget {
   /// ```
   const GoalSettingsScreen({super.key});
 
-  /// タイトルだけの空画面を出す。
+  /// 初期化で目標を読み、見た目は [GoalSettingsScreenBody] に任せる。
   ///
   /// Example:
   /// ```dart
   /// const GoalSettingsScreen();
   /// ```
   @override
-  Widget build(BuildContext context) => FScaffold(
-    header: FHeader(title: Text(strings.screen_feature_goal_settings_title)),
-    child: const SizedBox.shrink(),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final viewModel = ref.watch(GoalSettingsScreenViewModel.provider);
+    useEffect(() {
+      viewModel.onInitialize();
+      return null;
+    }, [viewModel]);
+    return const GoalSettingsScreenBody();
+  }
 }

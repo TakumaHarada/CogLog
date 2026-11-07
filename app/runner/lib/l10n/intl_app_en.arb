@@ -21,9 +21,49 @@
   "@screen_feature_exercise_history_title": {
     "description": "画面タイトル"
   },
+  "screen_feature_goal_settings_calories_label": "Calories",
+  "@screen_feature_goal_settings_calories_label": {
+    "description": "一日あたり消費カロリーの欄"
+  },
+  "screen_feature_goal_settings_calories_unit": "kcal",
+  "@screen_feature_goal_settings_calories_unit": {
+    "description": "消費カロリーの単位"
+  },
+  "screen_feature_goal_settings_distance_label": "Distance",
+  "@screen_feature_goal_settings_distance_label": {
+    "description": "一日あたり走行距離の欄"
+  },
+  "screen_feature_goal_settings_distance_unit": "km",
+  "@screen_feature_goal_settings_distance_unit": {
+    "description": "走行距離の単位"
+  },
+  "screen_feature_goal_settings_duration_label": "Exercise time",
+  "@screen_feature_goal_settings_duration_label": {
+    "description": "一日あたり運動時間の欄"
+  },
+  "screen_feature_goal_settings_hours_label": "Hours",
+  "@screen_feature_goal_settings_hours_label": {
+    "description": "運動時間の時"
+  },
+  "screen_feature_goal_settings_minutes_label": "Minutes",
+  "@screen_feature_goal_settings_minutes_label": {
+    "description": "運動時間の分"
+  },
+  "screen_feature_goal_settings_save": "Save",
+  "@screen_feature_goal_settings_save": {
+    "description": "目標を保存するボタン"
+  },
+  "screen_feature_goal_settings_seconds_label": "Seconds",
+  "@screen_feature_goal_settings_seconds_label": {
+    "description": "運動時間の秒"
+  },
   "screen_feature_goal_settings_title": "Goals",
   "@screen_feature_goal_settings_title": {
     "description": "画面タイトル"
+  },
+  "screen_feature_goal_settings_unset_hint": "Leave fields empty to keep them unset",
+  "@screen_feature_goal_settings_unset_hint": {
+    "description": "未設定の説明"
   },
   "screen_feature_main_nav_exercise_history": "Exercise history",
   "@screen_feature_main_nav_exercise_history": {
