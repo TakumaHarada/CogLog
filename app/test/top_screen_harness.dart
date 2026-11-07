@@ -40,11 +40,19 @@ Future<SharedPreferences> _newPreferences() async {
 }
 
 ExerciseHistory rideNow({double distanceKm = 1, double caloriesKcal = 1.25}) {
+  const id = '11111111-1111-4111-8111-111111111111';
+  final now = DateTime.now();
   return ExerciseHistory(
-    recordedAt: DateTime.now(),
+    id: id,
+    savedAt: now,
+    creationStartedAt: now,
+    capturedAt: now,
+    recordedAt: now,
+    recordedAtManuallySet: false,
     distanceKm: distanceKm,
     duration: const Duration(minutes: 30),
     caloriesKcal: caloriesKcal,
     averageSpeedKmh: 1,
+    photoRelativePath: 'exercise_histories/$id/meter.jpg',
   );
 }

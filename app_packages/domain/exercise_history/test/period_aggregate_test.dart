@@ -7,12 +7,19 @@ ExerciseHistory ride({
   double caloriesKcal = 1,
   Duration duration = const Duration(minutes: 1),
 }) {
+  const id = '11111111-1111-4111-8111-111111111111';
   return ExerciseHistory(
+    id: id,
+    savedAt: recordedAt,
+    creationStartedAt: recordedAt,
+    capturedAt: recordedAt,
     recordedAt: recordedAt,
+    recordedAtManuallySet: false,
     distanceKm: distanceKm,
     duration: duration,
     caloriesKcal: caloriesKcal,
     averageSpeedKmh: 1,
+    photoRelativePath: 'exercise_histories/$id/meter.jpg',
   );
 }
 

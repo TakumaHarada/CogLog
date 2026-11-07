@@ -6,12 +6,19 @@ import 'package:usecase_load_top_screen/usecase_load_top_screen.dart';
 import 'package:usecase_load_top_screen_impl/usecase_load_top_screen_impl.dart';
 
 ExerciseHistory ride({required DateTime recordedAt, double distanceKm = 1}) {
+  const id = '11111111-1111-4111-8111-111111111111';
   return ExerciseHistory(
+    id: id,
+    savedAt: recordedAt,
+    creationStartedAt: recordedAt,
+    capturedAt: recordedAt,
     recordedAt: recordedAt,
+    recordedAtManuallySet: false,
     distanceKm: distanceKm,
     duration: const Duration(minutes: 1),
     caloriesKcal: 1,
     averageSpeedKmh: 1,
+    photoRelativePath: 'exercise_histories/$id/meter.jpg',
   );
 }
 
