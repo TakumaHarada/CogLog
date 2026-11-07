@@ -22,6 +22,9 @@ final class _Load implements LoadDailyGoalUsecase {
 }
 
 final class _Save implements SaveDailyGoalUsecase {
+  _Save({this.error});
+
+  final Object? error;
   var calls = 0;
   DailyGoal? lastGoal;
 
@@ -29,6 +32,10 @@ final class _Save implements SaveDailyGoalUsecase {
   Future<SaveDailyGoalResult> execute(SaveDailyGoalRequest request) async {
     calls += 1;
     lastGoal = request.goal;
+    final error = this.error;
+    if (error != null) {
+      throw error;
+    }
     return SaveDailyGoalResult(goal: request.goal);
   }
 }
@@ -63,11 +70,12 @@ void main() {
       const GoalSettingsScreenState(loaded: true, goal: DailyGoal.unset),
     );
     final save = _Save();
-    await OnSaveDelegate(
+    final outcome = await OnSaveDelegate(
       state: state,
       saveDailyGoalUsecase: save,
     ).execute(hours: '', minutes: '', seconds: '', calories: '', distance: '');
 
+    expect(outcome, GoalSettingsSaveOutcome.success);
     expect(save.calls, 1);
     expect(save.lastGoal?.duration, isNull);
     expect(save.lastGoal?.caloriesKcal, isNull);
@@ -125,41 +133,78 @@ void main() {
       const GoalSettingsScreenState(loaded: true, goal: before),
     );
     final save = _Save();
-    await OnSaveDelegate(state: state, saveDailyGoalUsecase: save).execute(
-      hours: 'x',
-      minutes: '',
-      seconds: '',
-      calories: '10',
-      distance: '1',
-    );
+    final invalid =
+        await OnSaveDelegate(state: state, saveDailyGoalUsecase: save).execute(
+          hours: 'x',
+          minutes: '',
+          seconds: '',
+          calories: '10',
+          distance: '1',
+        );
 
+    expect(invalid, GoalSettingsSaveOutcome.invalidInput);
     expect(save.calls, 0);
     expect(state.state.goal, before);
 
-    await OnSaveDelegate(state: state, saveDailyGoalUsecase: save).execute(
-      hours: '',
-      minutes: '',
-      seconds: '',
-      calories: '-1',
-      distance: '',
-    );
+    final negative =
+        await OnSaveDelegate(state: state, saveDailyGoalUsecase: save).execute(
+          hours: '',
+          minutes: '',
+          seconds: '',
+          calories: '-1',
+          distance: '',
+        );
+    expect(negative, GoalSettingsSaveOutcome.invalidInput);
     expect(save.calls, 0);
     expect(state.state.goal, before);
+
+    final nan = await OnSaveDelegate(state: state, saveDailyGoalUsecase: save)
+        .execute(
+          hours: '',
+          minutes: '',
+          seconds: '',
+          calories: 'NaN',
+          distance: 'Infinity',
+        );
+    expect(nan, GoalSettingsSaveOutcome.invalidInput);
+    expect(save.calls, 0);
   });
 
   test('未読込の保存は no-op', () async {
     final save = _Save();
-    await OnSaveDelegate(state: state, saveDailyGoalUsecase: save).execute(
-      hours: '1',
-      minutes: '0',
-      seconds: '0',
-      calories: '1',
-      distance: '1',
-    );
+    final outcome =
+        await OnSaveDelegate(state: state, saveDailyGoalUsecase: save).execute(
+          hours: '1',
+          minutes: '0',
+          seconds: '0',
+          calories: '1',
+          distance: '1',
+        );
 
+    expect(outcome, GoalSettingsSaveOutcome.saveFailed);
     expect(save.calls, 0);
     expect(state.state.loaded, isFalse);
     expect(state.state.goal, DailyGoal.unset);
+  });
+
+  test('永続化失敗は saveFailed で State を変えない', () async {
+    const before = DailyGoal(caloriesKcal: 50);
+    state = MutableStateStream(
+      const GoalSettingsScreenState(loaded: true, goal: before),
+    );
+    final save = _Save(error: StateError('fail'));
+    final outcome =
+        await OnSaveDelegate(state: state, saveDailyGoalUsecase: save).execute(
+          hours: '1',
+          minutes: '0',
+          seconds: '0',
+          calories: '1',
+          distance: '1',
+        );
+
+    expect(outcome, GoalSettingsSaveOutcome.saveFailed);
+    expect(save.calls, 1);
+    expect(state.state.goal, before);
   });
 
   test('tryParse は全空を unset、0 と一部入力を解釈する', () {
@@ -198,6 +243,36 @@ void main() {
     expect(
       tryParseDailyGoalInputs(
         hours: 'a',
+        minutes: '',
+        seconds: '',
+        calories: '',
+        distance: '',
+      ),
+      isNull,
+    );
+    expect(
+      tryParseDailyGoalInputs(
+        hours: '',
+        minutes: '',
+        seconds: '',
+        calories: 'NaN',
+        distance: '',
+      ),
+      isNull,
+    );
+    expect(
+      tryParseDailyGoalInputs(
+        hours: '',
+        minutes: '',
+        seconds: '',
+        calories: '',
+        distance: 'Infinity',
+      ),
+      isNull,
+    );
+    expect(
+      tryParseDailyGoalInputs(
+        hours: '100',
         minutes: '',
         seconds: '',
         calories: '',

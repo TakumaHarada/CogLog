@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:meta/meta.dart';
 
 import '../strings.dart';
+import '../viewmodel/delegate/on_save_delegate.dart';
 import '../viewmodel/goal_settings_screen_view_model.dart';
 import 'goal_settings_screen_providers.dart';
 
@@ -139,7 +140,7 @@ class GoalSettingsScreenBody extends HookConsumerWidget {
                   : () async {
                       saving.value = true;
                       try {
-                        await ref
+                        final outcome = await ref
                             .read(GoalSettingsScreenViewModel.provider)
                             .onSave(
                               hours: hoursController.text,
@@ -148,8 +149,27 @@ class GoalSettingsScreenBody extends HookConsumerWidget {
                               calories: caloriesController.text,
                               distance: distanceController.text,
                             );
-                      } on Object {
-                        // 永続化失敗を画面クラッシュにしない。パース拒否とは別。
+                        if (!context.mounted) {
+                          return;
+                        }
+                        final title = switch (outcome) {
+                          GoalSettingsSaveOutcome.success =>
+                            strings.screen_feature_goal_settings_save_success,
+                          GoalSettingsSaveOutcome.invalidInput =>
+                            strings
+                                .screen_feature_goal_settings_save_invalid_input,
+                          GoalSettingsSaveOutcome.saveFailed =>
+                            strings.screen_feature_goal_settings_save_failed,
+                        };
+                        showFToast(
+                          context: context,
+                          title: Text(title),
+                          variant: switch (outcome) {
+                            GoalSettingsSaveOutcome.success => .primary,
+                            GoalSettingsSaveOutcome.invalidInput ||
+                            GoalSettingsSaveOutcome.saveFailed => .destructive,
+                          },
+                        );
                       } finally {
                         saving.value = false;
                       }

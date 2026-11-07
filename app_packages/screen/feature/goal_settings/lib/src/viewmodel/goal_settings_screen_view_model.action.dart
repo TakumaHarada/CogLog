@@ -17,7 +17,7 @@ extension GoalSettingsScreenViewModelActions on GoalSettingsScreenViewModel {
     return delegate.execute();
   }
 
-  /// 入力欄の文字列を解釈して保存する。
+  /// 入力欄の文字列を解釈して保存し、結果を返す。
   ///
   /// Example:
   /// ```dart
@@ -29,7 +29,7 @@ extension GoalSettingsScreenViewModelActions on GoalSettingsScreenViewModel {
   ///   distance: '5',
   /// );
   /// ```
-  Future<void> onSave({
+  Future<GoalSettingsSaveOutcome> onSave({
     required String hours,
     required String minutes,
     required String seconds,

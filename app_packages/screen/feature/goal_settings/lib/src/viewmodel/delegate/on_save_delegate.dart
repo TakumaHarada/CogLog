@@ -5,9 +5,29 @@ import 'package:usecase_save_daily_goal/usecase_save_daily_goal.dart';
 
 import '../state/goal_settings_screen_state.dart';
 
+/// 目標保存の結果。
+enum GoalSettingsSaveOutcome {
+  /// 保存できた。
+  success,
+
+  /// 入力が解釈できない、または範囲外。
+  invalidInput,
+
+  /// 永続化に失敗した、または未読込。
+  saveFailed,
+}
+
+/// 運動時間の時の上限。一日あたり目標として十分で、[Duration] 変換でも溢さない。
+@visibleForTesting
+const maxGoalHours = 99;
+
+/// 運動時間の分・秒の上限。
+@visibleForTesting
+const maxGoalMinutesOrSeconds = 59;
+
 /// 入力欄の文字列から [DailyGoal] を組み立てる。
 ///
-/// パースできない、または負の値があるときは null。例外は投げない。
+/// パースできない、負、非有限、または上限超過のときは null。例外は投げない。
 ///
 /// Example:
 /// ```dart
@@ -103,9 +123,15 @@ _DurationParse _parseDuration({
   if (h.isEmpty && m.isEmpty && s.isEmpty) {
     return _DurationParse.unset;
   }
-  final hoursValue = _parseNonNegativeIntOrZeroWhenEmpty(h);
-  final minutesValue = _parseNonNegativeIntOrZeroWhenEmpty(m);
-  final secondsValue = _parseNonNegativeIntOrZeroWhenEmpty(s);
+  final hoursValue = _parseNonNegativeIntOrZeroWhenEmpty(h, max: maxGoalHours);
+  final minutesValue = _parseNonNegativeIntOrZeroWhenEmpty(
+    m,
+    max: maxGoalMinutesOrSeconds,
+  );
+  final secondsValue = _parseNonNegativeIntOrZeroWhenEmpty(
+    s,
+    max: maxGoalMinutesOrSeconds,
+  );
   if (hoursValue == null || minutesValue == null || secondsValue == null) {
     return _DurationParse.fail;
   }
@@ -120,12 +146,12 @@ _DurationParse _parseDuration({
 /// ```dart
 /// _parseNonNegativeIntOrZeroWhenEmpty('');
 /// ```
-int? _parseNonNegativeIntOrZeroWhenEmpty(String trimmed) {
+int? _parseNonNegativeIntOrZeroWhenEmpty(String trimmed, {required int max}) {
   if (trimmed.isEmpty) {
     return 0;
   }
   final value = int.tryParse(trimmed);
-  if (value == null || value < 0) {
+  if (value == null || value < 0 || value > max) {
     return null;
   }
   return value;
@@ -143,7 +169,7 @@ _OptionalDoubleParse _parseOptionalNonNegativeDouble(String raw) {
     return _OptionalDoubleParse.unset;
   }
   final value = double.tryParse(trimmed);
-  if (value == null || value < 0) {
+  if (value == null || !value.isFinite || value < 0) {
     return _OptionalDoubleParse.fail;
   }
   return _OptionalDoubleParse.ok(value);
@@ -187,7 +213,8 @@ final class OnSaveDelegate {
 
   /// 入力を解釈し、成功したときだけ保存して State を更新する。
   ///
-  /// 未読込、またはパース拒否のときは Usecase を呼ばず State も変えない。
+  /// 未読込や永続化失敗は [GoalSettingsSaveOutcome.saveFailed]。
+  /// パース拒否は [GoalSettingsSaveOutcome.invalidInput]。どちらも State は変えない。
   ///
   /// Example:
   /// ```dart
@@ -199,15 +226,17 @@ final class OnSaveDelegate {
   ///   distance: '0',
   /// );
   /// ```
-  Future<void> execute({
+  Future<GoalSettingsSaveOutcome> execute({
     required String hours,
     required String minutes,
     required String seconds,
     required String calories,
     required String distance,
   }) async {
+    var outcome = GoalSettingsSaveOutcome.saveFailed;
     await state.updateWithLock((current, emitter) async {
       if (!current.loaded) {
+        outcome = GoalSettingsSaveOutcome.saveFailed;
         return;
       }
       final goal = tryParseDailyGoalInputs(
@@ -218,14 +247,22 @@ final class OnSaveDelegate {
         distance: distance,
       );
       if (goal == null) {
+        outcome = GoalSettingsSaveOutcome.invalidInput;
         return;
       }
-      final result = await saveDailyGoalUsecase.execute(
-        SaveDailyGoalRequest(goal: goal),
-      );
-      await emitter.emit(
-        GoalSettingsScreenState(loaded: true, goal: result.goal),
-      );
+      try {
+        final result = await saveDailyGoalUsecase.execute(
+          SaveDailyGoalRequest(goal: goal),
+        );
+        await emitter.emit(
+          GoalSettingsScreenState(loaded: true, goal: result.goal),
+        );
+        outcome = GoalSettingsSaveOutcome.success;
+      } on Object {
+        // 永続化失敗を State 更新や未処理例外にしない。
+        outcome = GoalSettingsSaveOutcome.saveFailed;
+      }
     });
+    return outcome;
   }
 }

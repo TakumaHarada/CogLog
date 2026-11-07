@@ -48,6 +48,15 @@ class L10nJa extends L10n {
   String get screen_feature_goal_settings_save => '保存';
 
   @override
+  String get screen_feature_goal_settings_save_failed => '目標を保存できませんでした';
+
+  @override
+  String get screen_feature_goal_settings_save_invalid_input => '入力内容を確認してください';
+
+  @override
+  String get screen_feature_goal_settings_save_success => '目標を保存しました';
+
+  @override
   String get screen_feature_goal_settings_seconds_label => '秒';
 
   @override

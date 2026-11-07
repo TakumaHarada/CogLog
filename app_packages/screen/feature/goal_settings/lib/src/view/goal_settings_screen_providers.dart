@@ -15,5 +15,6 @@ final class GoalSettingsScreenProviders {
     (GoalSettingsScreenViewModel viewModel) => viewModel.entity,
   );
 
+  /// インスタンス化しない。static のみの束ねである。
   const GoalSettingsScreenProviders._();
 }

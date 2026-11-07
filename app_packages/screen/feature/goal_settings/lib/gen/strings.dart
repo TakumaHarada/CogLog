@@ -41,6 +41,20 @@ mixin class L10nStringsMixin {
   String get screen_feature_goal_settings_save =>
       LocalizeStringDelegate.get('screen_feature_goal_settings_save');
 
+  /// 永続化失敗の通知
+  String get screen_feature_goal_settings_save_failed =>
+      LocalizeStringDelegate.get('screen_feature_goal_settings_save_failed');
+
+  /// 入力不正の通知
+  String get screen_feature_goal_settings_save_invalid_input =>
+      LocalizeStringDelegate.get(
+        'screen_feature_goal_settings_save_invalid_input',
+      );
+
+  /// 保存成功の通知
+  String get screen_feature_goal_settings_save_success =>
+      LocalizeStringDelegate.get('screen_feature_goal_settings_save_success');
+
   /// 運動時間の秒
   String get screen_feature_goal_settings_seconds_label =>
       LocalizeStringDelegate.get('screen_feature_goal_settings_seconds_label');

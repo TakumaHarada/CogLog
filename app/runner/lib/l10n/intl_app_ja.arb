@@ -53,6 +53,18 @@
   "@screen_feature_goal_settings_save": {
     "description": "目標を保存するボタン"
   },
+  "screen_feature_goal_settings_save_failed": "目標を保存できませんでした",
+  "@screen_feature_goal_settings_save_failed": {
+    "description": "永続化失敗の通知"
+  },
+  "screen_feature_goal_settings_save_invalid_input": "入力内容を確認してください",
+  "@screen_feature_goal_settings_save_invalid_input": {
+    "description": "入力不正の通知"
+  },
+  "screen_feature_goal_settings_save_success": "目標を保存しました",
+  "@screen_feature_goal_settings_save_success": {
+    "description": "保存成功の通知"
+  },
   "screen_feature_goal_settings_seconds_label": "秒",
   "@screen_feature_goal_settings_seconds_label": {
     "description": "運動時間の秒"

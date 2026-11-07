@@ -48,6 +48,16 @@ class L10nEn extends L10n {
   String get screen_feature_goal_settings_save => 'Save';
 
   @override
+  String get screen_feature_goal_settings_save_failed => 'Could not save goals';
+
+  @override
+  String get screen_feature_goal_settings_save_invalid_input =>
+      'Check your input values';
+
+  @override
+  String get screen_feature_goal_settings_save_success => 'Goals saved';
+
+  @override
   String get screen_feature_goal_settings_seconds_label => 'Seconds';
 
   @override

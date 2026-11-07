@@ -10,3 +10,6 @@ distance_label,走行距離,Distance,一日あたり走行距離の欄
 distance_unit,km,km,走行距離の単位
 save,保存,Save,目標を保存するボタン
 unset_hint,未設定の欄は空のまま保存できます,Leave fields empty to keep them unset,未設定の説明
+save_success,目標を保存しました,Goals saved,保存成功の通知
+save_invalid_input,入力内容を確認してください,Check your input values,入力不正の通知
+save_failed,目標を保存できませんでした,Could not save goals,永続化失敗の通知

@@ -96,6 +96,18 @@ final class L10nHelper {
         // No Placeholders
         return l10n.screen_feature_goal_settings_save;
       },
+      'screen_feature_goal_settings_save_failed': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_save_failed;
+      },
+      'screen_feature_goal_settings_save_invalid_input': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_save_invalid_input;
+      },
+      'screen_feature_goal_settings_save_success': (source) {
+        // No Placeholders
+        return l10n.screen_feature_goal_settings_save_success;
+      },
       'screen_feature_goal_settings_seconds_label': (source) {
         // No Placeholders
         return l10n.screen_feature_goal_settings_seconds_label;

@@ -169,6 +169,24 @@ abstract class L10n {
   /// **'保存'**
   String get screen_feature_goal_settings_save;
 
+  /// 永続化失敗の通知
+  ///
+  /// In ja, this message translates to:
+  /// **'目標を保存できませんでした'**
+  String get screen_feature_goal_settings_save_failed;
+
+  /// 入力不正の通知
+  ///
+  /// In ja, this message translates to:
+  /// **'入力内容を確認してください'**
+  String get screen_feature_goal_settings_save_invalid_input;
+
+  /// 保存成功の通知
+  ///
+  /// In ja, this message translates to:
+  /// **'目標を保存しました'**
+  String get screen_feature_goal_settings_save_success;
+
   /// 運動時間の秒
   ///
   /// In ja, this message translates to:
