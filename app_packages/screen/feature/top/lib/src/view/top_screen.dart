@@ -39,8 +39,13 @@ class TopScreen extends HookConsumerWidget {
       strings.screen_feature_top_advice_template_3,
     ];
     final homeTabSelected = (ShellTabIndexScope.maybeOf(context) ?? 0) == 0;
+    final lifecycle = useAppLifecycleState();
     useEffect(() {
       if (!homeTabSelected) {
+        return null;
+      }
+      // 背面中は読まない。null は起動直後の未通知として前面扱いにする。
+      if (lifecycle != null && lifecycle != AppLifecycleState.resumed) {
         return null;
       }
       viewModel.onInitialize(
@@ -49,21 +54,7 @@ class TopScreen extends HookConsumerWidget {
         fallbackTemplates: fallbackTemplates,
       );
       return null;
-    }, [viewModel, homeTabSelected, locale]);
-    final lifecycle = useAppLifecycleState();
-    useEffect(() {
-      if (!homeTabSelected) {
-        return null;
-      }
-      if (lifecycle == AppLifecycleState.resumed) {
-        viewModel.onInitialize(
-          locale: locale,
-          noExerciseTemplate: noExerciseTemplate,
-          fallbackTemplates: fallbackTemplates,
-        );
-      }
-      return null;
-    }, [lifecycle, viewModel, homeTabSelected, locale]);
+    }, [viewModel, homeTabSelected, locale, lifecycle]);
     return const TopScreenImpl();
   }
 }
