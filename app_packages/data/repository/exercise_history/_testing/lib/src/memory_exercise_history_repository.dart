@@ -45,7 +45,7 @@ final class MemoryExerciseHistoryRepository
     required double averageSpeedKmh,
     required Uint8List photoBytes,
   }) async {
-    if (duration == Duration.zero) {
+    if (duration.inMilliseconds == 0) {
       throw ArgumentError.value(duration, 'duration', '0 では保存できない');
     }
     final id = _uuid.v4();
@@ -83,7 +83,7 @@ final class MemoryExerciseHistoryRepository
     required double averageSpeedKmh,
     Uint8List? photoBytes,
   }) async {
-    if (duration == Duration.zero) {
+    if (duration.inMilliseconds == 0) {
       throw ArgumentError.value(duration, 'duration', '0 では保存できない');
     }
     final index = _items.indexWhere((e) => e.id == id);

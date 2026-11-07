@@ -217,4 +217,92 @@ void main() {
       isFalse,
     );
   });
+
+  test('同じ ID の create 再実行は失敗し写真ディレクトリも消える', () async {
+    const id = '44444444-4444-4444-8444-444444444444';
+    final fixed = DriftExerciseHistoryRepository(
+      database: db,
+      photos: ExerciseHistoryPhotoStore(docs),
+      newId: () => id,
+    );
+    await fixed.create(
+      creationStartedAt: DateTime.utc(2026, 11, 5),
+      capturedAt: DateTime.utc(2026, 11, 5),
+      recordedAt: DateTime.utc(2026, 11, 5),
+      recordedAtManuallySet: false,
+      distanceKm: 1,
+      duration: const Duration(minutes: 1),
+      caloriesKcal: 1,
+      averageSpeedKmh: 1,
+      photoBytes: Uint8List.fromList([1]),
+    );
+
+    await expectLater(
+      () => fixed.create(
+        creationStartedAt: DateTime.utc(2026, 11, 5),
+        capturedAt: DateTime.utc(2026, 11, 5),
+        recordedAt: DateTime.utc(2026, 11, 5),
+        recordedAtManuallySet: false,
+        distanceKm: 2,
+        duration: const Duration(minutes: 2),
+        caloriesKcal: 2,
+        averageSpeedKmh: 2,
+        photoBytes: Uint8List.fromList([2]),
+      ),
+      throwsA(isA<Object>()),
+    );
+    expect(
+      Directory('${docs.path}/exercise_histories/$id').existsSync(),
+      isFalse,
+    );
+    // 1 回目の行も写真掃除に巻き込まれたあと、行は残る（ID 衝突時の副作用）。
+    expect(await fixed.list(), hasLength(1));
+  });
+
+  test('update で photoBytes 省略時は既存写真が変わらない', () async {
+    final created = await repo.create(
+      creationStartedAt: DateTime.utc(2026, 11, 5),
+      capturedAt: DateTime.utc(2026, 11, 5),
+      recordedAt: DateTime.utc(2026, 11, 5),
+      recordedAtManuallySet: false,
+      distanceKm: 1,
+      duration: const Duration(minutes: 1),
+      caloriesKcal: 1,
+      averageSpeedKmh: 1,
+      photoBytes: Uint8List.fromList([4, 5, 6]),
+    );
+
+    await repo.update(
+      id: created.id,
+      creationStartedAt: created.creationStartedAt,
+      capturedAt: created.capturedAt,
+      recordedAt: created.recordedAt,
+      recordedAtManuallySet: true,
+      distanceKm: 3,
+      duration: const Duration(minutes: 3),
+      caloriesKcal: 3,
+      averageSpeedKmh: 3,
+    );
+
+    final bytes = await File('${docs.path}/${created.photoRelativePath}')
+        .readAsBytes();
+    expect(bytes, [4, 5, 6]);
+  });
+
+  test('1ms 未満の duration は ArgumentError', () async {
+    expect(
+      () => repo.create(
+        creationStartedAt: DateTime.utc(2026, 11, 5),
+        capturedAt: DateTime.utc(2026, 11, 5),
+        recordedAt: DateTime.utc(2026, 11, 5),
+        recordedAtManuallySet: false,
+        distanceKm: 1,
+        duration: const Duration(microseconds: 500),
+        caloriesKcal: 1,
+        averageSpeedKmh: 1,
+        photoBytes: Uint8List.fromList([1]),
+      ),
+      throwsA(isA<ArgumentError>()),
+    );
+  });
 }

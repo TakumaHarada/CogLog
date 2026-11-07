@@ -49,7 +49,9 @@ final class ExerciseHistoryPhotoStore {
     return File(p.join(documentsRoot.path, relative));
   }
 
-  /// 写真を書き、相対パスを返す。
+  File _stagingFileFor(String id) => File('${fileFor(id).path}.staging');
+
+  /// 最終パスへ原子的に書き、相対パスを返す。
   ///
   /// Example:
   /// ```dart
@@ -61,8 +63,58 @@ final class ExerciseHistoryPhotoStore {
   Future<String> write(String id, Uint8List bytes) async {
     final file = fileFor(id);
     await file.parent.create(recursive: true);
-    await file.writeAsBytes(bytes, flush: true);
+    final temp = File('${file.path}.tmp');
+    await temp.writeAsBytes(bytes, flush: true);
+    await temp.rename(file.path);
     return relativePathFor(id);
+  }
+
+  /// 旧写真を残したまま、確定前の写真を書く。
+  ///
+  /// Example:
+  /// ```dart
+  /// await ExerciseHistoryPhotoStore(Directory.systemTemp).writeStaging(
+  ///   '11111111-1111-4111-8111-111111111111',
+  ///   Uint8List.fromList([1]),
+  /// );
+  /// ```
+  Future<void> writeStaging(String id, Uint8List bytes) async {
+    final staging = _stagingFileFor(id);
+    await staging.parent.create(recursive: true);
+    final temp = File('${staging.path}.tmp');
+    await temp.writeAsBytes(bytes, flush: true);
+    await temp.rename(staging.path);
+  }
+
+  /// ステージング写真を最終パスへ確定する。
+  ///
+  /// Example:
+  /// ```dart
+  /// await ExerciseHistoryPhotoStore(Directory.systemTemp)
+  ///     .commitStaging('11111111-1111-4111-8111-111111111111');
+  /// ```
+  Future<void> commitStaging(String id) async {
+    final staging = _stagingFileFor(id);
+    if (!await staging.exists()) {
+      throw StateError('ステージング写真が無い: $id');
+    }
+    final file = fileFor(id);
+    await file.parent.create(recursive: true);
+    await staging.rename(file.path);
+  }
+
+  /// ステージング写真を捨てる。
+  ///
+  /// Example:
+  /// ```dart
+  /// await ExerciseHistoryPhotoStore(Directory.systemTemp)
+  ///     .discardStaging('11111111-1111-4111-8111-111111111111');
+  /// ```
+  Future<void> discardStaging(String id) async {
+    final staging = _stagingFileFor(id);
+    if (await staging.exists()) {
+      await staging.delete();
+    }
   }
 
   /// 運動履歴 ID に対応する写真ディレクトリを消す。
