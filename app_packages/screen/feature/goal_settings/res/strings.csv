@@ -1,2 +1,15 @@
 id,ja,en,description
 title,目標設定,Goals,画面タイトル
+duration_label,運動時間,Exercise time,一日あたり運動時間の欄
+hours_label,時間,Hours,運動時間の時
+minutes_label,分,Minutes,運動時間の分
+seconds_label,秒,Seconds,運動時間の秒
+calories_label,消費カロリー,Calories,一日あたり消費カロリーの欄
+calories_unit,kcal,kcal,消費カロリーの単位
+distance_label,走行距離,Distance,一日あたり走行距離の欄
+distance_unit,km,km,走行距離の単位
+save,保存,Save,目標を保存するボタン
+unset_hint,未設定の欄は空のまま保存できます,Leave fields empty to keep them unset,未設定の説明
+save_success,目標を保存しました,Goals saved,保存成功の通知
+save_invalid_input,入力内容を確認してください,Check your input values,入力不正の通知
+save_failed,目標を保存できませんでした,Could not save goals,永続化失敗の通知

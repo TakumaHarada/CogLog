@@ -121,11 +121,89 @@ abstract class L10n {
   /// **'運動履歴'**
   String get screen_feature_exercise_history_title;
 
+  /// 一日あたり消費カロリーの欄
+  ///
+  /// In ja, this message translates to:
+  /// **'消費カロリー'**
+  String get screen_feature_goal_settings_calories_label;
+
+  /// 消費カロリーの単位
+  ///
+  /// In ja, this message translates to:
+  /// **'kcal'**
+  String get screen_feature_goal_settings_calories_unit;
+
+  /// 一日あたり走行距離の欄
+  ///
+  /// In ja, this message translates to:
+  /// **'走行距離'**
+  String get screen_feature_goal_settings_distance_label;
+
+  /// 走行距離の単位
+  ///
+  /// In ja, this message translates to:
+  /// **'km'**
+  String get screen_feature_goal_settings_distance_unit;
+
+  /// 一日あたり運動時間の欄
+  ///
+  /// In ja, this message translates to:
+  /// **'運動時間'**
+  String get screen_feature_goal_settings_duration_label;
+
+  /// 運動時間の時
+  ///
+  /// In ja, this message translates to:
+  /// **'時間'**
+  String get screen_feature_goal_settings_hours_label;
+
+  /// 運動時間の分
+  ///
+  /// In ja, this message translates to:
+  /// **'分'**
+  String get screen_feature_goal_settings_minutes_label;
+
+  /// 目標を保存するボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'保存'**
+  String get screen_feature_goal_settings_save;
+
+  /// 永続化失敗の通知
+  ///
+  /// In ja, this message translates to:
+  /// **'目標を保存できませんでした'**
+  String get screen_feature_goal_settings_save_failed;
+
+  /// 入力不正の通知
+  ///
+  /// In ja, this message translates to:
+  /// **'入力内容を確認してください'**
+  String get screen_feature_goal_settings_save_invalid_input;
+
+  /// 保存成功の通知
+  ///
+  /// In ja, this message translates to:
+  /// **'目標を保存しました'**
+  String get screen_feature_goal_settings_save_success;
+
+  /// 運動時間の秒
+  ///
+  /// In ja, this message translates to:
+  /// **'秒'**
+  String get screen_feature_goal_settings_seconds_label;
+
   /// 画面タイトル
   ///
   /// In ja, this message translates to:
   /// **'目標設定'**
   String get screen_feature_goal_settings_title;
+
+  /// 未設定の説明
+  ///
+  /// In ja, this message translates to:
+  /// **'未設定の欄は空のまま保存できます'**
+  String get screen_feature_goal_settings_unset_hint;
 
   /// ボトムナビ
   ///

@@ -21,9 +21,61 @@
   "@screen_feature_exercise_history_title": {
     "description": "画面タイトル"
   },
+  "screen_feature_goal_settings_calories_label": "消費カロリー",
+  "@screen_feature_goal_settings_calories_label": {
+    "description": "一日あたり消費カロリーの欄"
+  },
+  "screen_feature_goal_settings_calories_unit": "kcal",
+  "@screen_feature_goal_settings_calories_unit": {
+    "description": "消費カロリーの単位"
+  },
+  "screen_feature_goal_settings_distance_label": "走行距離",
+  "@screen_feature_goal_settings_distance_label": {
+    "description": "一日あたり走行距離の欄"
+  },
+  "screen_feature_goal_settings_distance_unit": "km",
+  "@screen_feature_goal_settings_distance_unit": {
+    "description": "走行距離の単位"
+  },
+  "screen_feature_goal_settings_duration_label": "運動時間",
+  "@screen_feature_goal_settings_duration_label": {
+    "description": "一日あたり運動時間の欄"
+  },
+  "screen_feature_goal_settings_hours_label": "時間",
+  "@screen_feature_goal_settings_hours_label": {
+    "description": "運動時間の時"
+  },
+  "screen_feature_goal_settings_minutes_label": "分",
+  "@screen_feature_goal_settings_minutes_label": {
+    "description": "運動時間の分"
+  },
+  "screen_feature_goal_settings_save": "保存",
+  "@screen_feature_goal_settings_save": {
+    "description": "目標を保存するボタン"
+  },
+  "screen_feature_goal_settings_save_failed": "目標を保存できませんでした",
+  "@screen_feature_goal_settings_save_failed": {
+    "description": "永続化失敗の通知"
+  },
+  "screen_feature_goal_settings_save_invalid_input": "入力内容を確認してください",
+  "@screen_feature_goal_settings_save_invalid_input": {
+    "description": "入力不正の通知"
+  },
+  "screen_feature_goal_settings_save_success": "目標を保存しました",
+  "@screen_feature_goal_settings_save_success": {
+    "description": "保存成功の通知"
+  },
+  "screen_feature_goal_settings_seconds_label": "秒",
+  "@screen_feature_goal_settings_seconds_label": {
+    "description": "運動時間の秒"
+  },
   "screen_feature_goal_settings_title": "目標設定",
   "@screen_feature_goal_settings_title": {
     "description": "画面タイトル"
+  },
+  "screen_feature_goal_settings_unset_hint": "未設定の欄は空のまま保存できます",
+  "@screen_feature_goal_settings_unset_hint": {
+    "description": "未設定の説明"
   },
   "screen_feature_main_nav_exercise_history": "運動履歴",
   "@screen_feature_main_nav_exercise_history": {

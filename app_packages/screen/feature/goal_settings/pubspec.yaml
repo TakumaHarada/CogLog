@@ -9,14 +9,26 @@ environment:
   flutter: ">=3.47.0 <4.0.0"
 
 dependencies:
+  domain_daily_goal: any
   flutter:
     sdk: flutter
+  flutter_hooks: any
   forui: any
+  hooks_riverpod: any
   material_ui: any
   meta: any
   monolith_localization_runtime: any
+  riverpod: any
+  state_stream: any
+  state_stream_riverpod: any
+  usecase_load_daily_goal: any
+  usecase_save_daily_goal: any
 
 dev_dependencies:
+  data_repository_daily_goal_testing: any
+  foundation_resources: any
   flutter_lints: any
   flutter_test:
     sdk: flutter
+  usecase_load_daily_goal_impl: any
+  usecase_save_daily_goal_impl: any

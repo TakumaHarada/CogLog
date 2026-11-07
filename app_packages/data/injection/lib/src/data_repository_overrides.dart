@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:data_database/data_database.dart';
+import 'package:data_repository_daily_goal/data_repository_daily_goal.dart';
+import 'package:data_repository_daily_goal_impl/data_repository_daily_goal_impl.dart';
 import 'package:data_repository_exercise_history/data_repository_exercise_history.dart';
 import 'package:data_repository_exercise_history_impl/data_repository_exercise_history_impl.dart';
 import 'package:data_repository_top_screen_metric/data_repository_top_screen_metric.dart';
@@ -8,7 +10,7 @@ import 'package:data_repository_top_screen_metric_impl/data_repository_top_scree
 import 'package:riverpod/misc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 運動履歴と指標選択の本番実装を上書きする。
+/// 運動履歴・指標選択・一日あたり目標の本番実装を上書きする。
 ///
 /// [histories] を渡したときは、Drift の代わりにそれを読む。
 ///
@@ -36,5 +38,8 @@ List<Override> dataRepositoryOverrides({
   ),
   topScreenMetricRepositoryProvider.overrideWith(
     (ref) => SharedPreferencesTopScreenMetricRepository(preferences),
+  ),
+  dailyGoalRepositoryProvider.overrideWith(
+    (ref) => SharedPreferencesDailyGoalRepository(preferences),
   ),
 ];
