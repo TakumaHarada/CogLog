@@ -34,10 +34,15 @@ workspace:
   - app_packages/screen/navigation
   - app_packages/screen/navigation/_go_router
   - app_packages/usecase/injection
+  - app_packages/usecase/load_daily_goal
+  - app_packages/usecase/load_daily_goal/_impl
   - app_packages/usecase/load_top_screen
   - app_packages/usecase/load_top_screen/_impl
+  - app_packages/usecase/save_daily_goal
+  - app_packages/usecase/save_daily_goal/_impl
   - app_packages/usecase/save_top_screen_metric
   - app_packages/usecase/save_top_screen_metric/_impl
+
 
 # 実効バージョンはここで揃える。子パッケージの依存は any。
 dependency_overrides:

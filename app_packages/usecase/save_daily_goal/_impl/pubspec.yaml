@@ -1,0 +1,18 @@
+name: usecase_save_daily_goal_impl
+description: Saves the daily exercise goal through its repository.
+publish_to: none
+resolution: workspace
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  data_repository_daily_goal: any
+  domain_daily_goal: any
+  usecase_save_daily_goal: any
+
+dev_dependencies:
+  data_repository_daily_goal_testing: any
+  flutter_lints: any
+  test: any
