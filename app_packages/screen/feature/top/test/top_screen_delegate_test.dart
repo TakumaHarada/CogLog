@@ -1,3 +1,4 @@
+import 'package:domain_daily_goal/domain_daily_goal.dart';
 import 'package:domain_exercise_history/domain_exercise_history.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:screen_feature_top/src/viewmodel/delegate/on_initialize_delegate.dart';
@@ -63,6 +64,8 @@ void main() {
         ),
         week: PeriodAggregate.empty,
         month: PeriodAggregate.empty,
+        goal: DailyGoal.unset,
+        todayHistories: [],
       ),
     );
     await OnInitializeDelegate(

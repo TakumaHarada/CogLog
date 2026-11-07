@@ -26,6 +26,7 @@ dependencies:
   usecase_save_top_screen_metric: any
 
 dev_dependencies:
+  domain_daily_goal: any
   flutter_lints: any
   flutter_test:
     sdk: flutter

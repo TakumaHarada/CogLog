@@ -18,6 +18,7 @@ dependencies:
   forui: any
   foundation_resources: any
   go_router: any
+  infra_injection: any
   material_ui: any
   meta: any
   monolith_localization_runtime: any

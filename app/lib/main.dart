@@ -3,6 +3,7 @@ import 'package:data_injection/data_injection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:infra_injection/infra_injection.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screen_injection/screen_injection.dart';
@@ -47,6 +48,7 @@ Future<void> launchCogLog() async {
           database: database,
           documentsDirectory: documents,
         ),
+        ...infraOverrides(),
         ...usecaseOverrides(),
         ...screenOverrides(screens),
       ],
