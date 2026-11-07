@@ -136,21 +136,25 @@ final class DriftExerciseHistoryRepository
         await _photos.writeStaging(id, photoBytes);
       }
       await _db.transaction(() async {
-        await (_db.update(
-          _db.exerciseHistories,
-        )..where((t) => t.id.equals(id))).write(
-          ExerciseHistoriesCompanion(
-            creationStartedAt: Value(encodeUtc(creationStartedAt)),
-            capturedAt: Value(encodeUtc(capturedAt)),
-            recordedAt: Value(encodeUtc(recordedAt)),
-            recordedAtManuallySet: Value(recordedAtManuallySet),
-            distanceKm: Value(distanceKm),
-            durationMs: Value(duration.inMilliseconds),
-            caloriesKcal: Value(caloriesKcal),
-            averageSpeedKmh: Value(averageSpeedKmh),
-            photoRelativePath: Value(existing.photoRelativePath),
-          ),
-        );
+        final updated =
+            await (_db.update(
+              _db.exerciseHistories,
+            )..where((t) => t.id.equals(id))).write(
+              ExerciseHistoriesCompanion(
+                creationStartedAt: Value(encodeUtc(creationStartedAt)),
+                capturedAt: Value(encodeUtc(capturedAt)),
+                recordedAt: Value(encodeUtc(recordedAt)),
+                recordedAtManuallySet: Value(recordedAtManuallySet),
+                distanceKm: Value(distanceKm),
+                durationMs: Value(duration.inMilliseconds),
+                caloriesKcal: Value(caloriesKcal),
+                averageSpeedKmh: Value(averageSpeedKmh),
+                photoRelativePath: Value(existing.photoRelativePath),
+              ),
+            );
+        if (updated == 0) {
+          throw StateError('運動履歴が無い: $id');
+        }
         if (replacePhoto) {
           await _photos.commitStaging(id);
         }

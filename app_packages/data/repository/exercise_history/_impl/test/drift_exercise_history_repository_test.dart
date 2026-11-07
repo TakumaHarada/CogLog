@@ -304,4 +304,106 @@ void main() {
       throwsA(isA<ArgumentError>()),
     );
   });
+
+  test('update で 0 秒の duration は ArgumentError', () async {
+    final created = await repo.create(
+      creationStartedAt: DateTime.utc(2026, 11, 5),
+      capturedAt: DateTime.utc(2026, 11, 5),
+      recordedAt: DateTime.utc(2026, 11, 5),
+      recordedAtManuallySet: false,
+      distanceKm: 1,
+      duration: const Duration(minutes: 1),
+      caloriesKcal: 1,
+      averageSpeedKmh: 1,
+      photoBytes: Uint8List.fromList([1]),
+    );
+
+    for (final duration in const [
+      Duration.zero,
+      Duration(milliseconds: 500),
+    ]) {
+      expect(
+        () => repo.update(
+          id: created.id,
+          creationStartedAt: created.creationStartedAt,
+          capturedAt: created.capturedAt,
+          recordedAt: created.recordedAt,
+          recordedAtManuallySet: false,
+          distanceKm: 2,
+          duration: duration,
+          caloriesKcal: 2,
+          averageSpeedKmh: 2,
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
+    }
+  });
+
+  test('commitStaging 失敗時は行が旧値のまま残る', () async {
+    final photos = _ThrowingCommitPhotoStore(docs);
+    final failing = DriftExerciseHistoryRepository(
+      database: db,
+      photos: photos,
+    );
+    final created = await failing.create(
+      creationStartedAt: DateTime.utc(2026, 11, 5),
+      capturedAt: DateTime.utc(2026, 11, 5),
+      recordedAt: DateTime.utc(2026, 11, 5),
+      recordedAtManuallySet: false,
+      distanceKm: 1,
+      duration: const Duration(minutes: 1),
+      caloriesKcal: 1,
+      averageSpeedKmh: 1,
+      photoBytes: Uint8List.fromList([1, 2, 3]),
+    );
+
+    await expectLater(
+      () => failing.update(
+        id: created.id,
+        creationStartedAt: created.creationStartedAt,
+        capturedAt: created.capturedAt,
+        recordedAt: created.recordedAt,
+        recordedAtManuallySet: true,
+        distanceKm: 9,
+        duration: const Duration(minutes: 9),
+        caloriesKcal: 9,
+        averageSpeedKmh: 9,
+        photoBytes: Uint8List.fromList([9, 9, 9]),
+      ),
+      throwsA(isA<StateError>()),
+    );
+
+    final listed = await failing.list();
+    expect(listed, hasLength(1));
+    expect(listed.single.distanceKm, 1);
+    expect(listed.single.caloriesKcal, 1);
+    expect(
+      await File('${docs.path}/${created.photoRelativePath}').readAsBytes(),
+      [1, 2, 3],
+    );
+  });
+
+  test('writeStaging 失敗時に .tmp と .staging が残らない', () async {
+    const id = '55555555-5555-4555-8555-555555555555';
+    final store = ExerciseHistoryPhotoStore(docs);
+    final idPath = Directory('${docs.path}/exercise_histories/$id');
+    await idPath.parent.create(recursive: true);
+    await File(idPath.path).writeAsBytes([1], flush: true);
+
+    await expectLater(
+      () => store.writeStaging(id, Uint8List.fromList([2])),
+      throwsA(isA<Object>()),
+    );
+    expect(File('${idPath.path}/meter.jpg.staging').existsSync(), isFalse);
+    expect(File('${idPath.path}/meter.jpg.staging.tmp').existsSync(), isFalse);
+  });
+}
+
+final class _ThrowingCommitPhotoStore extends ExerciseHistoryPhotoStore {
+  _ThrowingCommitPhotoStore(super.documentsRoot);
+
+  @override
+  Future<void> commitStaging(String id) async {
+    throw StateError('ステージング確定に失敗: $id');
+  }
 }

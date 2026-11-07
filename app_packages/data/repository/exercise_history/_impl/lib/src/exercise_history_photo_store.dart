@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 /// ```dart
 /// ExerciseHistoryPhotoStore(Directory.systemTemp);
 /// ```
-final class ExerciseHistoryPhotoStore {
+base class ExerciseHistoryPhotoStore {
   /// [documentsRoot] を写真の根とする。
   ///
   /// Example:
@@ -68,7 +68,11 @@ final class ExerciseHistoryPhotoStore {
       await temp.writeAsBytes(bytes, flush: true);
       await temp.rename(file.path);
     } catch (error, stack) {
-      await _deleteIfExists(temp);
+      try {
+        await _deleteIfExists(temp);
+      } catch (_) {
+        // 元の例外を優先する。
+      }
       Error.throwWithStackTrace(error, stack);
     }
     return relativePathFor(id);
@@ -91,8 +95,12 @@ final class ExerciseHistoryPhotoStore {
       await temp.writeAsBytes(bytes, flush: true);
       await temp.rename(staging.path);
     } catch (error, stack) {
-      await _deleteIfExists(temp);
-      await _deleteIfExists(staging);
+      try {
+        await _deleteIfExists(temp);
+        await _deleteIfExists(staging);
+      } catch (_) {
+        // 元の例外を優先する。
+      }
       Error.throwWithStackTrace(error, stack);
     }
   }
