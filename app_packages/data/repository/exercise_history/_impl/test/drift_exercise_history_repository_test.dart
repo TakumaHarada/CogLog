@@ -218,7 +218,7 @@ void main() {
     );
   });
 
-  test('同じ ID の create 再実行は失敗し写真ディレクトリも消える', () async {
+  test('同じ ID の create 再実行は失敗し既存写真を残す', () async {
     const id = '44444444-4444-4444-8444-444444444444';
     final fixed = DriftExerciseHistoryRepository(
       database: db,
@@ -234,7 +234,7 @@ void main() {
       duration: const Duration(minutes: 1),
       caloriesKcal: 1,
       averageSpeedKmh: 1,
-      photoBytes: Uint8List.fromList([1]),
+      photoBytes: Uint8List.fromList([1, 1, 1]),
     );
 
     await expectLater(
@@ -249,14 +249,13 @@ void main() {
         averageSpeedKmh: 2,
         photoBytes: Uint8List.fromList([2]),
       ),
-      throwsA(isA<Object>()),
+      throwsA(isA<StateError>()),
     );
-    expect(
-      Directory('${docs.path}/exercise_histories/$id').existsSync(),
-      isFalse,
-    );
-    // 1 回目の行も写真掃除に巻き込まれたあと、行は残る（ID 衝突時の副作用）。
     expect(await fixed.list(), hasLength(1));
+    final bytes = await File(
+      '${docs.path}/exercise_histories/$id/meter.jpg',
+    ).readAsBytes();
+    expect(bytes, [1, 1, 1]);
   });
 
   test('update で photoBytes 省略時は既存写真が変わらない', () async {
@@ -289,7 +288,7 @@ void main() {
     expect(bytes, [4, 5, 6]);
   });
 
-  test('1ms 未満の duration は ArgumentError', () async {
+  test('1秒未満の duration は ArgumentError', () async {
     expect(
       () => repo.create(
         creationStartedAt: DateTime.utc(2026, 11, 5),
@@ -297,7 +296,7 @@ void main() {
         recordedAt: DateTime.utc(2026, 11, 5),
         recordedAtManuallySet: false,
         distanceKm: 1,
-        duration: const Duration(microseconds: 500),
+        duration: const Duration(milliseconds: 500),
         caloriesKcal: 1,
         averageSpeedKmh: 1,
         photoBytes: Uint8List.fromList([1]),

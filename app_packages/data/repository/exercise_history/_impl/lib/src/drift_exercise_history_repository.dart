@@ -51,6 +51,8 @@ final class DriftExerciseHistoryRepository
   }
 
   /// 写真を書いてから行を挿入する。INSERT 失敗時は写真を削除する。
+  ///
+  /// ID が既存行と衝突する場合は、写真を書かずに失敗する。
   @override
   Future<ExerciseHistory> create({
     required DateTime creationStartedAt,
@@ -63,13 +65,18 @@ final class DriftExerciseHistoryRepository
     required double averageSpeedKmh,
     required Uint8List photoBytes,
   }) async {
-    if (duration.inMilliseconds == 0) {
+    if (duration.inSeconds == 0) {
       throw ArgumentError.value(duration, 'duration', '0 では保存できない');
     }
     final id = _newId();
+    if (await _byId(id) != null) {
+      throw StateError('運動履歴が既に有る: $id');
+    }
     final savedAt = DateTime.timestamp();
+    var wrotePhoto = false;
     try {
       final relative = await _photos.write(id, photoBytes);
+      wrotePhoto = true;
       await _db
           .into(_db.exerciseHistories)
           .insert(
@@ -88,10 +95,12 @@ final class DriftExerciseHistoryRepository
             ),
           );
     } catch (error, stack) {
-      try {
-        await _photos.deleteFor(id);
-      } catch (_) {
-        // 元の例外を優先する。
+      if (wrotePhoto) {
+        try {
+          await _photos.deleteFor(id);
+        } catch (_) {
+          // 元の例外を優先する。
+        }
       }
       Error.throwWithStackTrace(error, stack);
     }
@@ -100,7 +109,7 @@ final class DriftExerciseHistoryRepository
 
   /// [savedAt] は変えず更新する。未知 ID は [StateError]。
   ///
-  /// 写真があるときはステージングへ書き、行更新成功後にだけ確定する。
+  /// 写真があるときはステージングへ書き、行更新と確定を同一トランザクションで行う。
   @override
   Future<ExerciseHistory> update({
     required String id,
@@ -114,7 +123,7 @@ final class DriftExerciseHistoryRepository
     required double averageSpeedKmh,
     Uint8List? photoBytes,
   }) async {
-    if (duration.inMilliseconds == 0) {
+    if (duration.inSeconds == 0) {
       throw ArgumentError.value(duration, 'duration', '0 では保存できない');
     }
     final existing = await _byId(id);
@@ -122,28 +131,30 @@ final class DriftExerciseHistoryRepository
       throw StateError('運動履歴が無い: $id');
     }
     final replacePhoto = photoBytes != null;
-    if (replacePhoto) {
-      await _photos.writeStaging(id, photoBytes);
-    }
     try {
-      await (_db.update(
-        _db.exerciseHistories,
-      )..where((t) => t.id.equals(id))).write(
-        ExerciseHistoriesCompanion(
-          creationStartedAt: Value(encodeUtc(creationStartedAt)),
-          capturedAt: Value(encodeUtc(capturedAt)),
-          recordedAt: Value(encodeUtc(recordedAt)),
-          recordedAtManuallySet: Value(recordedAtManuallySet),
-          distanceKm: Value(distanceKm),
-          durationMs: Value(duration.inMilliseconds),
-          caloriesKcal: Value(caloriesKcal),
-          averageSpeedKmh: Value(averageSpeedKmh),
-          photoRelativePath: Value(existing.photoRelativePath),
-        ),
-      );
       if (replacePhoto) {
-        await _photos.commitStaging(id);
+        await _photos.writeStaging(id, photoBytes);
       }
+      await _db.transaction(() async {
+        await (_db.update(
+          _db.exerciseHistories,
+        )..where((t) => t.id.equals(id))).write(
+          ExerciseHistoriesCompanion(
+            creationStartedAt: Value(encodeUtc(creationStartedAt)),
+            capturedAt: Value(encodeUtc(capturedAt)),
+            recordedAt: Value(encodeUtc(recordedAt)),
+            recordedAtManuallySet: Value(recordedAtManuallySet),
+            distanceKm: Value(distanceKm),
+            durationMs: Value(duration.inMilliseconds),
+            caloriesKcal: Value(caloriesKcal),
+            averageSpeedKmh: Value(averageSpeedKmh),
+            photoRelativePath: Value(existing.photoRelativePath),
+          ),
+        );
+        if (replacePhoto) {
+          await _photos.commitStaging(id);
+        }
+      });
     } catch (error, stack) {
       if (replacePhoto) {
         try {

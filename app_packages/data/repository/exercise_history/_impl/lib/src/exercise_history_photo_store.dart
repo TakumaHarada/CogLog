@@ -62,10 +62,15 @@ final class ExerciseHistoryPhotoStore {
   /// ```
   Future<String> write(String id, Uint8List bytes) async {
     final file = fileFor(id);
-    await file.parent.create(recursive: true);
     final temp = File('${file.path}.tmp');
-    await temp.writeAsBytes(bytes, flush: true);
-    await temp.rename(file.path);
+    try {
+      await file.parent.create(recursive: true);
+      await temp.writeAsBytes(bytes, flush: true);
+      await temp.rename(file.path);
+    } catch (error, stack) {
+      await _deleteIfExists(temp);
+      Error.throwWithStackTrace(error, stack);
+    }
     return relativePathFor(id);
   }
 
@@ -80,10 +85,16 @@ final class ExerciseHistoryPhotoStore {
   /// ```
   Future<void> writeStaging(String id, Uint8List bytes) async {
     final staging = _stagingFileFor(id);
-    await staging.parent.create(recursive: true);
     final temp = File('${staging.path}.tmp');
-    await temp.writeAsBytes(bytes, flush: true);
-    await temp.rename(staging.path);
+    try {
+      await staging.parent.create(recursive: true);
+      await temp.writeAsBytes(bytes, flush: true);
+      await temp.rename(staging.path);
+    } catch (error, stack) {
+      await _deleteIfExists(temp);
+      await _deleteIfExists(staging);
+      Error.throwWithStackTrace(error, stack);
+    }
   }
 
   /// ステージング写真を最終パスへ確定する。
@@ -112,8 +123,14 @@ final class ExerciseHistoryPhotoStore {
   /// ```
   Future<void> discardStaging(String id) async {
     final staging = _stagingFileFor(id);
-    if (await staging.exists()) {
-      await staging.delete();
+    final temp = File('${staging.path}.tmp');
+    await _deleteIfExists(staging);
+    await _deleteIfExists(temp);
+  }
+
+  Future<void> _deleteIfExists(File file) async {
+    if (await file.exists()) {
+      await file.delete();
     }
   }
 
