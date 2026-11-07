@@ -383,23 +383,26 @@ void main() {
     );
   });
 
-  test('writeStaging 失敗時に .tmp と .staging が残らない', () async {
+  test('writeStaging の rename 失敗時に .tmp が残らない', () async {
     const id = '55555555-5555-4555-8555-555555555555';
     final store = ExerciseHistoryPhotoStore(docs);
     final idPath = Directory('${docs.path}/exercise_histories/$id');
-    await idPath.parent.create(recursive: true);
-    await File(idPath.path).writeAsBytes([1], flush: true);
+    // rename 先をディレクトリにして、.tmp 書き込み後に rename を失敗させる。
+    await Directory('${idPath.path}/meter.jpg.staging').create(recursive: true);
 
     await expectLater(
       () => store.writeStaging(id, Uint8List.fromList([2])),
-      throwsA(isA<Object>()),
+      throwsA(isA<FileSystemException>()),
     );
-    expect(File('${idPath.path}/meter.jpg.staging').existsSync(), isFalse);
     expect(File('${idPath.path}/meter.jpg.staging.tmp').existsSync(), isFalse);
   });
 }
 
+/// `commitStaging` を常に [StateError] で失敗させる写真ストア。
+///
+/// 行更新後の確定失敗でトランザクションが戻ることを検証するために使う。
 final class _ThrowingCommitPhotoStore extends ExerciseHistoryPhotoStore {
+  /// [documentsRoot] を親クラスへ渡す。
   _ThrowingCommitPhotoStore(super.documentsRoot);
 
   @override
