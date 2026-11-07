@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:usecase_generate_top_advice/usecase_generate_top_advice.dart';
 
 /// 常に先頭（または指定 index）の定型を返す。
@@ -6,6 +7,7 @@ import 'package:usecase_generate_top_advice/usecase_generate_top_advice.dart';
 /// ```dart
 /// const FixedAdviceTemplatePicker();
 /// ```
+@visibleForTesting
 final class FixedAdviceTemplatePicker implements AdviceTemplatePicker {
   /// [index] 番目を返す。範囲外なら先頭。
   ///

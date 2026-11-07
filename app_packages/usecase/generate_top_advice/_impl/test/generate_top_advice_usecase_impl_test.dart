@@ -55,6 +55,9 @@ void main() {
     expect(result.advice, 'よく動けた');
     expect(llm.generateCallCount, 1);
     expect(llm.lastPrompt, contains('locale=ja'));
+    expect(llm.lastPrompt, contains('distanceKm=2.0'));
+    expect(llm.lastPrompt, contains('caloriesKcal=80.0'));
+    expect(llm.lastPrompt, contains('Reply in the language of locale=ja'));
   });
 
   test('LLM 失敗時は定型を返す', () async {
@@ -83,5 +86,34 @@ void main() {
 
     expect(result.advice, '定型A');
     expect(llm.generateCallCount, 0);
+  });
+
+  test('isAvailable 失敗時は定型へフォールバックする', () async {
+    final llm = FakeOnDeviceLlm(throwOnIsAvailable: true);
+    final result =
+        await GenerateTopAdviceUsecaseImpl(
+          llm: llm,
+          picker: const FixedAdviceTemplatePicker(),
+        ).execute(
+          request(histories: [ride(recordedAt: DateTime(2026, 11, 5, 12))]),
+        );
+
+    expect(result.advice, '定型A');
+    expect(llm.generateCallCount, 0);
+  });
+
+  test('generate タイムアウト時は定型へフォールバックする', () async {
+    final llm = FakeOnDeviceLlm(hangOnGenerate: true);
+    final result =
+        await GenerateTopAdviceUsecaseImpl(
+          llm: llm,
+          picker: const FixedAdviceTemplatePicker(index: 2),
+          generateTimeout: const Duration(milliseconds: 20),
+        ).execute(
+          request(histories: [ride(recordedAt: DateTime(2026, 11, 5, 12))]),
+        );
+
+    expect(result.advice, '定型C');
+    expect(llm.generateCallCount, 1);
   });
 }

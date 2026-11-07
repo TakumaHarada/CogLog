@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:infra_on_device_llm/infra_on_device_llm.dart';
 
 /// テスト用の固定応答 LLM。
@@ -21,6 +23,8 @@ final class FakeOnDeviceLlm implements OnDeviceLlm {
     this.available = true,
     this.response = 'fake advice',
     this.throwOnGenerate = false,
+    this.throwOnIsAvailable = false,
+    this.hangOnGenerate = false,
   });
 
   /// [isAvailable] が返す値。
@@ -31,6 +35,12 @@ final class FakeOnDeviceLlm implements OnDeviceLlm {
 
   /// true のとき [generate] が失敗する。
   final bool throwOnGenerate;
+
+  /// true のとき [isAvailable] が失敗する。
+  final bool throwOnIsAvailable;
+
+  /// true のとき [generate] が完了しない。
+  final bool hangOnGenerate;
 
   /// [generate] が呼ばれた回数。
   int generateCallCount = 0;
@@ -45,7 +55,12 @@ final class FakeOnDeviceLlm implements OnDeviceLlm {
   /// await llm.isAvailable;
   /// ```
   @override
-  Future<bool> get isAvailable async => available;
+  Future<bool> get isAvailable async {
+    if (throwOnIsAvailable) {
+      throw StateError('FakeOnDeviceLlm isAvailable failed');
+    }
+    return available;
+  }
 
   /// [response] を返すか、設定に応じて失敗する。
   ///
@@ -59,6 +74,9 @@ final class FakeOnDeviceLlm implements OnDeviceLlm {
     lastPrompt = prompt;
     if (throwOnGenerate) {
       throw StateError('FakeOnDeviceLlm generate failed');
+    }
+    if (hangOnGenerate) {
+      return Completer<String>().future;
     }
     return response;
   }

@@ -40,9 +40,10 @@ final class DefaultTopAdvicePromptBuilder implements TopAdvicePromptBuilder {
     }
     return 'locale=$locale; '
         'count=${histories.length}; '
-        'distanceKm=$distanceKm; '
-        'caloriesKcal=$caloriesKcal; '
+        'distanceKm=${distanceKm.toStringAsFixed(1)}; '
+        'caloriesKcal=${caloriesKcal.toStringAsFixed(1)}; '
         'durationMinutes=${duration.inMinutes}. '
-        'Give a short one-point exercise advice.';
+        'Give a short one-point exercise advice. '
+        'Reply in the language of locale=$locale.';
   }
 }

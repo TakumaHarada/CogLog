@@ -65,6 +65,15 @@ final class TopScreenStateToEntityDelegate {
   }
 
   /// [achievement] と実績・目標表記からリング用 Entity を作る。
+  ///
+  /// Example:
+  /// ```dart
+  /// _ring(
+  ///   achievement: achievement.calories,
+  ///   actualText: '300.0',
+  ///   goalText: '200.0',
+  /// );
+  /// ```
   TopGoalRingEntity _ring({
     required GoalMetricAchievement achievement,
     required String actualText,

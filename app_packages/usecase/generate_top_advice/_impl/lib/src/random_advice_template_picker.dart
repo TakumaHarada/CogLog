@@ -17,6 +17,7 @@ final class RandomAdviceTemplatePicker implements AdviceTemplatePicker {
   /// ```
   RandomAdviceTemplatePicker({Random? random}) : _random = random ?? Random();
 
+  /// 選択に使う乱数源。テストでは seed 固定の [Random] を渡せる。
   final Random _random;
 
   /// [templates] から一様に 1 件選ぶ。

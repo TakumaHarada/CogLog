@@ -24,6 +24,7 @@ final class GenerateTopAdviceUsecaseImpl implements GenerateTopAdviceUsecase {
     required this.llm,
     TopAdvicePromptBuilder? promptBuilder,
     AdviceTemplatePicker? picker,
+    this.generateTimeout = const Duration(seconds: 10),
   }) : promptBuilder = promptBuilder ?? const DefaultTopAdvicePromptBuilder(),
        picker = picker ?? RandomAdviceTemplatePicker();
 
@@ -35,6 +36,9 @@ final class GenerateTopAdviceUsecaseImpl implements GenerateTopAdviceUsecase {
 
   /// 定型の選択。本番は乱数。
   final AdviceTemplatePicker picker;
+
+  /// [OnDeviceLlm.generate] の上限。超過時は定型へフォールバックする。
+  final Duration generateTimeout;
 
   /// 空履歴 → 未運動定型。それ以外は LLM、失敗時は定型。
   ///
@@ -57,21 +61,20 @@ final class GenerateTopAdviceUsecaseImpl implements GenerateTopAdviceUsecase {
       return GenerateTopAdviceResult(advice: request.noExerciseTemplate);
     }
 
-    final available = await llm.isAvailable;
-    if (available) {
-      try {
+    try {
+      if (await llm.isAvailable) {
         final prompt = promptBuilder.build(
           histories: request.histories,
           locale: request.locale,
         );
-        final generated = await llm.generate(prompt);
+        final generated = await llm.generate(prompt).timeout(generateTimeout);
         final trimmed = generated.trim();
         if (trimmed.isNotEmpty) {
           return GenerateTopAdviceResult(advice: trimmed);
         }
-      } on Object {
-        // 定型へフォールバックする。
       }
+    } on Object {
+      // 可否判定の失敗・生成失敗・タイムアウトは定型へフォールバックする。
     }
 
     return GenerateTopAdviceResult(

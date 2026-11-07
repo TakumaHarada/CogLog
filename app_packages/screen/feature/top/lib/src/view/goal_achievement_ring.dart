@@ -160,6 +160,17 @@ class GoalAchievementRing extends StatelessWidget {
 /// [lap1] を内側、[lap2] を外側の弧として描く。
 final class _GoalAchievementRingPainter extends CustomPainter {
   /// 二周分の色と割合を持つ。
+  ///
+  /// Example:
+  /// ```dart
+  /// const _GoalAchievementRingPainter(
+  ///   lap1: 1,
+  ///   lap2: 0.5,
+  ///   trackColor: Colors.grey,
+  ///   lap1Color: Colors.blue,
+  ///   lap2Color: Colors.black,
+  /// );
+  /// ```
   const _GoalAchievementRingPainter({
     required this.lap1,
     required this.lap2,
@@ -183,6 +194,12 @@ final class _GoalAchievementRingPainter extends CustomPainter {
   /// 第 2 周の色。
   final Color lap2Color;
 
+  /// 軌道、第 1 周（内側）、第 2 周（外側）の順に描く。
+  ///
+  /// Example:
+  /// ```dart
+  /// CustomPaint(painter: painter);
+  /// ```
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -230,6 +247,12 @@ final class _GoalAchievementRingPainter extends CustomPainter {
     }
   }
 
+  /// 割合または色が変わったときだけ再描画する。
+  ///
+  /// Example:
+  /// ```dart
+  /// painter.shouldRepaint(oldPainter);
+  /// ```
   @override
   bool shouldRepaint(covariant _GoalAchievementRingPainter oldDelegate) =>
       lap1 != oldDelegate.lap1 ||

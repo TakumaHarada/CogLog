@@ -21,4 +21,9 @@ void main() {
     final llm = FakeOnDeviceLlm(available: false);
     expect(await llm.isAvailable, isFalse);
   });
+
+  test('throwOnIsAvailable で失敗する', () async {
+    final llm = FakeOnDeviceLlm(throwOnIsAvailable: true);
+    await expectLater(llm.isAvailable, throwsStateError);
+  });
 }
