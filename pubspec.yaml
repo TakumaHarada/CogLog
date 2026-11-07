@@ -12,6 +12,9 @@ workspace:
   - app/runner
   - app_packages/data/database
   - app_packages/data/injection
+  - app_packages/data/repository/daily_goal
+  - app_packages/data/repository/daily_goal/_impl
+  - app_packages/data/repository/daily_goal/_testing
   - app_packages/data/repository/exercise_history
   - app_packages/data/repository/exercise_history/_impl
   - app_packages/data/repository/exercise_history/_testing

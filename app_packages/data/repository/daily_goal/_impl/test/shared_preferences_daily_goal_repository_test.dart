@@ -1,0 +1,72 @@
+import 'package:data_repository_daily_goal_impl/data_repository_daily_goal_impl.dart';
+import 'package:domain_daily_goal/domain_daily_goal.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  test('未保存は unset', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final repository = SharedPreferencesDailyGoalRepository(preferences);
+
+    final goal = await repository.read();
+    expect(goal.duration, isNull);
+    expect(goal.caloriesKcal, isNull);
+    expect(goal.distanceKm, isNull);
+  });
+
+  test('0 を書いて読める', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final repository = SharedPreferencesDailyGoalRepository(preferences);
+
+    await repository.write(
+      const DailyGoal(duration: Duration.zero, caloriesKcal: 0, distanceKm: 0),
+    );
+
+    final goal = await repository.read();
+    expect(goal.duration, Duration.zero);
+    expect(goal.caloriesKcal, 0);
+    expect(goal.distanceKm, 0);
+  });
+
+  test('値を書いて読める', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final repository = SharedPreferencesDailyGoalRepository(preferences);
+
+    await repository.write(
+      const DailyGoal(
+        duration: Duration(hours: 1, minutes: 30, seconds: 15),
+        caloriesKcal: 200.5,
+        distanceKm: 5.25,
+      ),
+    );
+
+    final goal = await repository.read();
+    expect(goal.duration, const Duration(hours: 1, minutes: 30, seconds: 15));
+    expect(goal.caloriesKcal, 200.5);
+    expect(goal.distanceKm, 5.25);
+  });
+
+  test('null を書くとキーが消える', () async {
+    SharedPreferences.setMockInitialValues({
+      'daily_goal_duration_seconds': 90,
+      'daily_goal_calories_kcal': 100.0,
+      'daily_goal_distance_km': 3.0,
+    });
+    final preferences = await SharedPreferences.getInstance();
+    final repository = SharedPreferencesDailyGoalRepository(preferences);
+
+    await repository.write(DailyGoal.unset);
+
+    expect(preferences.containsKey('daily_goal_duration_seconds'), isFalse);
+    expect(preferences.containsKey('daily_goal_calories_kcal'), isFalse);
+    expect(preferences.containsKey('daily_goal_distance_km'), isFalse);
+
+    final goal = await repository.read();
+    expect(goal.duration, isNull);
+    expect(goal.caloriesKcal, isNull);
+    expect(goal.distanceKm, isNull);
+  });
+}
