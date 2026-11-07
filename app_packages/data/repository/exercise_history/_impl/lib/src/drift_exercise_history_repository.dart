@@ -17,7 +17,7 @@ import 'exercise_history_photo_store.dart';
 /// ```
 final class DriftExerciseHistoryRepository
     implements ExerciseHistoryRepository {
-  /// [database] と [photos] で永続口を作る。
+  /// [database] と写真ストアで永続口を作る。
   ///
   /// Example:
   /// ```dart
@@ -28,10 +28,9 @@ final class DriftExerciseHistoryRepository
   /// ```
   DriftExerciseHistoryRepository({
     required AppDatabase database,
-    required ExerciseHistoryPhotoStore photos,
+    required this._photos,
     String Function()? newId,
   }) : _db = database,
-       _photos = photos,
        _newId = newId ?? const Uuid().v4;
 
   final AppDatabase _db;
