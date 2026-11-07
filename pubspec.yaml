@@ -10,6 +10,7 @@ environment:
 workspace:
   - app
   - app/runner
+  - app_packages/data/database
   - app_packages/data/injection
   - app_packages/data/repository/exercise_history
   - app_packages/data/repository/exercise_history/_impl
@@ -36,6 +37,9 @@ workspace:
 
 # 実効バージョンはここで揃える。子パッケージの依存は any。
 dependency_overrides:
+  build_runner: 2.10.4
+  drift: 2.30.0
+  drift_dev: 2.30.0
   flutter_hooks: 0.21.3+1
   flutter_lints: ^6.0.0
   flutter_riverpod: 3.4.3
@@ -44,10 +48,15 @@ dependency_overrides:
   hooks_riverpod: 3.4.3
   monolith_localization_runtime: ^1.1.0
   monolith_runner: ^1.0.2
+  path: 1.9.1
+  path_provider: 2.1.5
   riverpod: 3.4.3
   shared_preferences: 2.5.6
+  sqlite3: 2.9.4
+  sqlite3_flutter_libs: 0.5.40
   state_stream: 1.0.2
   state_stream_riverpod: 2.0.1
+  uuid: 4.5.2
 
 dev_dependencies:
   flutter_lints: any

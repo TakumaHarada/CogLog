@@ -6,36 +6,71 @@
 /// Example:
 /// ```dart
 /// ExerciseHistory(
-///   recordedAt: DateTime(2026, 11, 5, 12),
+///   id: '11111111-1111-4111-8111-111111111111',
+///   savedAt: DateTime.utc(2026, 11, 5),
+///   creationStartedAt: DateTime.utc(2026, 11, 5),
+///   capturedAt: DateTime.utc(2026, 11, 5),
+///   recordedAt: DateTime.utc(2026, 11, 5, 12),
+///   recordedAtManuallySet: false,
 ///   distanceKm: 1.25,
 ///   duration: Duration(minutes: 30),
 ///   caloriesKcal: 1.25,
 ///   averageSpeedKmh: 2.5,
+///   photoRelativePath:
+///       'exercise_histories/11111111-1111-4111-8111-111111111111/meter.jpg',
 /// );
 /// ```
 final class ExerciseHistory {
-  /// 記録日時と 4 つの計測値を持つ乗車を作る。
+  /// 永続項目すべてを持つ乗車を作る。
   ///
   /// Example:
   /// ```dart
   /// ExerciseHistory(
-  ///   recordedAt: DateTime(2026, 11, 5),
+  ///   id: '11111111-1111-4111-8111-111111111111',
+  ///   savedAt: DateTime.utc(2026, 11, 5),
+  ///   creationStartedAt: DateTime.utc(2026, 11, 5),
+  ///   capturedAt: DateTime.utc(2026, 11, 5),
+  ///   recordedAt: DateTime.utc(2026, 11, 5),
+  ///   recordedAtManuallySet: false,
   ///   distanceKm: 1,
   ///   duration: Duration(minutes: 1),
   ///   caloriesKcal: 1,
   ///   averageSpeedKmh: 1,
+  ///   photoRelativePath:
+  ///       'exercise_histories/11111111-1111-4111-8111-111111111111/meter.jpg',
   /// );
   /// ```
   const ExerciseHistory({
+    required this.id,
+    required this.savedAt,
+    required this.creationStartedAt,
+    required this.capturedAt,
     required this.recordedAt,
+    required this.recordedAtManuallySet,
     required this.distanceKm,
     required this.duration,
     required this.caloriesKcal,
     required this.averageSpeedKmh,
+    required this.photoRelativePath,
   });
+
+  /// 運動履歴 ID。
+  final String id;
+
+  /// 保存日時。初回書き込みのみ。編集では変えない。
+  final DateTime savedAt;
+
+  /// 作成開始日時。
+  final DateTime creationStartedAt;
+
+  /// 撮影日時。永続化では必須。
+  final DateTime capturedAt;
 
   /// 期間へ振り分ける日時。
   final DateTime recordedAt;
+
+  /// 記録日時を利用者が手で変えたか。
+  final bool recordedAtManuallySet;
 
   /// 走行距離。単位は km。
   final double distanceKm;
@@ -48,4 +83,7 @@ final class ExerciseHistory {
 
   /// 平均速度。単位は km/h。期間の合計には使わない。
   final double averageSpeedKmh;
+
+  /// Documents からの写真相対パス。
+  final String photoRelativePath;
 }

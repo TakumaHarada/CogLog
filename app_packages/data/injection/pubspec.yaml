@@ -9,6 +9,7 @@ environment:
   flutter: ">=3.47.0 <4.0.0"
 
 dependencies:
+  data_database: any
   data_repository_exercise_history: any
   data_repository_exercise_history_impl: any
   data_repository_top_screen_metric: any

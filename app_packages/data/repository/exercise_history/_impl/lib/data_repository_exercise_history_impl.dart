@@ -1,9 +1,13 @@
-/// まだ運動履歴を保存しない本番実装。
+/// Drift による運動履歴の永続化。
 ///
 /// Example:
 /// ```dart
-/// const EmptyExerciseHistoryRepository().list();
+/// DriftExerciseHistoryRepository(
+///   database: openMemoryDatabase(),
+///   photos: ExerciseHistoryPhotoStore(Directory.systemTemp),
+/// );
 /// ```
 library;
 
-export 'src/empty_exercise_history_repository.dart';
+export 'src/drift_exercise_history_repository.dart';
+export 'src/exercise_history_photo_store.dart';

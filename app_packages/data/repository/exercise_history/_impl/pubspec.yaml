@@ -1,16 +1,24 @@
 name: data_repository_exercise_history_impl
-description: Exercise history repository that has no saved rides yet.
+description: Drift-backed exercise history repository.
 publish_to: none
 resolution: workspace
 version: 0.1.0+1
 
 environment:
   sdk: ^3.13.7
+  flutter: ">=3.47.0 <4.0.0"
 
 dependencies:
+  data_database: any
   data_repository_exercise_history: any
   domain_exercise_history: any
+  drift: any
+  flutter:
+    sdk: flutter
+  path: any
+  uuid: any
 
 dev_dependencies:
   flutter_lints: any
-  test: any
+  flutter_test:
+    sdk: flutter

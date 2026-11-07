@@ -1,10 +1,13 @@
+import 'package:data_database/data_database.dart';
 import 'package:data_injection/data_injection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:screen_injection/screen_injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 import 'package:usecase_injection/usecase_injection.dart';
 
 import 'package:app_runner/app_runner.dart';
@@ -31,12 +34,19 @@ Future<void> main() => launchCogLog();
 /// ```
 Future<void> launchCogLog() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
   final preferences = await SharedPreferences.getInstance();
+  final documents = await getApplicationDocumentsDirectory();
+  final database = openDocumentsDatabase(documents);
   final screens = ScreenGraph();
   runApp(
     ProviderScope(
       overrides: [
-        ...dataRepositoryOverrides(preferences: preferences),
+        ...dataRepositoryOverrides(
+          preferences: preferences,
+          database: database,
+          documentsDirectory: documents,
+        ),
         ...usecaseOverrides(),
         ...screenOverrides(screens),
       ],
